@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "npm --prefix app-plano-biblico run dev",
+    "build": "npm --prefix app-plano-biblico run build",
+    "start": "npm --prefix app-plano-biblico run start",
+    "lint": "npm --prefix app-plano-biblico run lint",
     "seed:plano": "node seed-plano-leitura.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

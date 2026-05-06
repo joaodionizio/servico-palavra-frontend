@@ -56,7 +56,9 @@ export default function IntroducaoPage() {
 
       {/* CITAÇÃO */}
       <section className="rounded-3xl bg-[#004B87] p-12 text-center shadow-lg relative">
-        <div className="absolute top-4 left-6 text-7xl text-white opacity-10 font-serif">"</div>
+        <div className="absolute top-4 left-6 text-7xl text-white opacity-10 font-serif">
+          &quot;
+        </div>
         <p className="relative z-10 text-2xl font-medium italic text-white leading-relaxed">
           “Ignorar as Escrituras é ignorar Cristo.”
         </p>

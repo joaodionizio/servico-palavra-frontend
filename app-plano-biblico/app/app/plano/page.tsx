@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 
@@ -24,11 +24,7 @@ export default function PlanoPage() {
   const [usuarioId, setUsuarioId] = useState<string | null>(null)
   const [mesAtual, setMesAtual] = useState(1)
 
-  useEffect(() => {
-    carregarDados()
-  }, [])
-
-  async function carregarDados() {
+  const carregarDados = useCallback(async () => {
     const { data: userData } = await supabase.auth.getUser()
 
     if (!userData.user) {
@@ -62,81 +58,9 @@ export default function PlanoPage() {
 
     setDias(diasPlano || [])
     setConcluidos((progresso || []).map((p) => p.plano_dia_id))
-  }
+  }, [router])
 
-  async function alternarConclusao(diaId: number, marcado: boolean) {
-    if (!usuarioId) return
-
-    const { error } = await supabase
-      .from('progresso_leitura')
-      .upsert(
-        {
-          usuario_id: usuarioId,
-          plano_dia_id: diaId,
-          concluido: marcado,
-          concluido_em: marcado ? new Date().toISOString() : null
-        },
-        {
-          onConflict: 'usuario_id,plano_dia_id'
-        }
-      )
-
-    if (error) {
-      console.log('Erro ao salvar progresso:', error)
-      return
-    }
-
-    let novosConcluidos: number[]
-
-    if (marcado) {
-      novosConcluidos = concluidos.includes(diaId)
-        ? concluidos
-        : [...concluidos, diaId]
-    } else {
-      novosConcluidos = concluidos.filter((id) => id !== diaId)
-    }
-
-    setConcluidos(novosConcluidos)
-
-    await atualizarSequenciaUsuario(usuarioId)
-  }
-
-  async function atualizarSequenciaUsuario(idUsuario: string) {
-    const { data, error } = await supabase
-      .from('progresso_leitura')
-      .select('concluido_em')
-      .eq('usuario_id', idUsuario)
-      .eq('concluido', true)
-      .not('concluido_em', 'is', null)
-
-    if (error) {
-      console.log('Erro ao buscar datas da sequência:', error)
-      return
-    }
-
-    const progressos = (data || []) as Progresso[]
-
-    const datas = progressos
-      .filter((item) => item.concluido_em)
-      .map((item) => item.concluido_em as string)
-
-    const { sequencia, ultimoDia } = calcularSequencia(datas)
-
-    const { error: erroRpc } = await supabase.rpc(
-      'atualizar_sequencia_usuario',
-      {
-        p_usuario_id: idUsuario,
-        p_sequencia: sequencia,
-        p_ultimo_dia: ultimoDia
-      }
-    )
-
-    if (erroRpc) {
-      console.log('Erro ao atualizar sequência:', erroRpc)
-    }
-  }
-
-  function calcularSequencia(datas: string[]) {
+  const calcularSequencia = useCallback((datas: string[]) => {
     if (datas.length === 0) {
       return {
         sequencia: 0,
@@ -178,7 +102,83 @@ export default function PlanoPage() {
       sequencia,
       ultimoDia
     }
-  }
+  }, [])
+
+  const atualizarSequenciaUsuario = useCallback(async (idUsuario: string) => {
+    const { data, error } = await supabase
+      .from('progresso_leitura')
+      .select('concluido_em')
+      .eq('usuario_id', idUsuario)
+      .eq('concluido', true)
+      .not('concluido_em', 'is', null)
+
+    if (error) {
+      console.log('Erro ao buscar datas da sequência:', error)
+      return
+    }
+
+    const progressos = (data || []) as Progresso[]
+
+    const datas = progressos
+      .filter((item) => item.concluido_em)
+      .map((item) => item.concluido_em as string)
+
+    const { sequencia, ultimoDia } = calcularSequencia(datas)
+
+    const { error: erroRpc } = await supabase.rpc(
+      'atualizar_sequencia_usuario',
+      {
+        p_usuario_id: idUsuario,
+        p_sequencia: sequencia,
+        p_ultimo_dia: ultimoDia
+      }
+    )
+
+    if (erroRpc) {
+      console.log('Erro ao atualizar sequência:', erroRpc)
+    }
+  }, [calcularSequencia])
+
+  const alternarConclusao = useCallback(async (diaId: number, marcado: boolean) => {
+    if (!usuarioId) return
+
+    const { error } = await supabase
+      .from('progresso_leitura')
+      .upsert(
+        {
+          usuario_id: usuarioId,
+          plano_dia_id: diaId,
+          concluido: marcado,
+          concluido_em: marcado ? new Date().toISOString() : null
+        },
+        {
+          onConflict: 'usuario_id,plano_dia_id'
+        }
+      )
+
+    if (error) {
+      console.log('Erro ao salvar progresso:', error)
+      return
+    }
+
+    let novosConcluidos: number[]
+
+    if (marcado) {
+      novosConcluidos = concluidos.includes(diaId)
+        ? concluidos
+        : [...concluidos, diaId]
+    } else {
+      novosConcluidos = concluidos.filter((id) => id !== diaId)
+    }
+
+    setConcluidos(novosConcluidos)
+
+    await atualizarSequenciaUsuario(usuarioId)
+  }, [atualizarSequenciaUsuario, concluidos, usuarioId])
+
+  useEffect(() => {
+    void Promise.resolve().then(carregarDados)
+  }, [carregarDados])
 
   const diasPorMes = dias.reduce<Record<number, DiaPlano[]>>((acc, dia) => {
     if (!acc[dia.mes_numero]) acc[dia.mes_numero] = []

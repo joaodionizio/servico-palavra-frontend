@@ -1,28 +1,37 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabaseClient'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [carregando, setCarregando] = useState(true)
+  const [admin, setAdmin] = useState(false)
 
-  useEffect(() => {
-    verificarUsuario()
-  }, [])
+  const verificarUsuario = useCallback(async () => {
+    const { data } = await supabase.auth.getUser()
+    const user = data.user
 
-  async function verificarUsuario() {
-    const { data } = await supabase.auth.getSession()
-
-    if (!data.session) {
+    if (!user) {
       router.push('/login')
       return
     }
 
+    const { data: perfil } = await supabase
+      .from('usuarios')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    setAdmin(perfil?.role === 'admin')
     setCarregando(false)
-  }
+  }, [router])
+
+  useEffect(() => {
+    void Promise.resolve().then(verificarUsuario)
+  }, [verificarUsuario])
 
   async function sair() {
     await supabase.auth.signOut()
@@ -95,12 +104,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               Perfil
             </Link>
 
-            <Link
-              href="/admin"
-              className="whitespace-nowrap rounded-full px-4 py-2 text-gray-500 transition hover:bg-blue-50 hover:text-[#004B87]"
-            >
-              Admin
-            </Link>
+            {admin && (
+              <Link
+                href="/admin"
+                className="whitespace-nowrap rounded-full px-4 py-2 text-gray-500 transition hover:bg-blue-50 hover:text-[#004B87]"
+              >
+                Admin
+              </Link>
+            )}
 
             <button
               onClick={sair}

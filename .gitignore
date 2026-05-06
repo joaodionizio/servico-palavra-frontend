@@ -19,6 +19,7 @@ next-env.d.ts
 # environment files
 .env
 .env.*
+!.env.example
 
 # archives and local files
 *.zip

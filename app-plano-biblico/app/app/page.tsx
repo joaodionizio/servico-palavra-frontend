@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 
@@ -32,11 +32,41 @@ export default function AppHome() {
   const [streak, setStreak] = useState(0)
   const [usuario, setUsuario] = useState<Usuario | null>(null)
 
-  useEffect(() => {
-    carregarDados()
+  const calcularStreak = useCallback((datas: string[]) => {
+    if (datas.length === 0) return 0
+
+    const diasUnicos = Array.from(
+      new Set(
+        datas.map((data) => {
+          const d = new Date(data)
+          return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+        })
+      )
+    ).sort((a, b) => b - a)
+
+    const hoje = new Date()
+    const hojeSemHora = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth(),
+      hoje.getDate()
+    ).getTime()
+
+    let streakAtual = 0
+
+    for (let i = 0; i < diasUnicos.length; i++) {
+      const dataEsperada = hojeSemHora - i * 86400000
+
+      if (diasUnicos[i] === dataEsperada) {
+        streakAtual++
+      } else {
+        break
+      }
+    }
+
+    return streakAtual
   }, [])
 
-  async function carregarDados() {
+  const carregarDados = useCallback(async () => {
     const { data: userData } = await supabase.auth.getUser()
 
     if (!userData.user) {
@@ -76,41 +106,11 @@ export default function AppHome() {
     )
 
     setStreak(usuarioData?.sequencia_atual ?? streakCalculado)
-  }
+  }, [calcularStreak, router])
 
-  function calcularStreak(datas: string[]) {
-    if (datas.length === 0) return 0
-
-    const diasUnicos = Array.from(
-      new Set(
-        datas.map((data) => {
-          const d = new Date(data)
-          return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
-        })
-      )
-    ).sort((a, b) => b - a)
-
-    const hoje = new Date()
-    const hojeSemHora = new Date(
-      hoje.getFullYear(),
-      hoje.getMonth(),
-      hoje.getDate()
-    ).getTime()
-
-    let streakAtual = 0
-
-    for (let i = 0; i < diasUnicos.length; i++) {
-      const dataEsperada = hojeSemHora - i * 86400000
-
-      if (diasUnicos[i] === dataEsperada) {
-        streakAtual++
-      } else {
-        break
-      }
-    }
-
-    return streakAtual
-  }
+  useEffect(() => {
+    void Promise.resolve().then(carregarDados)
+  }, [carregarDados])
 
   function calcularLeiturasUltimosSeteDias() {
     const hoje = new Date()

@@ -3,9 +3,17 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const confirmacaoSeed = process.env.CONFIRM_SEED_PLANO_LEITURA;
 
 if (!supabaseUrl || !supabaseServiceRoleKey) {
   console.error('Erro: configure SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no arquivo .env');
+  process.exit(1);
+}
+
+if (confirmacaoSeed !== 'SIM_APAGAR_E_RECRIAR_PLANO') {
+  console.error(
+    'Erro: defina CONFIRM_SEED_PLANO_LEITURA=SIM_APAGAR_E_RECRIAR_PLANO para confirmar a limpeza da tabela.'
+  );
   process.exit(1);
 }
 

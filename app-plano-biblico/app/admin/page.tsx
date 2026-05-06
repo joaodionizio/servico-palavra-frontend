@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 
@@ -20,34 +20,7 @@ export default function AdminPage() {
   const [usuarios, setUsuarios] = useState<UsuarioAdmin[]>([])
   const [carregando, setCarregando] = useState(true)
 
-  useEffect(() => {
-    verificarAdmin()
-  }, [])
-
-  async function verificarAdmin() {
-    const { data } = await supabase.auth.getUser()
-    const user = data.user
-
-    if (!user) {
-      router.push('/login')
-      return
-    }
-
-    const { data: perfil } = await supabase
-      .from('usuarios')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (perfil?.role !== 'admin') {
-      router.push('/app')
-      return
-    }
-
-    carregarUsuarios()
-  }
-
-  async function carregarUsuarios() {
+  const carregarUsuarios = useCallback(async () => {
     const { data } = await supabase
       .from('usuarios')
       .select(`
@@ -85,7 +58,34 @@ export default function AdminPage() {
 
     setUsuarios(ranking)
     setCarregando(false)
-  }
+  }, [])
+
+  const verificarAdmin = useCallback(async () => {
+    const { data } = await supabase.auth.getUser()
+    const user = data.user
+
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
+    const { data: perfil } = await supabase
+      .from('usuarios')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (perfil?.role !== 'admin') {
+      router.push('/app')
+      return
+    }
+
+    await carregarUsuarios()
+  }, [carregarUsuarios, router])
+
+  useEffect(() => {
+    void Promise.resolve().then(verificarAdmin)
+  }, [verificarAdmin])
 
   if (carregando) {
     return (

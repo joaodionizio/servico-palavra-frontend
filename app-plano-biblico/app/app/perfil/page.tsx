@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 
@@ -38,11 +38,7 @@ export default function PerfilPage() {
   const [mensagem, setMensagem] = useState('')
   const [erro, setErro] = useState('')
 
-  useEffect(() => {
-    carregarPerfil()
-  }, [])
-
-  async function carregarPerfil() {
+  const carregarPerfil = useCallback(async () => {
     const { data: userData } = await supabase.auth.getUser()
 
     if (!userData.user) {
@@ -80,7 +76,11 @@ export default function PerfilPage() {
     setDias(diasPlano || [])
     setProgresso(progressoData || [])
     setCarregando(false)
-  }
+  }, [router])
+
+  useEffect(() => {
+    void Promise.resolve().then(carregarPerfil)
+  }, [carregarPerfil])
 
   async function atualizarPerfil(e: React.FormEvent) {
     e.preventDefault()

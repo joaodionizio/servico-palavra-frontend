@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
 import { useParams, useRouter } from 'next/navigation'
 
@@ -35,34 +35,7 @@ export default function DetalheUsuarioPage() {
   const [totalConcluidos, setTotalConcluidos] = useState(0)
   const [carregando, setCarregando] = useState(true)
 
-  useEffect(() => {
-    verificarAdmin()
-  }, [])
-
-  async function verificarAdmin() {
-    const { data } = await supabase.auth.getUser()
-    const user = data.user
-
-    if (!user) {
-      router.push('/login')
-      return
-    }
-
-    const { data: perfil } = await supabase
-      .from('usuarios')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (perfil?.role !== 'admin') {
-      router.push('/app')
-      return
-    }
-
-    carregarDetalhes()
-  }
-
-  function pegarMesDoPlano(item: ProgressoLeitura) {
+  const pegarMesDoPlano = useCallback((item: ProgressoLeitura) => {
     const plano = item.plano_leitura_dias
 
     if (!plano) return null
@@ -72,9 +45,9 @@ export default function DetalheUsuarioPage() {
     }
 
     return plano.mes_numero
-  }
+  }, [])
 
-  async function carregarDetalhes() {
+  const carregarDetalhes = useCallback(async () => {
     const { data: usuarioData, error: usuarioError } = await supabase
       .from('usuarios')
       .select('id, nome, email')
@@ -126,7 +99,34 @@ export default function DetalheUsuarioPage() {
     setTotalConcluidos(total)
     setProgressoMeses(meses)
     setCarregando(false)
-  }
+  }, [pegarMesDoPlano, usuarioId])
+
+  const verificarAdmin = useCallback(async () => {
+    const { data } = await supabase.auth.getUser()
+    const user = data.user
+
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
+    const { data: perfil } = await supabase
+      .from('usuarios')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (perfil?.role !== 'admin') {
+      router.push('/app')
+      return
+    }
+
+    await carregarDetalhes()
+  }, [carregarDetalhes, router])
+
+  useEffect(() => {
+    void Promise.resolve().then(verificarAdmin)
+  }, [verificarAdmin])
 
   if (carregando) {
     return (
