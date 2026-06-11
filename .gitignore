@@ -13,6 +13,8 @@ node_modules/
 out/
 build/
 coverage/
+bin/
+obj/
 *.tsbuildinfo
 next-env.d.ts
 
