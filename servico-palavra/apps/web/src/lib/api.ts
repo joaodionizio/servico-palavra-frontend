@@ -1,9 +1,25 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const CSRF_ENDPOINT = "/api/auth/csrf";
+const CSRF_HEADER = "X-CSRF-TOKEN";
 
 export type ApiOptions = RequestInit;
 
 type RequestOptions = ApiOptions & {
   responseType?: "json" | "text";
+  retryCsrf?: boolean;
+};
+
+type ApiEnvelope<T> = {
+  success?: boolean;
+  data?: T;
+  message?: string | null;
+  error?: string | null;
+  errors?: string[] | null;
+  title?: string | null;
+};
+
+type CsrfPayload = {
+  token?: string;
 };
 
 export class ApiError extends Error {
@@ -16,13 +32,80 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { responseType = "json", ...requestOptions } = options;
-  const headers = new Headers(requestOptions.headers);
+let csrfToken: string | null = null;
+let csrfTokenRequest: Promise<string> | null = null;
 
-  if (!(requestOptions.body instanceof FormData)) {
+function isWriteMethod(method?: string) {
+  const normalizedMethod = (method ?? "GET").toUpperCase();
+  return !["GET", "HEAD", "OPTIONS"].includes(normalizedMethod);
+}
+
+function getErrorMessage(data: ApiEnvelope<unknown>) {
+  return data.message ?? data.error ?? data.title ?? data.errors?.join(" ") ?? null;
+}
+
+function isCsrfError(message: string) {
+  return message.toLowerCase().includes("csrf");
+}
+
+async function fetchCsrfToken() {
+  const response = await fetch(`${API_URL}${CSRF_ENDPOINT}`, {
+    method: "GET",
+    cache: "no-store",
+    credentials: "include",
+    headers: {
+      Accept: "application/json"
+    }
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Nao foi possivel preparar a seguranca da requisicao.", response.status);
+  }
+
+  const data = (await response.json()) as ApiEnvelope<CsrfPayload> & CsrfPayload;
+  const token = data.data?.token ?? data.token;
+
+  if (!token) {
+    throw new ApiError("Token CSRF nao retornado pela API.", response.status);
+  }
+
+  return token;
+}
+
+async function getCsrfToken() {
+  if (csrfToken) {
+    return csrfToken;
+  }
+
+  csrfTokenRequest ??= fetchCsrfToken()
+    .then((token) => {
+      csrfToken = token;
+      return token;
+    })
+    .finally(() => {
+      csrfTokenRequest = null;
+    });
+
+  return csrfTokenRequest;
+}
+
+async function prepareHeaders(options: RequestInit) {
+  const headers = new Headers(options.headers);
+
+  if (!(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
+
+  if (isWriteMethod(options.method)) {
+    headers.set(CSRF_HEADER, await getCsrfToken());
+  }
+
+  return headers;
+}
+
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const { responseType = "json", retryCsrf = true, ...requestOptions } = options;
+  const headers = await prepareHeaders(requestOptions);
 
   const response = await fetch(`${API_URL}${path}`, {
     ...requestOptions,
@@ -35,12 +118,17 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     let message = "Nao foi possivel concluir a solicitacao. Tente novamente.";
 
     try {
-      const data = (await response.json()) as { message?: string; error?: string; title?: string };
-      message = data.message ?? data.error ?? data.title ?? message;
+      const data = (await response.json()) as ApiEnvelope<unknown>;
+      message = getErrorMessage(data) ?? message;
     } catch {
       if (response.status >= 500) {
         message = "A API esta temporariamente indisponivel.";
       }
+    }
+
+    if (retryCsrf && isWriteMethod(requestOptions.method) && isCsrfError(message)) {
+      csrfToken = null;
+      return request<T>(path, { ...requestOptions, responseType, retryCsrf: false });
     }
 
     throw new ApiError(message, response.status);
