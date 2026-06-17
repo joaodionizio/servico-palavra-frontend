@@ -1,4 +1,5 @@
 import { BiblePlanSummaryCard } from "@/components/dashboard/BiblePlanSummaryCard";
+import { ApiHealthStatus } from "@/components/dashboard/ApiHealthStatus";
 import { ContinueWatchingCard } from "@/components/dashboard/ContinueWatchingCard";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { TrailProgressCard } from "@/components/dashboard/TrailProgressCard";
@@ -12,6 +13,9 @@ export default function DashboardPage() {
         <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Bem-vindo</p>
         <h2 className="mt-3 text-3xl font-bold text-[#004B87]">Sua jornada de formação</h2>
         <p className="mt-3 text-gray-500">Continue firme. Cada formação ajuda a aprofundar sua caminhada na Palavra.</p>
+        <div className="mt-5">
+          <ApiHealthStatus />
+        </div>
       </section>
 
       <section className="grid gap-6 md:grid-cols-4">

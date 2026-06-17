@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { logout } from "@/lib/auth";
 
 const items = [
-  ["Início", "/app/dashboard"],
+  ["Início", "/app"],
   ["Formações", "/app/formacoes"],
   ["Trilhas", "/app/trilhas"],
   ["Biblioteca", "/app/biblioteca"],
@@ -27,7 +27,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
     <div className="min-h-screen bg-[#F8FAFC] text-gray-800">
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 shadow-sm backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-          <Link href="/app/dashboard" className="flex flex-col">
+          <Link href="/app" className="flex flex-col">
             <span className="text-xs font-black uppercase tracking-[0.3em] text-[#FFCC00]">Serviço</span>
             <span className="text-xl font-black text-[#004B87] sm:text-2xl">
               {admin ? "Admin Serviço da Palavra" : "Serviço da Palavra"}

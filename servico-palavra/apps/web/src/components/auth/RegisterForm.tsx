@@ -32,7 +32,7 @@ export function RegisterForm() {
         email: String(form.get("email")),
         senha
       });
-      router.push("/app/dashboard");
+      router.push("/app");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível criar sua conta. Verifique os dados e tente novamente.");
     } finally {

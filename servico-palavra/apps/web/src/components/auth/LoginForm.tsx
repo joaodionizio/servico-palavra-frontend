@@ -24,7 +24,7 @@ export function LoginForm() {
         email: String(form.get("email")),
         senha: String(form.get("senha"))
       });
-      router.push(params.get("redirect") ?? "/app/dashboard");
+      router.push(params.get("redirect") ?? "/app");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Email ou senha inválidos.");
     } finally {

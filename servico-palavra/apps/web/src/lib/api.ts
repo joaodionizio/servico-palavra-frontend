@@ -2,6 +2,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 
 export type ApiOptions = RequestInit;
 
+type RequestOptions = ApiOptions & {
+  responseType?: "json" | "text";
+};
+
 export class ApiError extends Error {
   status: number;
 
@@ -12,15 +16,16 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, options: ApiOptions = {}): Promise<T> {
-  const headers = new Headers(options.headers);
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const { responseType = "json", ...requestOptions } = options;
+  const headers = new Headers(requestOptions.headers);
 
-  if (!(options.body instanceof FormData)) {
+  if (!(requestOptions.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
 
   const response = await fetch(`${API_URL}${path}`, {
-    ...options,
+    ...requestOptions,
     headers,
     cache: "no-store",
     credentials: "include"
@@ -45,11 +50,16 @@ async function request<T>(path: string, options: ApiOptions = {}): Promise<T> {
     return undefined as T;
   }
 
+  if (responseType === "text") {
+    return response.text() as Promise<T>;
+  }
+
   return response.json() as Promise<T>;
 }
 
 export const api = {
   get: <T>(path: string, options?: ApiOptions) => request<T>(path, { ...options, method: "GET" }),
+  getText: (path: string, options?: ApiOptions) => request<string>(path, { ...options, method: "GET", responseType: "text" }),
   post: <T, B = unknown>(path: string, body?: B, options?: ApiOptions) =>
     request<T>(path, { ...options, method: "POST", body: body ? JSON.stringify(body) : undefined }),
   put: <T, B = unknown>(path: string, body?: B, options?: ApiOptions) =>
