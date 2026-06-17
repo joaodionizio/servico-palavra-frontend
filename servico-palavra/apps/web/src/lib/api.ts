@@ -14,7 +14,7 @@ type ApiEnvelope<T> = {
   data?: T;
   message?: string | null;
   error?: string | null;
-  errors?: string[] | null;
+  errors?: string[] | Record<string, string[]> | null;
   title?: string | null;
 };
 
@@ -41,7 +41,19 @@ function isWriteMethod(method?: string) {
 }
 
 function getErrorMessage(data: ApiEnvelope<unknown>) {
-  return data.message ?? data.error ?? data.title ?? data.errors?.join(" ") ?? null;
+  if (Array.isArray(data.errors)) {
+    return data.errors.join(" ");
+  }
+
+  if (data.errors && typeof data.errors === "object") {
+    return Object.values(data.errors).flat().join(" ");
+  }
+
+  if (data.message ?? data.error ?? data.title) {
+    return data.message ?? data.error ?? data.title;
+  }
+
+  return null;
 }
 
 function isCsrfError(message: string) {
