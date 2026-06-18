@@ -14,9 +14,14 @@ const items = [
   ["Perfil", "/app/perfil"]
 ];
 
+function hasAdminRole(roles?: string[]) {
+  return roles?.some((role) => ["admin", "administrador"].includes(role.trim().toLowerCase())) ?? false;
+}
+
 export function AppShell({ children, admin = false }: { children: React.ReactNode; admin?: boolean }) {
   const router = useRouter();
-  const { signOut } = useAuth();
+  const { signOut, usuario } = useAuth();
+  const showAdminLink = admin || hasAdminRole(usuario?.roles);
 
   async function sair() {
     await signOut();
@@ -40,8 +45,8 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
                 {label}
               </Link>
             ))}
-            {admin && (
-              <Link href="/admin/dashboard" className="whitespace-nowrap rounded-full px-4 py-2 text-gray-500 transition hover:bg-blue-50 hover:text-[#004B87]">
+            {showAdminLink && (
+              <Link href="/app/admin/conteudos" className="whitespace-nowrap rounded-full px-4 py-2 text-gray-500 transition hover:bg-blue-50 hover:text-[#004B87]">
                 Admin
               </Link>
             )}

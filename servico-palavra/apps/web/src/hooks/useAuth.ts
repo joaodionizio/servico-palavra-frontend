@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, createElement, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import { getMe, login, logout, register } from "@/lib/auth";
 import type { LoginPayload, RegisterPayload, Usuario } from "@/types/auth";
 
@@ -37,7 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return requestRef.current;
     }
 
-    setStatus("loading");
+    if (status !== "authenticated") {
+      setStatus("loading");
+    }
 
     requestRef.current = getMe()
       .then((currentUsuario) => {
@@ -69,16 +71,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (payload: LoginPayload) => {
     const response = await login(payload);
-    setUsuario(response.usuario);
+    const currentUsuario = await getMe().catch(() => response.usuario);
+    setUsuario(currentUsuario);
     setStatus("authenticated");
-    return response.usuario;
+    return currentUsuario;
   }, []);
 
   const signUp = useCallback(async (payload: RegisterPayload) => {
     const response = await register(payload);
-    setUsuario(response.usuario);
+    const currentUsuario = await getMe().catch(() => response.usuario);
+    setUsuario(currentUsuario);
     setStatus("authenticated");
-    return response.usuario;
+    return currentUsuario;
   }, []);
 
   const signOut = useCallback(async () => {
@@ -86,24 +90,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUsuario(null);
     setStatus("unauthenticated");
   }, []);
-
-  useEffect(() => {
-    if (status !== "authenticated") {
-      return;
-    }
-
-    function revalidateWhenVisible() {
-      if (document.visibilityState === "visible") {
-        void refreshUsuario({ force: true });
-      }
-    }
-
-    document.addEventListener("visibilitychange", revalidateWhenVisible);
-
-    return () => {
-      document.removeEventListener("visibilitychange", revalidateWhenVisible);
-    };
-  }, [refreshUsuario, status]);
 
   const value = useMemo(
     () => ({ usuario, loading: status === "loading", status, refreshUsuario, ensureUsuario, signIn, signUp, signOut }),

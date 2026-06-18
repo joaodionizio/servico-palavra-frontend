@@ -9,9 +9,9 @@ export type Usuario = {
 };
 
 export type BackendUsuario = {
-  id: string;
-  nome: string;
-  email: string;
+  id?: string;
+  nome?: string;
+  email?: string;
   roles?: string[];
 };
 
@@ -37,6 +37,4 @@ export type ApiEnvelope<T> = {
   errors: string[] | null;
 };
 
-export type BackendAuthResponse = ApiEnvelope<{
-  usuario: BackendUsuario;
-}>;
+export type BackendAuthResponse = ApiEnvelope<BackendUsuario & { usuario?: BackendUsuario }>;

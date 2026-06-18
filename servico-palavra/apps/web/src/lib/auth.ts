@@ -3,20 +3,22 @@ import type { ApiEnvelope, AuthResponse, BackendAuthResponse, BackendUsuario, Lo
 
 function normalizeUsuario(usuario: BackendUsuario): Usuario {
   const roles = Array.isArray(usuario.roles) ? usuario.roles.filter((role): role is string => typeof role === "string") : [];
-  const isAdmin = roles.some((role) => ["admin", "administrador"].includes(role.toLowerCase()));
+  const isAdmin = roles.some((role) => ["admin", "administrador"].includes(role.trim().toLowerCase()));
 
   return {
-    id: usuario.id,
-    nome: usuario.nome,
-    email: usuario.email,
+    id: usuario.id ?? "",
+    nome: usuario.nome ?? "",
+    email: usuario.email ?? "",
     roles,
     perfil: isAdmin ? "admin" : "aluno"
   };
 }
 
 function normalizeAuthResponse(response: BackendAuthResponse): AuthResponse {
+  const usuario = response.data.usuario ?? response.data;
+
   return {
-    usuario: normalizeUsuario(response.data.usuario)
+    usuario: normalizeUsuario(usuario)
   };
 }
 
