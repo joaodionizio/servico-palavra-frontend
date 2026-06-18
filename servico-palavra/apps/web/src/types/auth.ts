@@ -4,7 +4,15 @@ export type Usuario = {
   id: string;
   nome: string;
   email: string;
+  roles: string[];
   perfil: PerfilUsuario;
+};
+
+export type BackendUsuario = {
+  id: string;
+  nome: string;
+  email: string;
+  roles?: string[];
 };
 
 export type LoginPayload = {
@@ -21,3 +29,14 @@ export type RegisterPayload = {
 export type AuthResponse = {
   usuario: Usuario;
 };
+
+export type ApiEnvelope<T> = {
+  success: boolean;
+  data: T;
+  message: string | null;
+  errors: string[] | null;
+};
+
+export type BackendAuthResponse = ApiEnvelope<{
+  usuario: BackendUsuario;
+}>;

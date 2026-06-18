@@ -5,6 +5,24 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
+function isStrongEnoughPassword(senha: string) {
+  return senha.length >= 6 && senha.length <= 8 && /[a-z]/.test(senha) && /[A-Z]/.test(senha) && /\d/.test(senha);
+}
+
+function getRegisterErrorMessage(err: unknown) {
+  const fallback = "Não foi possível criar sua conta. Verifique os dados e tente novamente.";
+
+  if (!(err instanceof Error)) {
+    return fallback;
+  }
+
+  if (err.message === "Nao foi possivel concluir o cadastro.") {
+    return "Não foi possível concluir o cadastro. Verifique se o e-mail já não está cadastrado e use uma senha de 6 a 8 caracteres, com letra maiúscula, letra minúscula e número.";
+  }
+
+  return err.message;
+}
+
 export function RegisterForm() {
   const router = useRouter();
   const { signUp } = useAuth();
@@ -17,8 +35,16 @@ export function RegisterForm() {
     setError(null);
 
     const form = new FormData(event.currentTarget);
+    const nome = String(form.get("nome") ?? "").trim();
+    const email = String(form.get("email") ?? "").trim().toLowerCase();
     const senha = String(form.get("senha"));
     const confirmarSenha = String(form.get("confirmarSenha"));
+
+    if (!nome || !email) {
+      setError("Informe nome e email para criar sua conta.");
+      setLoading(false);
+      return;
+    }
 
     if (senha !== confirmarSenha) {
       setError("As senhas não conferem.");
@@ -26,15 +52,21 @@ export function RegisterForm() {
       return;
     }
 
+    if (!isStrongEnoughPassword(senha)) {
+      setError("Use uma senha de 6 a 8 caracteres, com letra maiúscula, letra minúscula e número.");
+      setLoading(false);
+      return;
+    }
+
     try {
       await signUp({
-        nome: String(form.get("nome")),
-        email: String(form.get("email")),
+        nome,
+        email,
         senha
       });
       router.push("/app");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível criar sua conta. Verifique os dados e tente novamente.");
+      setError(getRegisterErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -53,6 +85,7 @@ export function RegisterForm() {
           className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none transition-all duration-300 focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10"
           placeholder="Seu nome"
           name="nome"
+          autoComplete="name"
           required
         />
         <input
@@ -60,6 +93,7 @@ export function RegisterForm() {
           placeholder="Seu email"
           type="email"
           name="email"
+          autoComplete="email"
           required
         />
         <input
@@ -67,6 +101,9 @@ export function RegisterForm() {
           placeholder="Crie uma senha"
           type="password"
           name="senha"
+          autoComplete="new-password"
+          minLength={6}
+          maxLength={8}
           required
         />
         <input
@@ -74,6 +111,9 @@ export function RegisterForm() {
           placeholder="Confirme sua senha"
           type="password"
           name="confirmarSenha"
+          autoComplete="new-password"
+          minLength={6}
+          maxLength={8}
           required
         />
       </div>

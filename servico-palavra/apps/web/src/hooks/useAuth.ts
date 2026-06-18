@@ -1,36 +1,124 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { getMe, login, logout, register } from "@/lib/auth";
 import type { LoginPayload, RegisterPayload, Usuario } from "@/types/auth";
 
-export function useAuth() {
+type AuthStatus = "idle" | "loading" | "authenticated" | "unauthenticated";
+
+type AuthContextValue = {
+  usuario: Usuario | null;
+  loading: boolean;
+  status: AuthStatus;
+  refreshUsuario: (options?: { force?: boolean }) => Promise<Usuario | null>;
+  ensureUsuario: () => Promise<Usuario>;
+  signIn: (payload: LoginPayload) => Promise<Usuario>;
+  signUp: (payload: RegisterPayload) => Promise<Usuario>;
+  signOut: () => Promise<void>;
+};
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<AuthStatus>("idle");
+  const requestRef = useRef<Promise<Usuario | null> | null>(null);
 
-  useEffect(() => {
-    getMe()
-      .then(setUsuario)
-      .catch(() => setUsuario(null))
-      .finally(() => setLoading(false));
-  }, []);
+  const refreshUsuario = useCallback(async (options: { force?: boolean } = {}) => {
+    if (!options.force && usuario && status === "authenticated") {
+      return usuario;
+    }
 
-  async function signIn(payload: LoginPayload) {
+    if (!options.force && status === "unauthenticated") {
+      return null;
+    }
+
+    if (!options.force && requestRef.current) {
+      return requestRef.current;
+    }
+
+    setStatus("loading");
+
+    requestRef.current = getMe()
+      .then((currentUsuario) => {
+        setUsuario(currentUsuario);
+        setStatus("authenticated");
+        return currentUsuario;
+      })
+      .catch(() => {
+        setUsuario(null);
+        setStatus("unauthenticated");
+        return null;
+      })
+      .finally(() => {
+        requestRef.current = null;
+      });
+
+    return requestRef.current;
+  }, [status, usuario]);
+
+  const ensureUsuario = useCallback(async () => {
+    const currentUsuario = await refreshUsuario();
+
+    if (!currentUsuario) {
+      throw new Error("Usuario nao autenticado.");
+    }
+
+    return currentUsuario;
+  }, [refreshUsuario]);
+
+  const signIn = useCallback(async (payload: LoginPayload) => {
     const response = await login(payload);
     setUsuario(response.usuario);
+    setStatus("authenticated");
     return response.usuario;
-  }
+  }, []);
 
-  async function signUp(payload: RegisterPayload) {
+  const signUp = useCallback(async (payload: RegisterPayload) => {
     const response = await register(payload);
     setUsuario(response.usuario);
+    setStatus("authenticated");
     return response.usuario;
-  }
+  }, []);
 
-  async function signOut() {
+  const signOut = useCallback(async () => {
     await logout().catch(() => undefined);
     setUsuario(null);
+    setStatus("unauthenticated");
+  }, []);
+
+  useEffect(() => {
+    if (status !== "authenticated") {
+      return;
+    }
+
+    function revalidateWhenVisible() {
+      if (document.visibilityState === "visible") {
+        void refreshUsuario({ force: true });
+      }
+    }
+
+    document.addEventListener("visibilitychange", revalidateWhenVisible);
+
+    return () => {
+      document.removeEventListener("visibilitychange", revalidateWhenVisible);
+    };
+  }, [refreshUsuario, status]);
+
+  const value = useMemo(
+    () => ({ usuario, loading: status === "loading", status, refreshUsuario, ensureUsuario, signIn, signUp, signOut }),
+    [ensureUsuario, refreshUsuario, signIn, signOut, signUp, status, usuario]
+  );
+
+  return createElement(AuthContext.Provider, { value }, children);
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error("useAuth deve ser usado dentro de AuthProvider.");
   }
 
-  return { usuario, loading, signIn, signUp, signOut };
+  return context;
 }

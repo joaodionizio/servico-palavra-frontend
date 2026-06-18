@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { logout } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
 
 const items = [
   ["Início", "/app"],
   ["Formações", "/app/formacoes"],
-  ["Trilhas", "/app/trilhas"],
   ["Biblioteca", "/app/biblioteca"],
   ["Favoritos", "/app/favoritos"],
   ["Plano", "/app/plano-biblico"],
@@ -17,9 +16,10 @@ const items = [
 
 export function AppShell({ children, admin = false }: { children: React.ReactNode; admin?: boolean }) {
   const router = useRouter();
+  const { signOut } = useAuth();
 
   async function sair() {
-    await logout().catch(() => undefined);
+    await signOut();
     router.push("/login");
   }
 
@@ -40,9 +40,11 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
                 {label}
               </Link>
             ))}
-            <Link href="/admin/dashboard" className="whitespace-nowrap rounded-full px-4 py-2 text-gray-500 transition hover:bg-blue-50 hover:text-[#004B87]">
-              Admin
-            </Link>
+            {admin && (
+              <Link href="/admin/dashboard" className="whitespace-nowrap rounded-full px-4 py-2 text-gray-500 transition hover:bg-blue-50 hover:text-[#004B87]">
+                Admin
+              </Link>
+            )}
             <button
               onClick={sair}
               className="whitespace-nowrap rounded-full bg-[#004B87] px-5 py-2 font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#003366] hover:shadow-md"

@@ -2,38 +2,74 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getMe } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
+import type { Usuario } from "@/types/auth";
 
-export function AuthGate({ children }: { children: React.ReactNode }) {
+type AuthGateProps = {
+  children: React.ReactNode;
+  requiredRole?: string;
+  unauthorizedRedirect?: string;
+};
+
+function hasRole(usuario: Usuario, requiredRole: string) {
+  return usuario.roles.some((role) => role.toLowerCase() === requiredRole.toLowerCase());
+}
+
+export function AuthGate({ children, requiredRole, unauthorizedRedirect = "/app" }: AuthGateProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { ensureUsuario, status, usuario } = useAuth();
   const [allowed, setAllowed] = useState(false);
-  const [checking, setChecking] = useState(true);
+  const [checking, setChecking] = useState(status !== "authenticated");
 
   useEffect(() => {
     let active = true;
 
-    getMe()
-      .then(() => {
-        if (active) {
-          setAllowed(true);
+    async function validateAccess() {
+      if (status === "authenticated" && usuario) {
+        if (requiredRole && !hasRole(usuario, requiredRole)) {
+          router.replace(unauthorizedRedirect);
+          return;
         }
-      })
-      .catch(() => {
+
+        setAllowed(true);
+        setChecking(false);
+        return;
+      }
+
+      setAllowed(false);
+      setChecking(true);
+
+      try {
+        const currentUsuario = await ensureUsuario();
+
+        if (!active) {
+          return;
+        }
+
+        if (requiredRole && !hasRole(currentUsuario, requiredRole)) {
+          router.replace(unauthorizedRedirect);
+          return;
+        }
+
+        setAllowed(true);
+      } catch {
         if (active) {
           router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
         }
-      })
-      .finally(() => {
+      } finally {
         if (active) {
           setChecking(false);
         }
-      });
+      }
+    }
+
+    void validateAccess();
 
     return () => {
       active = false;
     };
-  }, [pathname, router]);
+  }, [ensureUsuario, pathname, requiredRole, router, status, unauthorizedRedirect, usuario]);
 
   if (checking || !allowed) {
     return (
