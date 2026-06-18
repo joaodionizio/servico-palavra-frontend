@@ -53,8 +53,6 @@ Nenhum projeto .NET encontrado no estado atual:
 - `/app/dashboard`
 - `/app/formacoes`
 - `/app/formacoes/[slug]`
-- `/app/trilhas`
-- `/app/trilhas/[slug]`
 - `/app/biblioteca`
 - `/app/favoritos`
 - `/app/plano-biblico`
@@ -70,8 +68,6 @@ Nenhum projeto .NET encontrado no estado atual:
 - `/admin/conteudos/novo`
 - `/admin/conteudos/[id]/editar`
 - `/admin/categorias`
-- `/admin/trilhas`
-- `/admin/trilhas/nova`
 - `/admin/usuarios`
 - `/admin/rankings`
 
@@ -84,7 +80,6 @@ Observação: proteção de rota no frontend é apenas UX. Segurança real deve 
 - `src/components/auth/RegisterForm.tsx`
 - `src/components/layout/AppShell.tsx`
 - `src/components/conteudos/*`
-- `src/components/trilhas/*`
 - `src/components/plano-biblico/*`
 - `src/components/admin/*`
 - `src/lib/api.ts`
@@ -112,11 +107,6 @@ Observação: proteção de rota no frontend é apenas UX. Segurança real deve 
 - `DELETE /api/conteudos/{id}/favoritar`
 - `POST /api/conteudos/{id}/concluir`
 
-### Trilhas
-
-- `GET /api/trilhas`
-- `GET /api/trilhas/{id}`
-
 ### Plano bíblico
 
 - `GET /api/planos-biblicos/ativo`
@@ -133,15 +123,12 @@ Observação: proteção de rota no frontend é apenas UX. Segurança real deve 
 - `PUT /api/admin/conteudos/{id}`
 - `PATCH /api/admin/conteudos/{id}/publicar`
 - `PATCH /api/admin/conteudos/{id}/despublicar`
-- `POST /api/admin/trilhas`
-- `PUT /api/admin/trilhas/{id}`
 
 ## IDs Recebidos pela Interface
 
 No frontend V2 há rotas com:
 
 - `slug` de formação
-- `slug` de trilha
 - `id` de conteúdo admin
 
 Esses identificadores não devem autorizar acesso por si só. O backend deve validar autenticação, role e ownership para todo recurso privado.

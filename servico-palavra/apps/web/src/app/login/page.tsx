@@ -12,7 +12,7 @@ export default function LoginPage() {
             <p className="text-sm font-bold uppercase tracking-[0.35em] text-[#FFCC00]">Serviço</p>
             <h1 className="mt-4 text-4xl font-black leading-tight text-white">Serviço da Palavra</h1>
             <p className="mt-5 leading-relaxed text-white/80">
-              Acompanhe formações, trilhas, conteúdos e sua caminhada espiritual em um só lugar.
+              Acompanhe formações, favoritos, progresso e sua caminhada espiritual em um só lugar.
             </p>
           </div>
 

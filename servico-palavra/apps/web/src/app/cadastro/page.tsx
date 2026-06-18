@@ -11,7 +11,7 @@ export default function CadastroPage() {
             <p className="text-sm font-bold uppercase tracking-[0.35em] text-[#FFCC00]">Nova conta</p>
             <h1 className="mt-4 text-4xl font-black leading-tight text-white">Comece sua jornada na Palavra</h1>
             <p className="mt-5 leading-relaxed text-white/80">
-              Crie sua conta para acompanhar formações, trilhas, favoritos, progresso e plano bíblico.
+              Crie sua conta para acompanhar formações, favoritos, progresso e plano bíblico.
             </p>
           </div>
 

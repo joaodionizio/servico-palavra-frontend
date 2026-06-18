@@ -55,8 +55,6 @@ Endpoints esperados:
 - `POST /api/conteudos/{id}/favoritar`
 - `DELETE /api/conteudos/{id}/favoritar`
 - `POST /api/conteudos/{id}/concluir`
-- `GET /api/trilhas`
-- `GET /api/trilhas/{id}`
 - `GET /api/planos-biblicos/ativo`
 - `POST /api/planos-biblicos`
 - `POST /api/planos-biblicos/alterar`
@@ -72,8 +70,6 @@ Endpoints esperados:
 - `/app/dashboard`
 - `/app/formacoes`
 - `/app/formacoes/[slug]`
-- `/app/trilhas`
-- `/app/trilhas/[slug]`
 - `/app/biblioteca`
 - `/app/favoritos`
 - `/app/plano-biblico`
@@ -85,8 +81,6 @@ Endpoints esperados:
 - `/admin/conteudos/novo`
 - `/admin/conteudos/[id]/editar`
 - `/admin/categorias`
-- `/admin/trilhas`
-- `/admin/trilhas/nova`
 - `/admin/usuarios`
 - `/admin/rankings`
 
@@ -102,7 +96,6 @@ src/
     dashboard/
     layout/
     plano-biblico/
-    trilhas/
     ui/
   data/
   hooks/

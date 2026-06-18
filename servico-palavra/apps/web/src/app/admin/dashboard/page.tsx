@@ -11,7 +11,6 @@ export default function AdminDashboardPage() {
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <AdminStatsCard title="Usuarios" value="0" description="Cadastros e perfis de acesso" />
         <AdminStatsCard title="Conteudos" value="3" description="Videos, audios e materiais" />
-        <AdminStatsCard title="Trilhas" value="2" description="Sequencias de formacao" />
         <AdminStatsCard title="Planos Biblicos" value="0" description="Planos ativos e historico" />
         <AdminStatsCard title="Conteudos concluidos" value="0" description="Progresso geral dos usuarios" />
       </div>

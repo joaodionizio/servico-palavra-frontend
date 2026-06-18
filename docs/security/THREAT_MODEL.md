@@ -18,7 +18,6 @@ Escopo: frontend V2 presente neste repositório e backend esperado em repositór
 | Conteúdos | Conteúdo publicado/não publicado | Conteúdo privado aparece | I | Vazamento | Média | HIGH | Mocks apenas | Filtro backend por publicação/role | Conteúdo rascunho |
 | Favoritos | Preferências usuário | Acesso cruzado por ID | I/T | Vazamento/alteração | Alta | CRITICAL | Não verificável | Derivar UserId da sessão | UsuarioA x UsuarioB |
 | Progresso | Histórico usuário | Concluir por outro usuário | T | Corrupção de dados | Alta | CRITICAL | Não verificável | Ownership backend | Concluir recurso alheio |
-| Trilhas | Progresso trilha | Manipulação de progresso | T | Dados incorretos | Média | HIGH | Não verificável | Ownership e cálculos server-side | Progresso cruzado |
 | Plano bíblico | Plano ativo | Alterar plano alheio | T/I | Quebra privacidade | Alta | CRITICAL | UI apenas | Ownership, transações | Alterar plano de B |
 | Histórico planos | Histórico espiritual | Vazamento histórico | I | Privacidade | Alta | CRITICAL | Não verificável | Query por usuário autenticado | GET histórico alheio |
 | Continuidade plano | Posição pastoral | Pular/manipular ordem | T | Estado inconsistente | Média | HIGH | UI destaca opção | Backend ignora payload sensível | Payload adulterado |

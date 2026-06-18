@@ -1,7 +1,6 @@
 import type { Conteudo } from "@/types/conteudo";
 import type { Dashboard } from "@/types/dashboard";
 import type { DiaPlanoBiblico, PlanoBiblico } from "@/types/planoBiblico";
-import type { Trilha } from "@/types/trilha";
 
 export const categorias = [
   { id: "biblia", nome: "Biblia", descricao: "Formacao biblica para leitura, estudo e oracao." },
@@ -45,32 +44,6 @@ export const conteudos: Conteudo[] = [
   }
 ];
 
-export const trilhas: Trilha[] = [
-  {
-    id: "1",
-    slug: "biblia-e-espiritualidade",
-    titulo: "Biblia e Espiritualidade",
-    descricao: "Fundamentos para integrar estudo biblico, oracao e vida comunitaria.",
-    progresso: 42,
-    conteudos: [
-      { ordem: 1, conteudo: conteudos[0], concluido: true },
-      { ordem: 2, conteudo: conteudos[1], concluido: false, emAndamento: true },
-      { ordem: 3, conteudo: conteudos[2], concluido: false }
-    ]
-  },
-  {
-    id: "2",
-    slug: "formacao-para-leitores",
-    titulo: "Formacao para Leitores",
-    descricao: "Conteudos para preparar proclamadores da Palavra com tecnica e espiritualidade.",
-    progresso: 18,
-    conteudos: [
-      { ordem: 1, conteudo: conteudos[2], concluido: false },
-      { ordem: 2, conteudo: conteudos[0], concluido: false }
-    ]
-  }
-];
-
 export const planoAtivo: PlanoBiblico | null = null;
 
 export const diasPlano: DiaPlanoBiblico[] = [
@@ -81,7 +54,6 @@ export const diasPlano: DiaPlanoBiblico[] = [
 
 export const dashboard: Dashboard = {
   continuarAssistindo: [conteudos[0]],
-  trilhasEmAndamento: trilhas,
   ultimasFormacoes: conteudos,
   favoritos: conteudos.filter((conteudo) => conteudo.favorito),
   recomendados: [conteudos[1], conteudos[2]],

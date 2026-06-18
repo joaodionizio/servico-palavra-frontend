@@ -3,7 +3,6 @@ import Link from "next/link";
 const items = [
   ["Início", "/app/dashboard"],
   ["Formações", "/app/formacoes"],
-  ["Trilhas", "/app/trilhas"],
   ["Plano", "/app/plano-biblico"]
 ];
 
