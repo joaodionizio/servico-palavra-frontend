@@ -88,9 +88,9 @@ export default function PlanoBiblicoPage() {
 
     try {
       if (nextStatus === "concluido") {
-        await concluirDia(dia.id);
+        await concluirDia(dia.actionId ?? dia.id);
       } else {
-        await desmarcarDia(dia.id);
+        await desmarcarDia(dia.actionId ?? dia.id);
       }
     } catch (toggleError) {
       applyScheduleState(previousPlan, previousDays);

@@ -4,10 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { LinkButton } from "@/components/ui/Button";
 import { MonthlySchedule } from "@/components/plano-biblico/MonthlySchedule";
 import { BiblePlanNotFoundError, BiblePlanUnauthorizedError, concluirDia, desmarcarDia, getCronograma, getPlanoAtivo } from "@/services/biblePlanService";
-import type { DiaPlanoBiblico, PlanoBiblico } from "@/types/planoBiblico";
+import type { DiaPlanoBiblico } from "@/types/planoBiblico";
 
 export default function CronogramaPage() {
-  const [plano, setPlano] = useState<PlanoBiblico | null>(null);
   const [dias, setDias] = useState<DiaPlanoBiblico[]>([]);
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<"ready" | "empty" | "unauthorized" | "error">("ready");
@@ -22,11 +21,9 @@ export default function CronogramaPage() {
       const activePlan = await getPlanoAtivo();
       const schedule = await getCronograma(activePlan.id);
 
-      setPlano(activePlan);
       setDias(schedule);
       setState("ready");
     } catch (loadError) {
-      setPlano(null);
       setDias([]);
 
       if (loadError instanceof BiblePlanNotFoundError) {
@@ -57,9 +54,9 @@ export default function CronogramaPage() {
 
     try {
       if (nextStatus === "concluido") {
-        await concluirDia(dia.id);
+        await concluirDia(dia.actionId ?? dia.id);
       } else {
-        await desmarcarDia(dia.id);
+        await desmarcarDia(dia.actionId ?? dia.id);
       }
     } catch (toggleError) {
       setDias(previousDays);
@@ -127,11 +124,13 @@ export default function CronogramaPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 animate-fade-in">
-      <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-        <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Cronograma</p>
-        <h1 className="mt-3 text-3xl font-black text-[#004B87]">{plano?.nome ?? "Cronograma"}</h1>
-        <p className="mt-2 text-gray-500">Visão por meses, leituras reais e status de conclusão.</p>
+    <div className="mx-auto max-w-6xl space-y-12 animate-fade-in">
+      <section className="mx-auto max-w-3xl py-6 text-center">
+        <p className="text-sm font-bold uppercase tracking-[0.45em] text-[#FFCC00]">Visão geral do percurso</p>
+        <h1 className="mt-5 text-4xl font-black text-[#004B87] md:text-5xl">Cronograma Completo</h1>
+        <p className="mt-5 text-lg leading-relaxed text-gray-500">
+          Consulte as principais leituras e fases do plano organizadas por mês. A leitura diária detalhada continua disponível na aba Plano.
+        </p>
       </section>
       {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
       <MonthlySchedule dias={dias} onToggleDay={handleToggleDay} pendingDayId={pendingDayId} />

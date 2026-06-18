@@ -152,6 +152,27 @@ function normalizeStatus(source: BackendRecord): DiaPlanoBiblico["status"] {
 function normalizeDia(value: unknown): DiaPlanoBiblico {
   const source = asRecord(value);
   const dia = readNumber(source, ["diaNumero", "DiaNumero", "dia", "Dia", "numeroDia", "NumeroDia", "ordem", "Ordem"], 1);
+  const id = readString(source, ["id", "Id", "planoDiaId", "PlanoDiaId", "planoBiblicoDiaId", "PlanoBiblicoDiaId", "diaPlanoId", "DiaPlanoId"], String(dia));
+  const actionId = readString(
+    source,
+    [
+      "diaId",
+      "DiaId",
+      "planoDiaId",
+      "PlanoDiaId",
+      "planoBiblicoDiaId",
+      "PlanoBiblicoDiaId",
+      "diaPlanoId",
+      "DiaPlanoId",
+      "progressoId",
+      "ProgressoId",
+      "planoBiblicoProgressoId",
+      "PlanoBiblicoProgressoId",
+      "id",
+      "Id"
+    ],
+    id
+  );
   const leitura =
     readString(source, [
       "leiturasTexto",
@@ -185,7 +206,8 @@ function normalizeDia(value: unknown): DiaPlanoBiblico {
       .join(", ");
 
   return {
-    id: readString(source, ["id", "Id", "diaId", "DiaId"], String(dia)),
+    id,
+    actionId,
     dia,
     mes: readNumber(source, ["mesNumero", "MesNumero", "mes", "Mes"], Math.max(1, Math.ceil(dia / 30))),
     data: readString(source, ["dataPrevista", "DataPrevista"], undefined),
@@ -321,25 +343,20 @@ export async function concluirDia(diaId: string) {
   try {
     await api.post<void>(`/api/planos-biblicos/dias/${diaId}/concluir`);
   } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      throw new ApiError("Não foi possível encontrar este dia do plano para concluir.", error.status);
+    }
+
     translateApiError(error);
   }
 }
 
 export async function desmarcarDia(diaId: string) {
   try {
-    await api.delete<void>(`/api/planos-biblicos/dias/${diaId}/concluir`);
+    await api.post<void>(`/api/planos-biblicos/dias/${diaId}/desmarcar`);
   } catch (error) {
-    if (error instanceof ApiError && [404, 405].includes(error.status)) {
-      try {
-        await api.post<void>(`/api/planos-biblicos/dias/${diaId}/desmarcar`);
-        return;
-      } catch (fallbackError) {
-        if (fallbackError instanceof ApiError && [404, 405].includes(fallbackError.status)) {
-          throw new ApiError("O backend ainda não possui endpoint disponível para desmarcar leitura concluída.", fallbackError.status);
-        }
-
-        translateApiError(fallbackError);
-      }
+    if (error instanceof ApiError && error.status === 404) {
+      throw new ApiError("Não foi possível encontrar este dia do plano para desmarcar.", error.status);
     }
 
     translateApiError(error);

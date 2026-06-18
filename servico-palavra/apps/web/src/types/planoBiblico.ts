@@ -19,6 +19,7 @@ export type PlanoBiblico = {
 
 export type DiaPlanoBiblico = {
   id: string;
+  actionId?: string;
   dia: number;
   mes?: number;
   data?: string;
