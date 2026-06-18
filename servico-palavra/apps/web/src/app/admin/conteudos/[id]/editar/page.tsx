@@ -10,7 +10,7 @@ export default async function EditarConteudoPage({ params }: { params: Promise<{
         <h1 className="mt-3 text-3xl font-black text-[#004B87]">Editar conteúdo</h1>
         <p className="mt-2 text-gray-500">ID do conteúdo: {id}</p>
       </section>
-      <ContentForm mode="edit" />
+      <ContentForm mode="edit" conteudoId={id} />
     </div>
   );
 }
