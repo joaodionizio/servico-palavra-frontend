@@ -40,6 +40,10 @@ function isWriteMethod(method?: string) {
   return !["GET", "HEAD", "OPTIONS"].includes(normalizedMethod);
 }
 
+function hasRequestBody(options: RequestInit) {
+  return options.body !== undefined && options.body !== null;
+}
+
 function getErrorMessage(data: ApiEnvelope<unknown>) {
   if (Array.isArray(data.errors)) {
     return data.errors.join(" ");
@@ -104,7 +108,7 @@ async function getCsrfToken() {
 async function prepareHeaders(options: RequestInit) {
   const headers = new Headers(options.headers);
 
-  if (!(options.body instanceof FormData)) {
+  if (hasRequestBody(options) && !(options.body instanceof FormData) && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
@@ -161,11 +165,11 @@ export const api = {
   get: <T>(path: string, options?: ApiOptions) => request<T>(path, { ...options, method: "GET" }),
   getText: (path: string, options?: ApiOptions) => request<string>(path, { ...options, method: "GET", responseType: "text" }),
   post: <T, B = unknown>(path: string, body?: B, options?: ApiOptions) =>
-    request<T>(path, { ...options, method: "POST", body: body ? JSON.stringify(body) : undefined }),
+    request<T>(path, { ...options, method: "POST", body: body === undefined ? undefined : JSON.stringify(body) }),
   put: <T, B = unknown>(path: string, body?: B, options?: ApiOptions) =>
-    request<T>(path, { ...options, method: "PUT", body: body ? JSON.stringify(body) : undefined }),
+    request<T>(path, { ...options, method: "PUT", body: body === undefined ? undefined : JSON.stringify(body) }),
   patch: <T, B = unknown>(path: string, body?: B, options?: ApiOptions) =>
-    request<T>(path, { ...options, method: "PATCH", body: body ? JSON.stringify(body) : undefined }),
+    request<T>(path, { ...options, method: "PATCH", body: body === undefined ? undefined : JSON.stringify(body) }),
   delete: <T>(path: string, options?: ApiOptions) => request<T>(path, { ...options, method: "DELETE" })
 };
 

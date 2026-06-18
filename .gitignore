@@ -15,6 +15,8 @@ build/
 coverage/
 bin/
 obj/
+.turbo/
+.eslintcache
 *.tsbuildinfo
 next-env.d.ts
 
@@ -23,12 +25,34 @@ next-env.d.ts
 .env.*
 !.env.example
 
-# archives and local files
+# local databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# IDEs and editor files
+.idea/
+.vscode/
+.claude/
+
+# archives, backups, and local files
 *.zip
+*.tar
+*.tar.gz
+*.tgz
+*.tmp
+*.bak
+*.backup
 .DS_Store
 *.pem
+*.key
+*.p12
+*.crt
 
 # logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
