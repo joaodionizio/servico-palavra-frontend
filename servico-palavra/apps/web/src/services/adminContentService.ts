@@ -61,17 +61,17 @@ export type AdminMaterialApoioPayload = {
 
 export type AdminConteudoPayload = {
   titulo: string;
-  descricao: string;
+  descricao?: string;
   resumo?: string;
   tipo: number;
   origem: number;
-  url?: string;
+  url: string;
   urlThumbnail?: string;
   duracaoMinutos?: number;
-  categoriaConteudoId: string;
+  categoriaConteudoId?: string | null;
   publicado: boolean;
   destaque: boolean;
-  ordem: number;
+  ordem?: number;
   materiaisApoio?: AdminMaterialApoioPayload[];
 };
 
@@ -159,6 +159,18 @@ function normalizeCategoria(value: unknown, fallbackId = ""): CategoriaConteudo 
   };
 }
 
+function normalizeOptionalCategoria(value: unknown, fallbackId = ""): CategoriaConteudo | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  if (typeof value === "string" && !value.trim()) {
+    return null;
+  }
+
+  return normalizeCategoria(value, fallbackId);
+}
+
 function normalizeTipo(value: unknown) {
   const option =
     typeof value === "number"
@@ -225,8 +237,8 @@ function normalizeConteudo(value: unknown): AdminConteudo {
     categoriaConteudoId,
     categoria:
       categoriaValue && typeof categoriaValue === "object"
-        ? normalizeCategoria(categoriaValue, categoriaConteudoId)
-        : normalizeCategoria(readString(source, ["categoria", "Categoria"], "Categoria"), categoriaConteudoId),
+        ? normalizeOptionalCategoria(categoriaValue, categoriaConteudoId)
+        : normalizeOptionalCategoria(readString(source, ["categoria", "Categoria"], ""), categoriaConteudoId),
     tipo: tipo.tipo,
     tipoLabel: tipo.label,
     origem: origem.origem,

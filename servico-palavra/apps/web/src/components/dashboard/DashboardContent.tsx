@@ -179,7 +179,7 @@ export function DashboardContent() {
               favoriteContent.map((conteudo) => (
                 <div key={conteudo.id} className="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
                   <p className="font-bold text-[#004B87]">{conteudo.titulo}</p>
-                  <p className="mt-1 text-sm text-gray-500">{conteudo.categoria.nome}</p>
+                  <p className="mt-1 text-sm text-gray-500">{conteudo.categoria?.nome ?? "Sem categoria"}</p>
                 </div>
               ))
             ) : (

@@ -95,16 +95,32 @@ function normalizeCategoria(value: unknown): CategoriaConteudo {
   };
 }
 
+function normalizeOptionalCategoria(value: unknown): CategoriaConteudo | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  if (typeof value === "string" && !value.trim()) {
+    return null;
+  }
+
+  return normalizeCategoria(value);
+}
+
 function normalizeConteudo(value: unknown): ConteudoComProgresso {
   const source = asRecord(value);
   const categoriaValue = source.categoria ?? source.Categoria;
   const categoria =
     categoriaValue && typeof categoriaValue === "object"
-      ? normalizeCategoria(categoriaValue)
-      : normalizeCategoria({
-          id: readString(source, ["categoriaId", "CategoriaId"], "formacao"),
-          nome: readString(source, ["categoriaNome", "CategoriaNome", "categoria", "Categoria"], "Formação")
-        });
+      ? normalizeOptionalCategoria(categoriaValue)
+      : normalizeOptionalCategoria(
+          readString(source, ["categoriaNome", "CategoriaNome", "categoria", "Categoria"])
+            ? {
+                id: readString(source, ["categoriaId", "CategoriaId"]),
+                nome: readString(source, ["categoriaNome", "CategoriaNome", "categoria", "Categoria"])
+              }
+            : null
+        );
 
   const titulo = readString(source, ["titulo", "Titulo", "nome", "Nome"], "Formação");
   const id = readString(source, ["id", "Id", "conteudoId", "ConteudoId"], titulo);

@@ -150,6 +150,18 @@ function normalizeCategoria(value: unknown): CategoriaConteudo {
   };
 }
 
+function normalizeOptionalCategoria(value: unknown): CategoriaConteudo | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  if (typeof value === "string" && !value.trim()) {
+    return null;
+  }
+
+  return normalizeCategoria(value);
+}
+
 function normalizeTipo(value: unknown) {
   if (typeof value === "number") {
     return tipoConteudoMap[value] ?? { tipo: "link" as TipoConteudo, label: `Tipo ${value}` };
@@ -233,15 +245,17 @@ function normalizeConteudo(value: unknown): Conteudo {
     urlThumbnail: readString(source, ["urlThumbnail", "UrlThumbnail", "thumbnail", "Thumbnail"], undefined),
     duracaoMinutos: duracaoMinutos || undefined,
     duracao: duracaoMinutos ? `${duracaoMinutos} min` : readString(source, ["duracao", "Duracao"], undefined),
-    categoria: normalizeCategoria(
+    categoria: normalizeOptionalCategoria(
       source.categoria && typeof source.categoria === "object"
         ? source.categoria
         : source.Categoria && typeof source.Categoria === "object"
           ? source.Categoria
-          : {
+          : readString(source, ["categoria", "Categoria"])
+            ? {
               id: readString(source, ["categoriaConteudoId", "CategoriaConteudoId", "categoriaId", "CategoriaId"]),
-              nome: readString(source, ["categoria", "Categoria"], "Formação")
+              nome: readString(source, ["categoria", "Categoria"])
             }
+            : null
     ),
     materiais: readArray(source, ["materiaisApoio", "MateriaisApoio", "materiais", "Materiais"])
       .map(normalizeMaterial)

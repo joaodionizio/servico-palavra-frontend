@@ -146,7 +146,7 @@ export function AdminConteudosContent() {
             <div key={conteudo.id} className="grid gap-3 border-b border-gray-100 p-5 last:border-0 md:grid-cols-[1fr_120px_120px_220px] md:items-center">
               <div>
                 <strong className="text-[#004B87]">{conteudo.titulo}</strong>
-                <p className="mt-1 text-sm text-gray-500">{conteudo.categoria.nome}</p>
+                <p className="mt-1 text-sm text-gray-500">{conteudo.categoria?.nome ?? "Sem categoria"}</p>
               </div>
               <Badge>{conteudo.tipoLabel ?? conteudo.tipo}</Badge>
               <span className="text-sm font-semibold text-gray-500">{conteudo.publicado ? "Publicado" : "Rascunho"}</span>

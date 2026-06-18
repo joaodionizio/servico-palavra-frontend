@@ -45,7 +45,7 @@ const initialForm = {
   categoriaConteudoId: "",
   publicado: false,
   destaque: false,
-  ordem: "0"
+  ordem: ""
 };
 
 const emptyMaterial: MaterialForm = {
@@ -57,12 +57,25 @@ const emptyMaterial: MaterialForm = {
   ativo: true
 };
 
+function isCategoriaNaoEncontrada(message: string) {
+  const normalized = message
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  return normalized.includes("categoria") && normalized.includes("nao encontrada");
+}
+
 function getErrorMessage(error: unknown) {
   if (error instanceof ApiError && error.status === 403) {
     return "Você não tem permissão para gerenciar conteúdos.";
   }
 
   if (error instanceof Error && error.message) {
+    if (isCategoriaNaoEncontrada(error.message)) {
+      return "Categoria não encontrada. Escolha uma categoria existente ou mantenha a opção Sem categoria.";
+    }
+
     return error.message;
   }
 
@@ -115,10 +128,6 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
 
         if (active) {
           setCategorias(nextCategorias);
-          setForm((current) => ({
-            ...current,
-            categoriaConteudoId: current.categoriaConteudoId || nextCategorias[0]?.id || ""
-          }));
         }
       } catch (currentError) {
         if (active) {
@@ -162,7 +171,7 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
           url: conteudo.url ?? "",
           urlThumbnail: conteudo.urlThumbnail ?? "",
           duracaoMinutos: conteudo.duracaoMinutos ? String(conteudo.duracaoMinutos) : "",
-          categoriaConteudoId: conteudo.categoriaConteudoId || conteudo.categoria.id,
+          categoriaConteudoId: conteudo.categoriaConteudoId || conteudo.categoria?.id || "",
           publicado: conteudo.publicado,
           destaque: conteudo.destaque ?? false,
           ordem: String(conteudo.ordem ?? 0)
@@ -210,18 +219,19 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
   function buildPayload(): AdminConteudoPayload {
     const payload: AdminConteudoPayload = {
       titulo: form.titulo.trim(),
-      descricao: form.descricao.trim(),
+      descricao: form.descricao.trim() || undefined,
       resumo: form.resumo.trim() || undefined,
       tipo: Number(form.tipo),
       origem: Number(form.origem),
-      url: form.url.trim() || undefined,
+      url: form.url.trim(),
       urlThumbnail: form.urlThumbnail.trim() || undefined,
       duracaoMinutos: form.duracaoMinutos ? Number(form.duracaoMinutos) : undefined,
-      categoriaConteudoId: form.categoriaConteudoId,
       publicado: form.publicado,
       destaque: form.destaque,
-      ordem: Number(form.ordem) || 0
+      ordem: form.ordem ? Number(form.ordem) || 0 : undefined
     };
+
+    payload.categoriaConteudoId = form.categoriaConteudoId || null;
 
     if (mode === "create" || materiaisTouched) {
       payload.materiaisApoio = materiais.map(buildMaterialPayload).filter((material): material is AdminMaterialApoioPayload => Boolean(material));
@@ -265,30 +275,15 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="grid gap-2 text-sm font-bold text-gray-600 md:col-span-2">
-          Título
+          Título <span className="text-xs font-semibold text-[#004B87]">Obrigatório</span>
           <input value={form.titulo} onChange={(event) => updateField("titulo", event.target.value)} required className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
         </label>
         <label className="grid gap-2 text-sm font-bold text-gray-600 md:col-span-2">
-          Descrição
-          <textarea value={form.descricao} onChange={(event) => updateField("descricao", event.target.value)} required className="min-h-28 rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
-        </label>
-        <label className="grid gap-2 text-sm font-bold text-gray-600 md:col-span-2">
-          Resumo
-          <textarea value={form.resumo} onChange={(event) => updateField("resumo", event.target.value)} className="min-h-20 rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
+          URL do conteúdo <span className="text-xs font-semibold text-[#004B87]">Obrigatório</span>
+          <input type="url" value={form.url} onChange={(event) => updateField("url", event.target.value)} required className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
         </label>
         <label className="grid gap-2 text-sm font-bold text-gray-600">
-          Categoria
-          <select value={form.categoriaConteudoId} onChange={(event) => updateField("categoriaConteudoId", event.target.value)} required className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10">
-            <option value="">Selecione</option>
-            {categorias.map((categoria) => (
-              <option key={categoria.id} value={categoria.id}>
-                {categoria.nome}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="grid gap-2 text-sm font-bold text-gray-600">
-          Tipo
+          Tipo <span className="text-xs font-semibold text-[#004B87]">Obrigatório</span>
           <select value={form.tipo} onChange={(event) => updateField("tipo", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10">
             {TIPO_CONTEUDO_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -298,7 +293,7 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
           </select>
         </label>
         <label className="grid gap-2 text-sm font-bold text-gray-600">
-          Origem
+          Origem <span className="text-xs font-semibold text-[#004B87]">Obrigatório</span>
           <select value={form.origem} onChange={(event) => updateField("origem", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10">
             {ORIGEM_CONTEUDO_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -307,33 +302,58 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
             ))}
           </select>
         </label>
-        <label className="grid gap-2 text-sm font-bold text-gray-600">
-          Duração em minutos
-          <input type="number" min="0" value={form.duracaoMinutos} onChange={(event) => updateField("duracaoMinutos", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
-        </label>
-        <label className="grid gap-2 text-sm font-bold text-gray-600 md:col-span-2">
-          URL do conteúdo
-          <input type="url" value={form.url} onChange={(event) => updateField("url", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
-        </label>
-        <label className="grid gap-2 text-sm font-bold text-gray-600 md:col-span-2">
-          URL da thumbnail
-          <input type="url" value={form.urlThumbnail} onChange={(event) => updateField("urlThumbnail", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
-        </label>
-        <label className="grid gap-2 text-sm font-bold text-gray-600">
-          Ordem
-          <input type="number" value={form.ordem} onChange={(event) => updateField("ordem", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
-        </label>
-        <div className="flex flex-wrap items-center gap-5 pt-7">
-          <label className="inline-flex items-center gap-2 text-sm font-bold text-gray-600">
-            <input type="checkbox" checked={form.publicado} onChange={(event) => updateField("publicado", event.target.checked)} />
-            Publicado
-          </label>
-          <label className="inline-flex items-center gap-2 text-sm font-bold text-gray-600">
-            <input type="checkbox" checked={form.destaque} onChange={(event) => updateField("destaque", event.target.checked)} />
-            Destaque
-          </label>
-        </div>
       </div>
+
+      <section className="grid gap-4 border-t border-gray-100 pt-6">
+        <div>
+          <h2 className="text-xl font-black text-[#004B87]">Informações opcionais</h2>
+          <p className="mt-1 text-sm text-gray-500">Use estes campos apenas quando fizerem sentido para a formação.</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2 text-sm font-bold text-gray-600 md:col-span-2">
+            Descrição <span className="text-xs font-semibold text-gray-400">Opcional</span>
+            <textarea value={form.descricao} onChange={(event) => updateField("descricao", event.target.value)} className="min-h-28 rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
+          </label>
+          <label className="grid gap-2 text-sm font-bold text-gray-600 md:col-span-2">
+            Resumo <span className="text-xs font-semibold text-gray-400">Opcional</span>
+            <textarea value={form.resumo} onChange={(event) => updateField("resumo", event.target.value)} className="min-h-20 rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
+          </label>
+          <label className="grid gap-2 text-sm font-bold text-gray-600">
+            Categoria <span className="text-xs font-semibold text-gray-400">Opcional</span>
+            <select value={form.categoriaConteudoId} onChange={(event) => updateField("categoriaConteudoId", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10">
+              <option value="">Sem categoria</option>
+              {categorias.map((categoria) => (
+                <option key={categoria.id} value={categoria.id}>
+                  {categoria.nome}
+                </option>
+              ))}
+            </select>
+            {categorias.length === 0 && <span className="text-xs font-semibold text-gray-400">Nenhuma categoria cadastrada.</span>}
+          </label>
+          <label className="grid gap-2 text-sm font-bold text-gray-600">
+            Duração em minutos <span className="text-xs font-semibold text-gray-400">Opcional</span>
+            <input type="number" min="0" value={form.duracaoMinutos} onChange={(event) => updateField("duracaoMinutos", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
+          </label>
+          <label className="grid gap-2 text-sm font-bold text-gray-600 md:col-span-2">
+            URL da thumbnail <span className="text-xs font-semibold text-gray-400">Opcional</span>
+            <input type="url" value={form.urlThumbnail} onChange={(event) => updateField("urlThumbnail", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
+          </label>
+          <label className="grid gap-2 text-sm font-bold text-gray-600">
+            Ordem <span className="text-xs font-semibold text-gray-400">Opcional</span>
+            <input type="number" value={form.ordem} onChange={(event) => updateField("ordem", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
+          </label>
+          <div className="flex flex-wrap items-center gap-5 pt-7">
+            <label className="inline-flex items-center gap-2 text-sm font-bold text-gray-600">
+              <input type="checkbox" checked={form.publicado} onChange={(event) => updateField("publicado", event.target.checked)} />
+              Publicado
+            </label>
+            <label className="inline-flex items-center gap-2 text-sm font-bold text-gray-600">
+              <input type="checkbox" checked={form.destaque} onChange={(event) => updateField("destaque", event.target.checked)} />
+              Destaque
+            </label>
+          </div>
+        </div>
+      </section>
 
       <section className="grid gap-4 border-t border-gray-100 pt-6">
         <div className="flex flex-wrap items-center justify-between gap-3">

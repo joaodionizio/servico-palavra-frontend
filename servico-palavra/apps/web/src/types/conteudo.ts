@@ -48,7 +48,7 @@ export type Conteudo = {
   titulo: string;
   descricao: string;
   resumo?: string;
-  categoria: CategoriaConteudo;
+  categoria: CategoriaConteudo | null;
   tipo: TipoConteudo;
   tipoLabel?: string;
   origem?: OrigemConteudo;

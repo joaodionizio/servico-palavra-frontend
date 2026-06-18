@@ -14,7 +14,7 @@ export function ContentCard({ conteudo }: { conteudo: Conteudo }) {
         </div>
       )}
       <div className="flex flex-1 flex-col p-8">
-      <Badge>{conteudo.categoria.nome}</Badge>
+      {conteudo.categoria && <Badge>{conteudo.categoria.nome}</Badge>}
       <h3 className="mt-3 text-xl font-black text-[#004B87]">{conteudo.titulo}</h3>
       <p className="mt-2 flex-1 leading-6 text-gray-500">{conteudo.resumo ?? conteudo.descricao}</p>
       <p className="mt-4 text-sm font-bold uppercase tracking-wider text-gray-400">

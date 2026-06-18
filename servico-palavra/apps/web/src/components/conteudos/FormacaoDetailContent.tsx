@@ -108,7 +108,7 @@ export function FormacaoDetailContent({ slug }: { slug: string }) {
     <div className="mx-auto grid max-w-5xl gap-6 animate-fade-in">
       <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
         <div className="flex flex-wrap items-center gap-3">
-          <Badge>{conteudo.categoria.nome}</Badge>
+          {conteudo.categoria && <Badge>{conteudo.categoria.nome}</Badge>}
           <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-500">{conteudo.tipoLabel ?? conteudo.tipo}</span>
           {conteudo.origemLabel && <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-500">{conteudo.origemLabel}</span>}
           {conteudo.duracao && <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-500">{conteudo.duracao}</span>}
