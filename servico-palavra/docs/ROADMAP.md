@@ -5,7 +5,7 @@
 - Estrutura Next.js com App Router
 - Login, cadastro e sessao autenticada por cookie HttpOnly
 - Area logada com dashboard, formacoes, favoritos, plano biblico, cronograma e perfil
-- Area admin focada em conteudos/formacoes
+- Area admin focada em conteudos/formacoes e categorias
 - Client HTTP usando `NEXT_PUBLIC_API_URL`, `credentials: include` e CSRF em escritas
 - Integracao com API real externa
 
@@ -14,7 +14,7 @@
 - Biblioteca
 - Trilhas
 - Upload de arquivos
-- Admin avancado de usuarios, rankings e categorias
+- Admin avancado de usuarios e rankings
 
 ## Fora deste repositorio
 

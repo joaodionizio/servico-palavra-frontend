@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import type { CategoriaConteudo, Conteudo, TipoConteudo } from "@/types/conteudo";
+import type { CategoriaConteudo, Conteudo, OrigemConteudo, TipoConteudo } from "@/types/conteudo";
 import type { ConteudoComProgresso, DashboardEstatisticas, DashboardMe } from "@/types/dashboard";
 import type { DiaPlanoBiblico, DuracaoPlano, PlanoBiblico } from "@/types/planoBiblico";
 
@@ -13,6 +13,19 @@ type ApiEnvelope<T> = {
 type BackendRecord = Record<string, unknown>;
 
 const conteudoTipos: TipoConteudo[] = ["video", "audio", "documento", "link", "texto"];
+const tipoByNumber: Record<number, TipoConteudo> = {
+  1: "video",
+  2: "audio",
+  3: "documento",
+  4: "link",
+  5: "texto"
+};
+const origemByNumber: Record<number, OrigemConteudo> = {
+  1: "youtube",
+  2: "google_drive",
+  3: "externo",
+  4: "interno"
+};
 
 function unwrap<T>(response: ApiEnvelope<T> | T) {
   if (response && typeof response === "object" && "data" in response) {
@@ -78,9 +91,39 @@ function readArray(source: BackendRecord, keys: string[]) {
   return [];
 }
 
-function normalizeTipo(value: string): TipoConteudo {
-  const normalized = value.toLowerCase();
+function normalizeTipo(value: unknown): TipoConteudo {
+  if (typeof value === "number") {
+    return tipoByNumber[value] ?? "video";
+  }
+
+  const normalized = typeof value === "string" ? value.toLowerCase() : "";
   return conteudoTipos.includes(normalized as TipoConteudo) ? (normalized as TipoConteudo) : "video";
+}
+
+function normalizeOrigem(value: unknown): OrigemConteudo | undefined {
+  if (typeof value === "number") {
+    return origemByNumber[value];
+  }
+
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  if (["youtube", "google_drive", "externo", "interno"].includes(normalized)) {
+    return normalized as OrigemConteudo;
+  }
+
+  if (normalized.includes("youtube")) {
+    return "youtube";
+  }
+
+  if (normalized.includes("drive")) {
+    return "google_drive";
+  }
+
+  return undefined;
 }
 
 function normalizeCategoria(value: unknown): CategoriaConteudo {
@@ -131,9 +174,12 @@ function normalizeConteudo(value: unknown): ConteudoComProgresso {
     titulo,
     descricao: readString(source, ["descricao", "Descricao", "resumo", "Resumo"], "Conteúdo de formação disponível."),
     categoria,
-    tipo: normalizeTipo(readString(source, ["tipo", "Tipo"], "video")),
+    tipo: normalizeTipo(source.tipo ?? source.Tipo),
+    origem: normalizeOrigem(source.origem ?? source.Origem),
+    origemLabel: readString(source, ["origemLabel", "OrigemLabel"], undefined),
     duracao: readString(source, ["duracao", "Duracao", "tempoEstimado", "TempoEstimado"], undefined),
     url: readString(source, ["url", "Url"], undefined),
+    urlThumbnail: readString(source, ["urlThumbnail", "UrlThumbnail", "thumbnail", "Thumbnail"], undefined),
     publicado: readBoolean(source, ["publicado", "Publicado"], true),
     favorito: readBoolean(source, ["favorito", "Favorito"], false),
     concluido: readBoolean(source, ["concluido", "Concluido"], false),

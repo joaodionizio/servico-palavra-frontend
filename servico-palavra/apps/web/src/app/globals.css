@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #f8fafc;
@@ -6,6 +7,23 @@
   --brand-blue: #004b87;
   --brand-blue-dark: #003366;
   --brand-yellow: #ffcc00;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --border-soft: #e5e7eb;
+  --text-muted: #64748b;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #e5edf7;
+  --brand-blue: #7bb7f0;
+  --brand-blue-dark: #a9d3ff;
+  --brand-yellow: #facc15;
+  --surface: #162033;
+  --surface-muted: #1e293b;
+  --border-soft: #334155;
+  --text-muted: #b6c2d1;
+  color-scheme: dark;
 }
 
 html {
@@ -21,6 +39,64 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.dark .bg-white,
+.dark .bg-white\/95 {
+  background-color: rgb(22 32 51 / 0.96);
+}
+
+.dark .bg-\[\#F8FAFC\],
+.dark .bg-gray-50,
+.dark .bg-gray-50\/50,
+.dark .bg-gray-100 {
+  background-color: var(--surface-muted);
+}
+
+.dark .bg-blue-50,
+.dark .bg-yellow-50 {
+  background-color: rgb(30 41 59);
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200 {
+  border-color: var(--border-soft);
+}
+
+.dark .text-gray-800,
+.dark .text-gray-700,
+.dark .text-gray-600,
+.dark .text-gray-500,
+.dark .text-gray-400 {
+  color: var(--text-muted);
+}
+
+.dark .text-\[\#004B87\],
+.dark .hover\:text-\[\#004B87\]:hover {
+  color: var(--brand-blue);
+}
+
+.dark .text-\[\#FFCC00\] {
+  color: var(--brand-yellow);
+}
+
+.dark .bg-\[\#004B87\] {
+  background-color: #0a5f9f;
+}
+
+.dark .hover\:bg-\[\#003366\]:hover {
+  background-color: #0b4f83;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  color: var(--foreground);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #94a3b8;
 }
 
 button,

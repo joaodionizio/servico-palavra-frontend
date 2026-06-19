@@ -29,6 +29,13 @@ Crie um `.env.local` com:
 NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
+Use `http://localhost:5000` para backend local, ou ajuste a porta conforme a configuracao da API.
+Em producao, configure no provedor de deploy:
+
+```bash
+NEXT_PUBLIC_API_URL=https://servico-palavra-api.onrender.com
+```
+
 ## Integracao com backend
 
 O client HTTP fica em `src/lib/api.ts` e usa `NEXT_PUBLIC_API_URL` como base. Ele possui metodos `get`, `post`, `put`, `patch` e `delete`, envia cookies com `credentials: "include"` e normaliza mensagens de erro para a interface.
@@ -76,6 +83,7 @@ Endpoints esperados:
 - `/app/plano-biblico/configurar`
 - `/app/cronograma`
 - `/app/perfil`
+- `/admin/categorias`
 - `/admin/conteudos`
 - `/admin/conteudos/novo`
 - `/admin/conteudos/[id]/editar`
