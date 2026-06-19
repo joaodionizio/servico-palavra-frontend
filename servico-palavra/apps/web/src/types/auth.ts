@@ -26,6 +26,11 @@ export type RegisterPayload = {
   senha: string;
 };
 
+export type UpdateProfilePayload = {
+  nome: string;
+  email: string;
+};
+
 export type AuthResponse = {
   usuario: Usuario;
 };

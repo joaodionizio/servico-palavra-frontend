@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import type { ApiEnvelope, AuthResponse, BackendAuthResponse, BackendUsuario, LoginPayload, RegisterPayload, Usuario } from "@/types/auth";
+import type { ApiEnvelope, AuthResponse, BackendAuthResponse, BackendUsuario, LoginPayload, RegisterPayload, UpdateProfilePayload, Usuario } from "@/types/auth";
 
 function normalizeUsuario(usuario: BackendUsuario): Usuario {
   const roles = Array.isArray(usuario.roles) ? usuario.roles.filter((role): role is string => typeof role === "string") : [];
@@ -34,6 +34,11 @@ export async function register(payload: RegisterPayload) {
 
 export async function getMe() {
   const response = await api.get<ApiEnvelope<BackendUsuario>>("/api/auth/me");
+  return normalizeUsuario(response.data);
+}
+
+export async function updateMe(payload: UpdateProfilePayload) {
+  const response = await api.put<ApiEnvelope<BackendUsuario>, UpdateProfilePayload>("/api/auth/me", payload);
   return normalizeUsuario(response.data);
 }
 

@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, createElement, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
-import { getMe, login, logout, register } from "@/lib/auth";
-import type { LoginPayload, RegisterPayload, Usuario } from "@/types/auth";
+import { getMe, login, logout, register, updateMe } from "@/lib/auth";
+import type { LoginPayload, RegisterPayload, UpdateProfilePayload, Usuario } from "@/types/auth";
 
 type AuthStatus = "idle" | "loading" | "authenticated" | "unauthenticated";
 
@@ -14,6 +14,7 @@ type AuthContextValue = {
   ensureUsuario: () => Promise<Usuario>;
   signIn: (payload: LoginPayload) => Promise<Usuario>;
   signUp: (payload: RegisterPayload) => Promise<Usuario>;
+  updateProfile: (payload: UpdateProfilePayload) => Promise<Usuario>;
   signOut: () => Promise<void>;
 };
 
@@ -85,6 +86,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return currentUsuario;
   }, []);
 
+  const updateProfile = useCallback(async (payload: UpdateProfilePayload) => {
+    const currentUsuario = await updateMe(payload);
+    setUsuario(currentUsuario);
+    setStatus("authenticated");
+    return currentUsuario;
+  }, []);
+
   const signOut = useCallback(async () => {
     await logout().catch(() => undefined);
     setUsuario(null);
@@ -92,8 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ usuario, loading: status === "loading", status, refreshUsuario, ensureUsuario, signIn, signUp, signOut }),
-    [ensureUsuario, refreshUsuario, signIn, signOut, signUp, status, usuario]
+    () => ({ usuario, loading: status === "loading", status, refreshUsuario, ensureUsuario, signIn, signUp, updateProfile, signOut }),
+    [ensureUsuario, refreshUsuario, signIn, signOut, signUp, status, updateProfile, usuario]
   );
 
   return createElement(AuthContext.Provider, { value }, children);
