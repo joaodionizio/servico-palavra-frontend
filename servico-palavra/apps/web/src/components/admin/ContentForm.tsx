@@ -29,8 +29,6 @@ type MaterialForm = {
   descricao: string;
   tipo: string;
   url: string;
-  ordem: string;
-  ativo: boolean;
 };
 
 const initialForm = {
@@ -43,7 +41,6 @@ const initialForm = {
   urlThumbnail: "",
   duracaoMinutos: "",
   categoriaConteudoId: "",
-  publicado: false,
   destaque: false,
   ordem: ""
 };
@@ -52,9 +49,7 @@ const emptyMaterial: MaterialForm = {
   titulo: "",
   descricao: "",
   tipo: "1",
-  url: "",
-  ordem: "1",
-  ativo: true
+  url: ""
 };
 
 function isCategoriaNaoEncontrada(message: string) {
@@ -82,18 +77,16 @@ function getErrorMessage(error: unknown) {
   return "Não foi possível salvar o conteúdo. Verifique os dados e tente novamente.";
 }
 
-function toMaterialForm(material: AdminMaterialApoio, index: number): MaterialForm {
+function toMaterialForm(material: AdminMaterialApoio): MaterialForm {
   return {
     titulo: material.titulo,
     descricao: material.descricao ?? "",
     tipo: String(getTipoMaterialApoioNumber(material.tipo)),
-    url: material.url,
-    ordem: String(material.ordem ?? index + 1),
-    ativo: material.ativo ?? true
+    url: material.url
   };
 }
 
-function buildMaterialPayload(material: MaterialForm, index: number): AdminMaterialApoioPayload | null {
+function buildMaterialPayload(material: MaterialForm): AdminMaterialApoioPayload | null {
   if (!material.titulo.trim() && !material.url.trim()) {
     return null;
   }
@@ -102,9 +95,7 @@ function buildMaterialPayload(material: MaterialForm, index: number): AdminMater
     titulo: material.titulo.trim(),
     descricao: material.descricao.trim() || undefined,
     tipo: Number(material.tipo),
-    url: material.url.trim(),
-    ordem: Number(material.ordem) || index + 1,
-    ativo: material.ativo
+    url: material.url.trim()
   };
 }
 
@@ -172,7 +163,6 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
           urlThumbnail: conteudo.urlThumbnail ?? "",
           duracaoMinutos: conteudo.duracaoMinutos ? String(conteudo.duracaoMinutos) : "",
           categoriaConteudoId: conteudo.categoriaConteudoId || conteudo.categoria?.id || "",
-          publicado: conteudo.publicado,
           destaque: conteudo.destaque ?? false,
           ordem: String(conteudo.ordem ?? 0)
         });
@@ -208,7 +198,7 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
 
   function addMaterial() {
     setMateriaisTouched(true);
-    setMateriais((current) => [...current, { ...emptyMaterial, ordem: String(current.length + 1) }]);
+    setMateriais((current) => [...current, { ...emptyMaterial }]);
   }
 
   function removeMaterial(index: number) {
@@ -216,7 +206,7 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
     setMateriais((current) => current.filter((_, materialIndex) => materialIndex !== index));
   }
 
-  function buildPayload(): AdminConteudoPayload {
+  function buildPayload(options: { draft?: boolean } = {}): AdminConteudoPayload {
     const payload: AdminConteudoPayload = {
       titulo: form.titulo.trim(),
       descricao: form.descricao.trim() || undefined,
@@ -226,15 +216,27 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
       url: form.url.trim(),
       urlThumbnail: form.urlThumbnail.trim() || undefined,
       duracaoMinutos: form.duracaoMinutos ? Number(form.duracaoMinutos) : undefined,
-      publicado: form.publicado,
-      destaque: form.destaque,
       ordem: form.ordem ? Number(form.ordem) || 0 : undefined
     };
 
-    payload.categoriaConteudoId = form.categoriaConteudoId || null;
+    if (form.destaque || mode === "edit") {
+      payload.destaque = form.destaque;
+    }
 
-    if (mode === "create" || materiaisTouched) {
-      payload.materiaisApoio = materiais.map(buildMaterialPayload).filter((material): material is AdminMaterialApoioPayload => Boolean(material));
+    if (form.categoriaConteudoId) {
+      payload.categoriaConteudoId = form.categoriaConteudoId;
+    } else if (mode === "edit") {
+      payload.categoriaConteudoId = null;
+    }
+
+    if (mode === "create" && options.draft) {
+      payload.publicado = false;
+    }
+
+    const materiaisPayload = materiais.map(buildMaterialPayload).filter((material): material is AdminMaterialApoioPayload => Boolean(material));
+
+    if ((mode === "create" && materiaisPayload.length > 0) || (mode === "edit" && materiaisTouched)) {
+      payload.materiaisApoio = materiaisPayload;
     }
 
     return payload;
@@ -247,7 +249,9 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
     setMessage("");
 
     try {
-      const payload = buildPayload();
+      const submitter = (event.nativeEvent as SubmitEvent).submitter;
+      const draft = submitter instanceof HTMLButtonElement && submitter.value === "draft";
+      const payload = buildPayload({ draft });
 
       if (mode === "edit" && conteudoId) {
         await updateAdminConteudo(conteudoId, payload);
@@ -344,10 +348,6 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
           </label>
           <div className="flex flex-wrap items-center gap-5 pt-7">
             <label className="inline-flex items-center gap-2 text-sm font-bold text-gray-600">
-              <input type="checkbox" checked={form.publicado} onChange={(event) => updateField("publicado", event.target.checked)} />
-              Publicado
-            </label>
-            <label className="inline-flex items-center gap-2 text-sm font-bold text-gray-600">
               <input type="checkbox" checked={form.destaque} onChange={(event) => updateField("destaque", event.target.checked)} />
               Destaque
             </label>
@@ -357,7 +357,10 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
 
       <section className="grid gap-4 border-t border-gray-100 pt-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-xl font-black text-[#004B87]">Materiais de apoio</h2>
+          <div>
+            <h2 className="text-xl font-black text-[#004B87]">Materiais de apoio</h2>
+            <p className="mt-1 text-sm text-gray-500">Na V2 inicial, materiais de apoio são links externos. Upload de arquivos poderá ser implementado futuramente com storage próprio.</p>
+          </div>
           <Button type="button" variant="secondary" onClick={addMaterial}>
             Adicionar material
           </Button>
@@ -367,7 +370,7 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
 
         {materiais.map((material, index) => (
           <div key={index} className="grid gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4 md:grid-cols-2">
-            <input value={material.titulo} onChange={(event) => updateMaterial(index, "titulo", event.target.value)} placeholder="Título do material" className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#004B87]" />
+            <input value={material.titulo} onChange={(event) => updateMaterial(index, "titulo", event.target.value)} placeholder="Título do material" required className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#004B87]" />
             <select value={material.tipo} onChange={(event) => updateMaterial(index, "tipo", event.target.value)} className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#004B87]">
               {TIPO_MATERIAL_APOIO_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -375,14 +378,9 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
                 </option>
               ))}
             </select>
-            <input value={material.url} onChange={(event) => updateMaterial(index, "url", event.target.value)} placeholder="https://..." className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#004B87] md:col-span-2" />
-            <input value={material.descricao} onChange={(event) => updateMaterial(index, "descricao", event.target.value)} placeholder="Descrição" className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#004B87]" />
-            <input type="number" value={material.ordem} onChange={(event) => updateMaterial(index, "ordem", event.target.value)} placeholder="Ordem" className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#004B87]" />
+            <input type="url" value={material.url} onChange={(event) => updateMaterial(index, "url", event.target.value)} placeholder="https://..." required className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#004B87] md:col-span-2" />
+            <input value={material.descricao} onChange={(event) => updateMaterial(index, "descricao", event.target.value)} placeholder="Descrição opcional" className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#004B87] md:col-span-2" />
             <div className="flex flex-wrap items-center justify-between gap-3 md:col-span-2">
-              <label className="inline-flex items-center gap-2 text-sm font-bold text-gray-600">
-                <input type="checkbox" checked={material.ativo} onChange={(event) => updateMaterial(index, "ativo", event.target.checked)} />
-                Ativo
-              </label>
               <Button type="button" variant="ghost" onClick={() => removeMaterial(index)}>
                 Remover
               </Button>
@@ -392,9 +390,14 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
       </section>
 
       <div className="flex flex-wrap gap-3">
-        <Button type="submit" disabled={saving}>
-          {saving ? "Salvando..." : mode === "edit" ? "Salvar alterações" : "Criar conteúdo"}
+        <Button type="submit" disabled={saving} value="publish">
+          {saving ? "Salvando..." : mode === "edit" ? "Salvar alterações" : "Criar e publicar"}
         </Button>
+        {mode === "create" && (
+          <Button type="submit" variant="secondary" disabled={saving} value="draft">
+            Salvar como rascunho
+          </Button>
+        )}
         <LinkButton href="/admin/conteudos" variant="secondary">
           Voltar
         </LinkButton>

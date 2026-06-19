@@ -1,9 +1,43 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { ContentCard } from "@/components/conteudos/ContentCard";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { conteudos } from "@/data/mocks";
+import { Loading } from "@/components/ui/Loading";
+import { listFavoritos } from "@/services/contentService";
+import type { Conteudo } from "@/types/conteudo";
+
+type FavoritosState =
+  | { status: "loading"; conteudos: Conteudo[]; message?: never }
+  | { status: "ready"; conteudos: Conteudo[]; message?: never }
+  | { status: "error"; conteudos: Conteudo[]; message: string };
 
 export default function FavoritosPage() {
-  const favoritos = conteudos.filter((conteudo) => conteudo.favorito);
+  const [state, setState] = useState<FavoritosState>({ status: "loading", conteudos: [] });
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadFavoritos() {
+      try {
+        const conteudos = await listFavoritos();
+
+        if (active) {
+          setState({ status: "ready", conteudos });
+        }
+      } catch {
+        if (active) {
+          setState({ status: "error", conteudos: [], message: "Não foi possível carregar seus favoritos agora." });
+        }
+      }
+    }
+
+    void loadFavoritos();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">
@@ -12,13 +46,16 @@ export default function FavoritosPage() {
         <h1 className="mt-3 text-3xl font-black text-[#004B87]">Favoritos</h1>
         <p className="mt-2 text-gray-500">Conteúdos separados para revisitar com calma.</p>
       </section>
-      {favoritos.length === 0 ? (
-        <div className="mt-6">
-          <EmptyState title="Nenhum favorito ainda" description="Favorite formacoes para encontra-las aqui." />
-        </div>
-      ) : (
+
+      {state.status === "loading" && <Loading label="Carregando favoritos..." />}
+      {state.status === "error" && <EmptyState title="Não foi possível carregar" description={state.message} />}
+      {state.status === "ready" && state.conteudos.length === 0 && (
+        <EmptyState title="Nenhum favorito ainda" description="Favorite formações para encontrá-las aqui." />
+      )}
+
+      {state.conteudos.length > 0 && (
         <div className="grid gap-6 md:grid-cols-3">
-          {favoritos.map((conteudo) => (
+          {state.conteudos.map((conteudo) => (
             <ContentCard key={conteudo.id} conteudo={conteudo} />
           ))}
         </div>

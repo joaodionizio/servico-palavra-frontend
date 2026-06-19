@@ -7,7 +7,6 @@ import { useAuth } from "@/hooks/useAuth";
 const items = [
   ["Início", "/app"],
   ["Formações", "/app/formacoes"],
-  ["Biblioteca", "/app/biblioteca"],
   ["Favoritos", "/app/favoritos"],
   ["Plano", "/app/plano-biblico"],
   ["Cronograma", "/app/cronograma"],

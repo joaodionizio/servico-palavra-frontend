@@ -55,8 +55,6 @@ export type AdminMaterialApoioPayload = {
   descricao?: string;
   tipo: number;
   url: string;
-  ordem: number;
-  ativo: boolean;
 };
 
 export type AdminConteudoPayload = {
@@ -69,8 +67,8 @@ export type AdminConteudoPayload = {
   urlThumbnail?: string;
   duracaoMinutos?: number;
   categoriaConteudoId?: string | null;
-  publicado: boolean;
-  destaque: boolean;
+  publicado?: boolean;
+  destaque?: boolean;
   ordem?: number;
   materiaisApoio?: AdminMaterialApoioPayload[];
 };
@@ -323,4 +321,8 @@ export async function updateAdminConteudo(id: string, payload: AdminConteudoPayl
 
 export async function updateAdminConteudoPublicacao(id: string, publicado: boolean) {
   await api.patch<void, { publicado: boolean }>(`/api/admin/conteudos/${encodeURIComponent(id)}/publicacao`, { publicado });
+}
+
+export async function deleteAdminConteudo(id: string) {
+  await api.delete<void>(`/api/admin/conteudos/${encodeURIComponent(id)}`);
 }

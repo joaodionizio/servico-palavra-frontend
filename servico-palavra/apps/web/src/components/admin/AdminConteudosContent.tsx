@@ -6,7 +6,7 @@ import { Button, LinkButton } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Loading } from "@/components/ui/Loading";
 import { ApiError } from "@/lib/api";
-import { listAdminConteudos, TIPO_CONTEUDO_OPTIONS, updateAdminConteudoPublicacao } from "@/services/adminContentService";
+import { deleteAdminConteudo, listAdminConteudos, TIPO_CONTEUDO_OPTIONS, updateAdminConteudoPublicacao } from "@/services/adminContentService";
 import type { AdminConteudo, AdminConteudoPage } from "@/types/conteudo";
 import { listCategoriasConteudo } from "@/services/categoryService";
 import type { CategoriaConteudo } from "@/types/conteudo";
@@ -38,6 +38,7 @@ export function AdminConteudosContent() {
   const [state, setState] = useState<AdminConteudosState>({ status: "loading", page: null });
   const [actionMessage, setActionMessage] = useState("");
   const [actionError, setActionError] = useState("");
+  const [deletingId, setDeletingId] = useState("");
 
   async function loadConteudos(nextPage = 1) {
     setState({ status: "loading", page: null });
@@ -82,6 +83,43 @@ export function AdminConteudosContent() {
       await loadConteudos(state.status === "ready" ? state.page.pagina : 1);
     } catch (error) {
       setActionError(getErrorMessage(error));
+    }
+  }
+
+  async function excluirConteudo(conteudo: AdminConteudo) {
+    const confirmado = window.confirm(`Excluir o conteúdo "${conteudo.titulo}"? Esta ação não pode ser desfeita.`);
+
+    if (!confirmado) {
+      return;
+    }
+
+    setDeletingId(conteudo.id);
+    setActionError("");
+    setActionMessage("");
+
+    try {
+      await deleteAdminConteudo(conteudo.id);
+      setActionMessage("Conteúdo excluído.");
+      setState((current) => {
+        if (current.status !== "ready") {
+          return current;
+        }
+
+        const itens = current.page.itens.filter((item) => item.id !== conteudo.id);
+
+        return {
+          status: "ready",
+          page: {
+            ...current.page,
+            itens,
+            totalItens: Math.max(0, current.page.totalItens - 1)
+          }
+        };
+      });
+    } catch (error) {
+      setActionError(getErrorMessage(error));
+    } finally {
+      setDeletingId("");
     }
   }
 
@@ -143,7 +181,7 @@ export function AdminConteudosContent() {
       {conteudos.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
           {conteudos.map((conteudo) => (
-            <div key={conteudo.id} className="grid gap-3 border-b border-gray-100 p-5 last:border-0 md:grid-cols-[1fr_120px_120px_220px] md:items-center">
+            <div key={conteudo.id} className="grid gap-3 border-b border-gray-100 p-5 last:border-0 md:grid-cols-[1fr_120px_120px_300px] md:items-center">
               <div>
                 <strong className="text-[#004B87]">{conteudo.titulo}</strong>
                 <p className="mt-1 text-sm text-gray-500">{conteudo.categoria?.nome ?? "Sem categoria"}</p>
@@ -157,6 +195,9 @@ export function AdminConteudosContent() {
                 <LinkButton href={`/admin/conteudos/${conteudo.id}/editar`} variant="secondary">
                   Editar
                 </LinkButton>
+                <Button type="button" variant="ghost" disabled={deletingId === conteudo.id} onClick={() => excluirConteudo(conteudo)}>
+                  {deletingId === conteudo.id ? "Excluindo..." : "Excluir"}
+                </Button>
               </div>
             </div>
           ))}

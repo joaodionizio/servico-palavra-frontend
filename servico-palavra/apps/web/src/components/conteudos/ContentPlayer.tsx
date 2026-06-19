@@ -1,15 +1,17 @@
 import { Card } from "@/components/ui/Card";
+import { getConteudoThumbnailUrl } from "@/lib/youtube";
 import type { Conteudo } from "@/types/conteudo";
 
 export function ContentPlayer({ conteudo }: { conteudo: Conteudo }) {
   const actionLabel = conteudo.tipo === "audio" ? "Abrir áudio" : conteudo.tipo === "video" ? "Abrir vídeo" : "Abrir conteúdo";
 
   const icon = conteudo.tipo === "audio" ? "🎧" : conteudo.tipo === "documento" ? "📄" : conteudo.tipo === "texto" ? "✍️" : "🎬";
+  const thumbnailUrl = getConteudoThumbnailUrl(conteudo);
 
   return (
     <Card className="grid gap-6 md:grid-cols-[220px_1fr] md:items-center">
-      {conteudo.urlThumbnail ? (
-        <img src={conteudo.urlThumbnail} alt="" className="aspect-video w-full rounded-xl object-cover md:aspect-square" />
+      {thumbnailUrl ? (
+        <img src={thumbnailUrl} alt={`Capa de ${conteudo.titulo}`} className="aspect-video w-full rounded-xl object-cover md:aspect-square" />
       ) : (
         <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-blue-50 text-5xl md:aspect-square">{icon}</div>
       )}

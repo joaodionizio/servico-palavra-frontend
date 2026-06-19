@@ -12,6 +12,11 @@ import type {
 
 type BackendRecord = Record<string, unknown>;
 
+type ApiEnvelope<T> = {
+  success?: boolean;
+  data?: T;
+};
+
 type BackendConteudoPage = {
   itens?: unknown[];
   pagina?: number;
@@ -83,6 +88,14 @@ const tipoMaterialAliases: Record<string, TipoMaterialApoio> = {
 
 function asRecord(value: unknown): BackendRecord {
   return value && typeof value === "object" ? (value as BackendRecord) : {};
+}
+
+function unwrap<T>(response: ApiEnvelope<T> | T): T {
+  if (response && typeof response === "object" && "data" in response) {
+    return (response as ApiEnvelope<T>).data as T;
+  }
+
+  return response as T;
 }
 
 function readString(source: BackendRecord, keys: string[], fallback = "") {
@@ -288,20 +301,31 @@ function buildQuery(params: ConteudoListParams) {
 }
 
 export async function listConteudos(params: ConteudoListParams = {}): Promise<ConteudoPage> {
-  const response = await api.get<BackendConteudoPage>(`/api/conteudos?${buildQuery(params)}`);
+  const response = await api.get<ApiEnvelope<unknown> | unknown>(`/api/conteudos?${buildQuery(params)}`);
+  const data = unwrap(response);
+  const source = asRecord(data);
+  const itens = Array.isArray(data) ? data : readArray(source, ["itens", "Itens"]);
 
   return {
-    itens: (response.itens ?? []).map(normalizeConteudo),
-    pagina: response.pagina ?? params.pagina ?? 1,
-    tamanhoPagina: response.tamanhoPagina ?? params.tamanhoPagina ?? 12,
-    totalItens: response.totalItens ?? 0,
-    totalPaginas: response.totalPaginas ?? 1
+    itens: itens.map(normalizeConteudo),
+    pagina: readNumber(source, ["pagina", "Pagina"], params.pagina ?? 1),
+    tamanhoPagina: readNumber(source, ["tamanhoPagina", "TamanhoPagina"], params.tamanhoPagina ?? 12),
+    totalItens: readNumber(source, ["totalItens", "TotalItens"], itens.length),
+    totalPaginas: readNumber(source, ["totalPaginas", "TotalPaginas"], 1)
   };
 }
 
 export async function getConteudoBySlug(slug: string) {
-  const response = await api.get<unknown>(`/api/conteudos/${encodeURIComponent(slug)}`);
-  return normalizeConteudo(response);
+  const response = await api.get<ApiEnvelope<unknown> | unknown>(`/api/conteudos/${encodeURIComponent(slug)}`);
+  return normalizeConteudo(unwrap(response));
+}
+
+export async function listFavoritos() {
+  const response = await api.get<ApiEnvelope<unknown[]> | unknown[]>("/api/favoritos");
+  const data = unwrap(response);
+  const itens = Array.isArray(data) ? data : [];
+
+  return itens.map((conteudo) => ({ ...normalizeConteudo(conteudo), favorito: true }));
 }
 
 export async function favoritarConteudo(conteudoId: string) {

@@ -50,11 +50,12 @@ Endpoints esperados:
 - `GET /api/dashboard/me`
 - `GET /api/categorias`
 - `GET /api/conteudos`
-- `GET /api/conteudos/{id}`
+- `GET /api/conteudos/{slug}`
 - `GET /api/favoritos`
-- `POST /api/conteudos/{id}/favoritar`
-- `DELETE /api/conteudos/{id}/favoritar`
-- `POST /api/conteudos/{id}/concluir`
+- `POST /api/favoritos/{id}`
+- `DELETE /api/favoritos/{id}`
+- `POST /api/progresso/conteudos/{id}/concluir`
+- `DELETE /api/progresso/conteudos/{id}/concluir`
 - `GET /api/planos-biblicos/ativo`
 - `POST /api/planos-biblicos`
 - `POST /api/planos-biblicos/alterar`
@@ -70,19 +71,14 @@ Endpoints esperados:
 - `/app/dashboard`
 - `/app/formacoes`
 - `/app/formacoes/[slug]`
-- `/app/biblioteca`
 - `/app/favoritos`
 - `/app/plano-biblico`
 - `/app/plano-biblico/configurar`
 - `/app/cronograma`
 - `/app/perfil`
-- `/admin/dashboard`
 - `/admin/conteudos`
 - `/admin/conteudos/novo`
 - `/admin/conteudos/[id]/editar`
-- `/admin/categorias`
-- `/admin/usuarios`
-- `/admin/rankings`
 
 ## Estrutura
 
@@ -97,14 +93,12 @@ src/
     layout/
     plano-biblico/
     ui/
-  data/
   hooks/
   lib/
+  services/
   types/
 ```
 
 ## Observacao visual
 
-A V2 preserva a identidade do projeto atual: fundo claro, verde como cor principal, cards simples, sidebar lateral e navegacao direta. O plano biblico fica como modulo proprio e nao como primeira experiencia apos login.
-
-Enquanto a API nao estiver pronta, `src/data/mocks.ts` centraliza dados temporarios para facilitar a troca posterior pelos endpoints reais.
+A V2 preserva a identidade do projeto atual: fundo claro, cards simples e navegacao direta. O plano biblico fica como modulo proprio, e os fluxos principais consomem a API real.
