@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/Card";
-import { getConteudoThumbnailUrl } from "@/lib/youtube";
+import { getConteudoThumbnailUrl, getConteudoYouTubeEmbedUrl } from "@/lib/youtube";
 import type { Conteudo } from "@/types/conteudo";
 
 export function ContentPlayer({ conteudo }: { conteudo: Conteudo }) {
@@ -7,6 +7,40 @@ export function ContentPlayer({ conteudo }: { conteudo: Conteudo }) {
 
   const icon = conteudo.tipo === "audio" ? "🎧" : conteudo.tipo === "documento" ? "📄" : conteudo.tipo === "texto" ? "✍️" : "🎬";
   const thumbnailUrl = getConteudoThumbnailUrl(conteudo);
+  const embedUrl = getConteudoYouTubeEmbedUrl(conteudo);
+
+  if (embedUrl) {
+    return (
+      <Card className="overflow-hidden p-0">
+        <div className="aspect-video w-full bg-black">
+          <iframe
+            src={embedUrl}
+            title={`Vídeo: ${conteudo.titulo}`}
+            className="h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        </div>
+        <div className="p-6 md:p-8">
+          <p className="text-sm font-bold uppercase tracking-wider text-gray-500">
+            {conteudo.tipoLabel ?? conteudo.tipo} {conteudo.origemLabel ? `• ${conteudo.origemLabel}` : ""}
+          </p>
+          <h2 className="mt-3 text-2xl font-black text-[#004B87]">Assista à formação</h2>
+          <p className="mt-2 leading-6 text-gray-500">O vídeo está incorporado pelo YouTube. O link externo continua disponível para abrir em outra aba.</p>
+          {conteudo.url && (
+            <a
+              href={conteudo.url}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-6 inline-flex rounded-xl bg-[#004B87] px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#003366]"
+            >
+              Abrir no YouTube
+            </a>
+          )}
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="grid gap-6 md:grid-cols-[220px_1fr] md:items-center">

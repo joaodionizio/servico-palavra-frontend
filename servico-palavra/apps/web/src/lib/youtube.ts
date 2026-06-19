@@ -51,6 +51,10 @@ export function getYouTubeThumbnailUrl(videoId: string) {
   return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 }
 
+export function getYouTubeEmbedUrl(videoId: string) {
+  return `https://www.youtube.com/embed/${videoId}`;
+}
+
 export function getConteudoThumbnailUrl(conteudo: Pick<Conteudo, "origem" | "tipo" | "url" | "urlThumbnail">) {
   if (conteudo.urlThumbnail?.trim()) {
     return conteudo.urlThumbnail;
@@ -71,4 +75,22 @@ export function getConteudoThumbnailUrl(conteudo: Pick<Conteudo, "origem" | "tip
   }
 
   return getYouTubeThumbnailUrl(videoId);
+}
+
+export function getConteudoYouTubeEmbedUrl(conteudo: Pick<Conteudo, "origem" | "tipo" | "url">) {
+  if (conteudo.tipo !== "video") {
+    return null;
+  }
+
+  if (conteudo.origem && conteudo.origem !== "youtube") {
+    return null;
+  }
+
+  const videoId = extractYouTubeVideoId(conteudo.url);
+
+  if (!videoId) {
+    return null;
+  }
+
+  return getYouTubeEmbedUrl(videoId);
 }

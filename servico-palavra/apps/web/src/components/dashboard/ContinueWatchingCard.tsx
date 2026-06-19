@@ -1,11 +1,20 @@
 import { LinkButton } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { getConteudoThumbnailUrl } from "@/lib/youtube";
 import type { Conteudo } from "@/types/conteudo";
 
 export function ContinueWatchingCard({ conteudo }: { conteudo: Conteudo }) {
+  const thumbnailUrl = getConteudoThumbnailUrl(conteudo);
+
   return (
     <section className="relative overflow-hidden rounded-2xl bg-[#004B87] p-10 text-white shadow-lg transition-all hover:shadow-xl">
-      <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-white/10 to-transparent" />
+      {thumbnailUrl ? (
+        <>
+          <img src={thumbnailUrl} alt={`Capa de ${conteudo.titulo}`} className="absolute inset-y-0 right-0 hidden h-full w-1/2 object-cover opacity-35 md:block" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#004B87] via-[#004B87]/95 to-[#004B87]/45" />
+        </>
+      ) : (
+        <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-white/10 to-transparent" />
+      )}
       <div className="relative z-10">
         <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Continuar formação</p>
         <h3 className="mt-4 text-3xl font-black">{conteudo.titulo}</h3>
