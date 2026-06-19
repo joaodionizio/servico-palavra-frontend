@@ -1,22 +1,20 @@
-# Roadmap Frontend
+# Roadmap Frontend V2
 
-## V2 Fundacao
+## V2 atual
 
 - Estrutura Next.js com App Router
-- Home publica
-- Login e cadastro preparados para API externa
-- Area logada com dashboard, formacoes, biblioteca, favoritos, plano biblico, cronograma e perfil
-- Area admin com dashboard, conteudos, categorias, usuarios e rankings
-- Client HTTP usando `NEXT_PUBLIC_API_URL`
-- Tipos TypeScript e mocks temporarios centralizados
+- Login, cadastro e sessao autenticada por cookie HttpOnly
+- Area logada com dashboard, formacoes, favoritos, plano biblico, cronograma e perfil
+- Area admin focada em conteudos/formacoes
+- Client HTTP usando `NEXT_PUBLIC_API_URL`, `credentials: include` e CSRF em escritas
+- Integracao com API real externa
 
-## Proximas etapas
+## Fora do escopo da V2 inicial
 
-- Trocar mocks pelos endpoints reais
-- Finalizar filtros com parametros da API
-- Ligar favoritos e conclusao de conteudos
-- Conectar plano biblico e cronograma
-- Validar permissoes administrativas a partir de `GET /api/auth/me`
+- Biblioteca
+- Trilhas
+- Upload de arquivos
+- Admin avancado de usuarios, rankings e categorias
 
 ## Fora deste repositorio
 

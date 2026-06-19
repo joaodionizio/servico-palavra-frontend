@@ -10,9 +10,9 @@ O app principal fica em `apps/web` e usa Next.js com App Router.
 apps/web/src/
   app/
   components/
-  data/
   hooks/
   lib/
+  services/
   types/
 ```
 
@@ -21,7 +21,8 @@ apps/web/src/
 A comunicacao com o backend externo fica centralizada em `apps/web/src/lib/api.ts`.
 
 - `NEXT_PUBLIC_API_URL` define a base da API.
-- O token salvo no navegador e enviado no header `Authorization`.
+- Cookies HttpOnly sao enviados com `credentials: include`.
+- Escritas usam CSRF pelo client HTTP.
 - Erros HTTP sao convertidos em mensagens amigaveis para a interface.
 
 ## Principios
@@ -29,5 +30,5 @@ A comunicacao com o backend externo fica centralizada em `apps/web/src/lib/api.t
 - Nao acessar banco direto no frontend.
 - Nao usar Supabase no frontend.
 - Nao implementar regra de negocio de backend no frontend.
-- Manter mocks centralizados enquanto a API nao estiver pronta.
+- Usar API real para os fluxos da V2.
 - Preservar a identidade visual atual ao evoluir a V2.
