@@ -366,7 +366,7 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
           </Button>
         </div>
 
-        {materiais.length === 0 && <p className="text-sm text-gray-500">Nenhum material cadastrado.</p>}
+        {materiais.length === 0 && <p className="text-sm text-gray-500">Adicione materiais apenas quando houver links de apoio para esta formação.</p>}
 
         {materiais.map((material, index) => (
           <div key={index} className="grid gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4 md:grid-cols-2">

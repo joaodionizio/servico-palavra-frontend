@@ -137,7 +137,7 @@ export function DashboardContent() {
             <Card>
               <p className="text-sm font-bold uppercase tracking-wider text-[#FFCC00]">Continuar formação</p>
               <h3 className="mt-3 text-2xl font-black text-[#004B87]">Nenhuma formação em andamento</h3>
-              <p className="mt-2 text-gray-500">Quando você iniciar uma formação, ela aparecerá aqui para continuar rapidamente.</p>
+              <p className="mt-2 text-gray-500">Abra uma formação e marque progresso para retomá-la rapidamente por aqui.</p>
               <LinkButton href="/app/formacoes" variant="primary" className="mt-5">
                 Ver formações
               </LinkButton>
@@ -165,7 +165,7 @@ export function DashboardContent() {
           </div>
         ) : (
           <Card className="mt-5">
-            <p className="text-gray-500">As formações recentes aparecerão aqui quando houver conteúdo disponível.</p>
+            <p className="text-gray-500">Quando houver formações publicadas, elas aparecerão aqui para você começar.</p>
           </Card>
         )}
       </section>
@@ -183,7 +183,7 @@ export function DashboardContent() {
                 </div>
               ))
             ) : (
-              <p className="text-gray-500">Seus conteúdos favoritos aparecerão aqui.</p>
+              <p className="text-gray-500">Favorite formações para montar uma lista de revisão pessoal.</p>
             )}
           </div>
           <LinkButton href="/app/favoritos" variant="secondary" className="mt-6">
@@ -197,7 +197,7 @@ export function DashboardContent() {
               <p className="text-sm font-bold uppercase tracking-wider text-gray-400">Recomendados</p>
               <h2 className="text-2xl font-black text-[#004B87]">Conteúdos para hoje</h2>
             </div>
-            <span className="text-sm font-medium text-gray-400">Usando formações recentes até existir recomendação dedicada.</span>
+            <span className="text-sm font-medium text-gray-400">Selecionados a partir das formações disponíveis.</span>
           </div>
           {recommendedContent.length > 0 ? (
             <div className="mt-5 grid gap-6 md:grid-cols-2">
@@ -207,7 +207,7 @@ export function DashboardContent() {
             </div>
           ) : (
             <Card className="mt-5">
-              <p className="text-gray-500">Novas recomendações aparecerão aqui quando o catálogo estiver disponível.</p>
+              <p className="text-gray-500">Publique formações no admin para alimentar esta área.</p>
             </Card>
           )}
         </div>

@@ -43,7 +43,7 @@ export function ContentFilters({
         value={busca}
         onChange={(event) => onBuscaChange(event.target.value)}
         className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none transition-all focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10"
-        placeholder="Buscar conteúdo"
+        placeholder="Buscar por título ou tema"
       />
       <select
         className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none transition-all focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10"
@@ -75,7 +75,7 @@ export function ContentFilters({
         disabled={loading}
         className="rounded-xl bg-[#004B87] px-5 py-3.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#003366] disabled:translate-y-0 disabled:opacity-60"
       >
-        Buscar
+        {loading ? "Buscando..." : "Buscar"}
       </button>
     </form>
   );

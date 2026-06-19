@@ -175,7 +175,7 @@ export default function PlanoBiblicoPage() {
       ) : (
         <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
           <h2 className="text-2xl font-black text-[#004B87]">Base bíblica indisponível</h2>
-          <p className="mt-3 text-gray-500">O backend não retornou leituras para este plano. Verifique se a BaseBiblica está carregada.</p>
+          <p className="mt-3 text-gray-500">Não há leituras disponíveis para este plano no momento. Tente atualizar a página ou configurar um novo plano.</p>
         </section>
       )}
       <BibleProgressCard plano={planoAtivo} />

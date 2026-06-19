@@ -27,7 +27,7 @@ export default function FavoritosPage() {
         }
       } catch {
         if (active) {
-          setState({ status: "error", conteudos: [], message: "Não foi possível carregar seus favoritos agora." });
+          setState({ status: "error", conteudos: [], message: "Não foi possível carregar seus favoritos agora. Tente novamente em instantes." });
         }
       }
     }
@@ -50,7 +50,7 @@ export default function FavoritosPage() {
       {state.status === "loading" && <Loading label="Carregando favoritos..." />}
       {state.status === "error" && <EmptyState title="Não foi possível carregar" description={state.message} />}
       {state.status === "ready" && state.conteudos.length === 0 && (
-        <EmptyState title="Nenhum favorito ainda" description="Favorite formações para encontrá-las aqui." />
+        <EmptyState title="Nenhum favorito ainda" description="Abra uma formação e toque em Favoritar para guardá-la nesta lista." />
       )}
 
       {state.conteudos.length > 0 && (

@@ -39,6 +39,7 @@ export function AdminConteudosContent() {
   const [actionMessage, setActionMessage] = useState("");
   const [actionError, setActionError] = useState("");
   const [deletingId, setDeletingId] = useState("");
+  const [publishingId, setPublishingId] = useState("");
 
   async function loadConteudos(nextPage = 1) {
     setState({ status: "loading", page: null });
@@ -76,6 +77,7 @@ export function AdminConteudosContent() {
   async function togglePublicacao(conteudo: AdminConteudo) {
     setActionError("");
     setActionMessage("");
+    setPublishingId(conteudo.id);
 
     try {
       await updateAdminConteudoPublicacao(conteudo.id, !conteudo.publicado);
@@ -83,6 +85,8 @@ export function AdminConteudosContent() {
       await loadConteudos(state.status === "ready" ? state.page.pagina : 1);
     } catch (error) {
       setActionError(getErrorMessage(error));
+    } finally {
+      setPublishingId("");
     }
   }
 
@@ -180,8 +184,10 @@ export function AdminConteudosContent() {
       {actionError && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{actionError}</p>}
 
       {state.status === "loading" && <Loading label="Carregando conteúdos..." />}
-      {state.status === "error" && <EmptyState title="Não foi possível carregar" description={state.message} />}
-      {state.status === "ready" && conteudos.length === 0 && <EmptyState title="Nenhum conteúdo encontrado" description="Ajuste os filtros ou crie uma nova formação." />}
+      {state.status === "error" && <EmptyState title="Não foi possível carregar" description={`${state.message} Confirme seu acesso de Admin e tente novamente.`} />}
+      {state.status === "ready" && conteudos.length === 0 && (
+        <EmptyState title="Nenhum conteúdo encontrado" description="Limpe os filtros ou crie uma nova formação para começar o catálogo." />
+      )}
 
       {conteudos.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -194,8 +200,8 @@ export function AdminConteudosContent() {
               <Badge>{conteudo.tipoLabel ?? conteudo.tipo}</Badge>
               <span className="text-sm font-semibold text-gray-500">{conteudo.publicado ? "Publicado" : "Rascunho"}</span>
               <div className="flex flex-wrap gap-2 md:justify-end">
-                <Button type="button" variant={conteudo.publicado ? "secondary" : "gold"} onClick={() => togglePublicacao(conteudo)}>
-                  {conteudo.publicado ? "Despublicar" : "Publicar"}
+                <Button type="button" variant={conteudo.publicado ? "secondary" : "gold"} disabled={publishingId === conteudo.id} onClick={() => togglePublicacao(conteudo)}>
+                  {publishingId === conteudo.id ? "Atualizando..." : conteudo.publicado ? "Despublicar" : "Publicar"}
                 </Button>
                 <LinkButton href={`/admin/conteudos/${conteudo.id}/editar`} variant="secondary">
                   Editar

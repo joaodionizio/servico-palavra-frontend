@@ -109,8 +109,10 @@ export function FormacoesContent() {
       {categoriasState.status === "error" && <p className="text-sm font-semibold text-yellow-700">{categoriasState.message}</p>}
 
       {state.status === "loading" && <Loading label="Carregando formações..." />}
-      {state.status === "error" && <EmptyState title="Não foi possível carregar" description={state.message} />}
-      {state.status === "ready" && conteudos.length === 0 && <EmptyState title="Nenhuma formação encontrada" description="Ajuste os filtros ou aguarde novos conteúdos." />}
+      {state.status === "error" && <EmptyState title="Não foi possível carregar" description={`${state.message} Tente novamente ou ajuste os filtros.`} />}
+      {state.status === "ready" && conteudos.length === 0 && (
+        <EmptyState title="Nenhuma formação encontrada" description="Remova filtros, tente outra busca ou aguarde novas formações publicadas." />
+      )}
 
       {conteudos.length > 0 && (
         <div className="grid gap-6 md:grid-cols-3">
