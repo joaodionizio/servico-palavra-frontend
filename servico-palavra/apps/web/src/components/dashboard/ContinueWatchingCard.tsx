@@ -1,15 +1,28 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { LinkButton } from "@/components/ui/Button";
 import { getConteudoThumbnailUrl } from "@/lib/youtube";
 import type { Conteudo } from "@/types/conteudo";
 
 export function ContinueWatchingCard({ conteudo }: { conteudo: Conteudo }) {
   const thumbnailUrl = getConteudoThumbnailUrl(conteudo);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [thumbnailUrl]);
 
   return (
     <section className="relative overflow-hidden rounded-2xl bg-[#004B87] p-10 text-white shadow-lg transition-all hover:shadow-xl">
-      {thumbnailUrl ? (
+      {thumbnailUrl && !imageFailed ? (
         <>
-          <img src={thumbnailUrl} alt={`Capa de ${conteudo.titulo}`} className="absolute inset-y-0 right-0 hidden h-full w-1/2 object-cover opacity-35 md:block" />
+          <img
+            src={thumbnailUrl}
+            alt={`Capa de ${conteudo.titulo}`}
+            className="absolute inset-y-0 right-0 hidden h-full w-1/2 object-cover opacity-35 md:block"
+            onError={() => setImageFailed(true)}
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-[#004B87] via-[#004B87]/95 to-[#004B87]/45" />
         </>
       ) : (
