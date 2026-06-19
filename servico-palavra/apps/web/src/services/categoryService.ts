@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import type { CategoriaConteudo } from "@/types/conteudo";
+import type { CategoriaConteudo } from "@/types/categoria";
 
 type ApiEnvelope<T> = {
   success?: boolean;
@@ -40,6 +40,18 @@ function readNumber(source: BackendRecord, keys: string[]) {
   return undefined;
 }
 
+function readBoolean(source: BackendRecord, keys: string[], fallback?: boolean) {
+  for (const key of keys) {
+    const value = source[key];
+
+    if (typeof value === "boolean") {
+      return value;
+    }
+  }
+
+  return fallback;
+}
+
 function unwrap<T>(response: ApiEnvelope<T> | T): T {
   if (response && typeof response === "object" && "data" in response) {
     return (response as ApiEnvelope<T>).data as T;
@@ -48,7 +60,7 @@ function unwrap<T>(response: ApiEnvelope<T> | T): T {
   return response as T;
 }
 
-function normalizeCategoria(value: unknown): CategoriaConteudo {
+export function normalizeCategoriaConteudo(value: unknown): CategoriaConteudo {
   const source = asRecord(value);
   const nome = readString(source, ["nome", "Nome"], "Categoria");
   const slug = readString(source, ["slug", "Slug"], undefined);
@@ -60,7 +72,8 @@ function normalizeCategoria(value: unknown): CategoriaConteudo {
     descricao: readString(source, ["descricao", "Descricao"], undefined),
     cor: readString(source, ["cor", "Cor"], undefined),
     icone: readString(source, ["icone", "Icone"], undefined),
-    ordem: readNumber(source, ["ordem", "Ordem"])
+    ordem: readNumber(source, ["ordem", "Ordem"]),
+    ativo: readBoolean(source, ["ativo", "Ativo"])
   };
 }
 
@@ -72,5 +85,5 @@ export async function listCategoriasConteudo(): Promise<CategoriaConteudo[]> {
     return [];
   }
 
-  return categorias.map(normalizeCategoria).sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
+  return categorias.map(normalizeCategoriaConteudo).sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
 }

@@ -8,7 +8,7 @@ import { Loading } from "@/components/ui/Loading";
 import { ApiError } from "@/lib/api";
 import { deleteAdminConteudo, listAdminConteudos, TIPO_CONTEUDO_OPTIONS, updateAdminConteudoPublicacao } from "@/services/adminContentService";
 import type { AdminConteudo, AdminConteudoPage } from "@/types/conteudo";
-import { listCategoriasConteudo } from "@/services/categoryService";
+import { listAdminCategorias } from "@/services/adminCategoryService";
 import type { CategoriaConteudo } from "@/types/conteudo";
 
 type AdminConteudosState =
@@ -63,7 +63,7 @@ export function AdminConteudosContent() {
   useEffect(() => {
     async function loadCategorias() {
       try {
-        setCategorias(await listCategoriasConteudo());
+        setCategorias(await listAdminCategorias());
       } catch (error) {
         setCategoriaError(getErrorMessage(error));
       }
@@ -133,7 +133,12 @@ export function AdminConteudosContent() {
           <h1 className="mt-3 text-3xl font-black text-[#004B87]">Conteúdos</h1>
           <p className="mt-2 text-gray-500">Listar, criar, editar, publicar e despublicar conteúdos.</p>
         </div>
-        <LinkButton href="/admin/conteudos/novo">Novo conteúdo</LinkButton>
+        <div className="flex flex-wrap gap-3">
+          <LinkButton href="/admin/categorias" variant="secondary">
+            Categorias
+          </LinkButton>
+          <LinkButton href="/admin/conteudos/novo">Novo conteúdo</LinkButton>
+        </div>
       </div>
 
       <form

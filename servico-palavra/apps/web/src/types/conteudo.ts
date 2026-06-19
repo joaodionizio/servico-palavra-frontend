@@ -1,3 +1,5 @@
+import type { CategoriaConteudo } from "@/types/categoria";
+
 export type TipoConteudo = "video" | "audio" | "documento" | "link" | "texto";
 export type OrigemConteudo = "youtube" | "google_drive" | "externo" | "interno" | "desconhecida";
 export type TipoMaterialApoio = "pdf" | "slide" | "imagem" | "documento" | "link" | "outro";
@@ -17,16 +19,6 @@ export const TIPO_MATERIAL_APOIO_LABELS: Record<TipoMaterialApoio, string> = {
   documento: "Documento",
   link: "Link",
   outro: "Outro"
-};
-
-export type CategoriaConteudo = {
-  id: string;
-  slug?: string;
-  nome: string;
-  descricao?: string;
-  cor?: string;
-  icone?: string;
-  ordem?: number;
 };
 
 export type MaterialApoio = {
@@ -89,3 +81,5 @@ export type ConteudoPage = {
 export type AdminConteudoPage = Omit<ConteudoPage, "itens"> & {
   itens: AdminConteudo[];
 };
+
+export type { CategoriaConteudo };

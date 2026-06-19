@@ -16,7 +16,7 @@ import {
   updateAdminConteudo
 } from "@/services/adminContentService";
 import type { AdminConteudoPayload, AdminMaterialApoioPayload } from "@/services/adminContentService";
-import { listCategoriasConteudo } from "@/services/categoryService";
+import { listAdminCategorias } from "@/services/adminCategoryService";
 import type { AdminMaterialApoio, CategoriaConteudo } from "@/types/conteudo";
 
 type ContentFormProps = {
@@ -115,7 +115,7 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
 
     async function loadCategorias() {
       try {
-        const nextCategorias = await listCategoriasConteudo();
+        const nextCategorias = await listAdminCategorias();
 
         if (active) {
           setCategorias(nextCategorias);
