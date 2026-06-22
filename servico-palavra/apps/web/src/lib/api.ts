@@ -11,6 +11,21 @@ const API_URL =
 const CSRF_ENDPOINT = "/api/auth/csrf";
 const CSRF_HEADER = "X-CSRF-TOKEN";
 
+export function normalizeApiPath(path: string) {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const isSameOriginProxy = API_URL.replace(/\/+$/, "") === "/api/backend";
+
+  if (isSameOriginProxy && normalizedPath.startsWith("/api/")) {
+    return normalizedPath.slice("/api".length);
+  }
+
+  return normalizedPath;
+}
+
+function getApiUrl(path: string) {
+  return `${API_URL.replace(/\/+$/, "")}${normalizeApiPath(path)}`;
+}
+
 export type ApiOptions = RequestInit;
 
 type RequestOptions = ApiOptions & {
@@ -74,7 +89,7 @@ function isCsrfError(message: string) {
 }
 
 async function fetchCsrfToken() {
-  const response = await fetch(`${API_URL}${CSRF_ENDPOINT}`, {
+  const response = await fetch(getApiUrl(CSRF_ENDPOINT), {
     method: "GET",
     cache: "no-store",
     credentials: "include",
@@ -132,7 +147,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   const { responseType = "json", retryCsrf = true, ...requestOptions } = options;
   const headers = await prepareHeaders(requestOptions);
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(getApiUrl(path), {
     ...requestOptions,
     headers,
     cache: "no-store",
