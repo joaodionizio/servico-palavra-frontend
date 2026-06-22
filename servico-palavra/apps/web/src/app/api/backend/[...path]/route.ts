@@ -5,6 +5,7 @@ const backendOrigin = (process.env.API_BACKEND_URL ?? "https://servico-palavra-a
 
 const hopByHopHeaders = new Set([
   "connection",
+  "content-length",
   "host",
   "keep-alive",
   "proxy-authenticate",
@@ -43,7 +44,8 @@ function getForwardedHeaders(request: NextRequest) {
 
 async function proxy(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;
-  const target = new URL(`/api/${path.map(encodeURIComponent).join("/")}`, backendOrigin);
+  const backendPath = path.map(encodeURIComponent).join("/");
+  const target = new URL(path[0] === "health" ? `/${backendPath}` : `/api/${backendPath}`, backendOrigin);
   target.search = request.nextUrl.search;
   const body = request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer();
 

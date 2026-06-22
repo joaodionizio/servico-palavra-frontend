@@ -1,4 +1,13 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+// Production requests must stay on the Vercel origin so HttpOnly cookies are
+// first-party. A direct Render URL here would reintroduce the mobile CSRF issue.
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? configuredApiUrl?.startsWith("/")
+      ? configuredApiUrl
+      : "/api/backend"
+    : configuredApiUrl ?? "http://localhost:5000";
 const CSRF_ENDPOINT = "/api/auth/csrf";
 const CSRF_HEADER = "X-CSRF-TOKEN";
 
