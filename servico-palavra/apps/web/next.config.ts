@@ -3,10 +3,14 @@ import path from "node:path";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 const apiOrigin = (() => {
+  if (apiUrl.startsWith("/")) {
+    return null;
+  }
+
   try {
     return new URL(apiUrl).origin;
   } catch {
-    return "http://localhost:5000";
+    return null;
   }
 })();
 
@@ -14,7 +18,7 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 
 const csp = [
   "default-src 'self'",
-  `connect-src 'self' ${apiOrigin}`,
+  `connect-src 'self'${apiOrigin ? ` ${apiOrigin}` : ""}`,
   `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://i.ytimg.com https://img.youtube.com https://drive.google.com https://*.googleusercontent.com",
