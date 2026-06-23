@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { BrandEyebrow } from "@/components/branding/BrandEyebrow";
 import type { Usuario } from "@/types/auth";
 
 type AuthGateProps = {
@@ -101,7 +102,7 @@ export function AuthGate({ children, requiredRole, unauthorizedRedirect = "/app"
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#F8FAFC] px-6">
         <div className="animate-slide-up rounded-2xl border border-gray-100 bg-white px-8 py-6 text-center shadow-sm">
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#FFCC00]">Serviço</p>
+          <BrandEyebrow className="text-sm font-bold tracking-[0.25em]" />
           <p className="mt-2 animate-pulse text-lg font-bold text-[#004B87]">Carregando...</p>
         </div>
       </main>

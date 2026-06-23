@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { BrandEyebrow } from "@/components/branding/BrandEyebrow";
 
 export default function LoginPage() {
   return (
@@ -9,7 +10,10 @@ export default function LoginPage() {
           <div className="absolute right-0 top-0 -mr-10 -mt-10 h-64 w-64 rounded-full bg-white opacity-5 blur-3xl" />
 
           <div className="relative z-10">
-            <p className="text-sm font-bold uppercase tracking-[0.35em] text-[#FFCC00]">Serviço</p>
+            <BrandEyebrow
+              className="text-sm font-bold tracking-[0.35em]"
+              sentinelasClassName="text-[#7BB7F0]"
+            />
             <h1 className="mt-4 text-4xl font-black leading-tight text-white">Serviço da Palavra</h1>
             <p className="mt-5 leading-relaxed text-white/80">
               Acompanhe formações, favoritos, progresso e sua caminhada espiritual em um só lugar.

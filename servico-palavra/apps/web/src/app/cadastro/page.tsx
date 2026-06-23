@@ -1,4 +1,5 @@
 import { RegisterForm } from "@/components/auth/RegisterForm";
+import { BrandEyebrow } from "@/components/branding/BrandEyebrow";
 
 export default function CadastroPage() {
   return (
@@ -8,8 +9,11 @@ export default function CadastroPage() {
           <div className="absolute bottom-0 left-0 -mb-10 -ml-10 h-64 w-64 rounded-full bg-white opacity-5 blur-3xl" />
 
           <div className="relative z-10">
-            <p className="text-sm font-bold uppercase tracking-[0.35em] text-[#FFCC00]">Nova conta</p>
-            <h1 className="mt-4 text-4xl font-black leading-tight text-white">Comece sua jornada na Palavra</h1>
+            <BrandEyebrow
+              className="text-sm font-bold tracking-[0.35em]"
+              sentinelasClassName="text-[#7BB7F0]"
+            />
+            <h1 className="mt-4 text-4xl font-black leading-tight text-white">Serviço da Palavra</h1>
             <p className="mt-5 leading-relaxed text-white/80">
               Crie sua conta para acompanhar formações, favoritos, progresso e plano bíblico.
             </p>
