@@ -11,7 +11,7 @@ export default function CadastroPage() {
           <div className="relative z-10">
             <BrandEyebrow
               variant="onBlue"
-              className="text-base font-semibold tracking-wide sm:text-lg"
+              className="text-xl font-semibold tracking-wide sm:text-2xl"
             />
             <h1 className="mt-4 text-4xl font-black leading-tight text-white">Serviço da Palavra</h1>
             <p className="mt-5 leading-relaxed text-white/80">
