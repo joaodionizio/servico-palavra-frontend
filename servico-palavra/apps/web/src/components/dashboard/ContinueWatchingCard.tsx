@@ -14,7 +14,7 @@ export function ContinueWatchingCard({ conteudo }: { conteudo: Conteudo }) {
   }, [thumbnailUrl]);
 
   return (
-    <section className="relative overflow-hidden rounded-2xl bg-[#004B87] p-10 text-white shadow-lg transition-all hover:shadow-xl">
+    <section className="dark-continue-card relative overflow-hidden rounded-2xl bg-[#004B87] p-10 text-white shadow-lg transition-all hover:shadow-xl">
       {thumbnailUrl && !imageFailed ? (
         <>
           <img
@@ -23,7 +23,7 @@ export function ContinueWatchingCard({ conteudo }: { conteudo: Conteudo }) {
             className="absolute inset-y-0 right-0 hidden h-full w-1/2 object-cover opacity-35 md:block"
             onError={() => setImageFailed(true)}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#004B87] via-[#004B87]/95 to-[#004B87]/45" />
+          <div className="dark-continue-overlay absolute inset-0 bg-gradient-to-r from-[#004B87] via-[#004B87]/95 to-[#004B87]/45" />
         </>
       ) : (
         <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-white/10 to-transparent" />

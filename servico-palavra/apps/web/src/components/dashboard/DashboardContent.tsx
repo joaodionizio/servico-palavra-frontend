@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ApiHealthStatus } from "@/components/dashboard/ApiHealthStatus";
 import { BiblePlanSummaryCard } from "@/components/dashboard/BiblePlanSummaryCard";
 import { ContinueWatchingCard } from "@/components/dashboard/ContinueWatchingCard";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
@@ -114,7 +113,6 @@ export function DashboardContent() {
               Continue sua caminhada bíblica, espiritual e pastoral com formações, favoritos, progresso e plano bíblico no seu ritmo.
             </p>
           </div>
-          <ApiHealthStatus />
         </div>
       </section>
 

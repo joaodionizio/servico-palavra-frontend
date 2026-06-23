@@ -14,15 +14,15 @@
 }
 
 .dark {
-  --background: #0f172a;
-  --foreground: #e5edf7;
+  --background: #0b1120;
+  --foreground: #e5edf0;
   --brand-blue: #bfecef;
   --brand-blue-dark: #bfecef;
   --brand-yellow: #facc15;
-  --surface: #162033;
-  --surface-muted: #1e293b;
-  --border-soft: #334155;
-  --text-muted: #b6c2d1;
+  --surface: #111827;
+  --surface-muted: #172033;
+  --border-soft: #2a3748;
+  --text-muted: #aebcc9;
   color-scheme: dark;
 }
 
@@ -47,7 +47,7 @@ body {
 
 .dark .bg-white,
 .dark .bg-white\/95 {
-  background-color: rgb(22 32 51 / 0.96);
+  background-color: rgb(17 24 39 / 0.96);
 }
 
 .dark .bg-\[\#F8FAFC\],
@@ -59,11 +59,20 @@ body {
 
 .dark .bg-blue-50,
 .dark .bg-yellow-50 {
-  background-color: rgb(30 41 59);
+  background-color: var(--surface-muted);
+}
+
+.dark .bg-slate-800,
+.dark .bg-slate-900,
+.dark .bg-slate-900\/60,
+.dark .bg-slate-900\/70 {
+  background-color: var(--surface);
 }
 
 .dark .border-gray-100,
-.dark .border-gray-200 {
+.dark .border-gray-200,
+.dark .border-slate-700,
+.dark .border-slate-800 {
   border-color: var(--border-soft);
 }
 
@@ -92,6 +101,14 @@ body {
 .dark .hover\:bg-\[\#003366\]:hover {
   background-color: rgb(191 236 239 / 0.88);
   color: #0f172a;
+}
+
+.dark .dark-continue-card {
+  background-color: #111c2e;
+}
+
+.dark .dark-continue-overlay {
+  background: linear-gradient(to right, #111c2e, rgb(17 28 46 / 0.95), rgb(17 28 46 / 0.45));
 }
 
 .dark input,
