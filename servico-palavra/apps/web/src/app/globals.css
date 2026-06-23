@@ -103,6 +103,10 @@ body {
   color: #0f172a;
 }
 
+.dark .auth-brand-panel {
+  background-color: #003366;
+}
+
 .dark .dark-continue-card {
   background-color: #111c2e;
 }
