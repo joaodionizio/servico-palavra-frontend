@@ -1,15 +1,20 @@
 type BrandEyebrowProps = {
   className?: string;
-  sentinelasClassName?: string;
+  variant?: "light" | "onBlue";
+};
+
+const sentinelasColorByVariant = {
+  light: "text-[#004B87] dark:text-[#7BB7F0]",
+  onBlue: "text-[#A9D3FF]"
 };
 
 export function BrandEyebrow({
   className = "",
-  sentinelasClassName = "text-[#004B87] dark:text-[#7BB7F0]"
+  variant = "light"
 }: BrandEyebrowProps) {
   return (
     <p className={`font-brand-script ${className}`.trim()}>
-      <span className={sentinelasClassName}>Sentinelas</span>{" "}
+      <span className={sentinelasColorByVariant[variant]}>Sentinelas</span>{" "}
       <span className="text-[#FFCC00]">da Manhã</span>
     </p>
   );

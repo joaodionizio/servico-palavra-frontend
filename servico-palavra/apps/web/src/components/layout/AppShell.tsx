@@ -72,7 +72,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 shadow-sm backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <Link href="/app" className="flex flex-col">
-            <BrandEyebrow className="text-xs font-black tracking-[0.3em]" />
+            <BrandEyebrow variant="light" className="text-sm font-black tracking-wide sm:text-base" />
             <span className="text-xl font-black text-[#004B87] sm:text-2xl">
               {admin ? "Admin Serviço da Palavra" : "Serviço da Palavra"}
             </span>

@@ -102,7 +102,7 @@ export function AuthGate({ children, requiredRole, unauthorizedRedirect = "/app"
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#F8FAFC] px-6">
         <div className="animate-slide-up rounded-2xl border border-gray-100 bg-white px-8 py-6 text-center shadow-sm">
-          <BrandEyebrow className="text-sm font-bold tracking-[0.25em]" />
+          <BrandEyebrow variant="light" className="text-sm font-bold tracking-wide" />
           <p className="mt-2 animate-pulse text-lg font-bold text-[#004B87]">Carregando...</p>
         </div>
       </main>
