@@ -16,8 +16,8 @@
 .dark {
   --background: #0f172a;
   --foreground: #e5edf7;
-  --brand-blue: #7bb7f0;
-  --brand-blue-dark: #a9d3ff;
+  --brand-blue: #bfecef;
+  --brand-blue-dark: #bfecef;
   --brand-yellow: #facc15;
   --surface: #162033;
   --surface-muted: #1e293b;
@@ -85,11 +85,13 @@ body {
 }
 
 .dark .bg-\[\#004B87\] {
-  background-color: #0a5f9f;
+  background-color: var(--brand-blue);
+  color: #0f172a;
 }
 
 .dark .hover\:bg-\[\#003366\]:hover {
-  background-color: #0b4f83;
+  background-color: rgb(191 236 239 / 0.88);
+  color: #0f172a;
 }
 
 .dark input,

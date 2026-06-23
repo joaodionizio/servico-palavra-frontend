@@ -162,11 +162,11 @@ export default function PerfilPage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="rounded-xl border border-gray-100 bg-gray-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
                     <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Nome</p>
-                    <p className="mt-2 font-bold text-[#004B87] dark:text-[#7BB7F0]">{usuario.nome}</p>
+                    <p className="mt-2 font-bold text-[#004B87] dark:text-[#BFECEF]">{usuario.nome}</p>
                   </div>
                   <div className="rounded-xl border border-gray-100 bg-gray-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
                     <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Email</p>
-                    <p className="mt-2 break-all font-bold text-[#004B87] dark:text-[#7BB7F0]">{usuario.email}</p>
+                    <p className="mt-2 break-all font-bold text-[#004B87] dark:text-[#BFECEF]">{usuario.email}</p>
                   </div>
                 </div>
 
@@ -181,11 +181,11 @@ export default function PerfilPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-xl border border-gray-100 bg-gray-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
                 <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Tipo de acesso</p>
-                <p className="mt-2 font-bold text-[#004B87] dark:text-[#7BB7F0]">{accessLabel}</p>
+                <p className="mt-2 font-bold text-[#004B87] dark:text-[#BFECEF]">{accessLabel}</p>
               </div>
               <div className="rounded-xl border border-gray-100 bg-gray-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/60">
                 <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Roles</p>
-                <p className="mt-2 font-bold text-[#004B87] dark:text-[#7BB7F0]">{roles}</p>
+                <p className="mt-2 font-bold text-[#004B87] dark:text-[#BFECEF]">{roles}</p>
               </div>
             </div>
           </div>
