@@ -1,5 +1,6 @@
 import { LinkButton } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { formatPlanoDuracao } from "@/lib/planoBiblico";
 import type { DiaPlanoBiblico, PlanoBiblico } from "@/types/planoBiblico";
 
 type BiblePlanSummaryCardProps = {
@@ -43,7 +44,7 @@ export function BiblePlanSummaryCard({ plano, leituraHoje, loading = false, mess
   return (
     <Card>
       <p className="text-sm font-bold uppercase tracking-wider text-[#FFCC00]">Plano bíblico ativo</p>
-      <h3 className="mt-2 text-xl font-black text-[#004B87]">{plano.nome}</h3>
+      <h3 className="mt-2 text-xl font-black text-[#004B87]">Plano bíblico de {formatPlanoDuracao(plano)}</h3>
       <p className="mt-2 text-gray-500">
         {dailyReading ? `Leitura de hoje: ${dailyReading.leitura}` : "Continue seu cronograma quando puder."}
       </p>

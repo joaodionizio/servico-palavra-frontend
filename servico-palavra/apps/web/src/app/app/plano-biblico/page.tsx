@@ -5,6 +5,7 @@ import { LinkButton } from "@/components/ui/Button";
 import { BibleProgressCard } from "@/components/plano-biblico/BibleProgressCard";
 import { DailyReadingCard } from "@/components/plano-biblico/DailyReadingCard";
 import { ScheduleTable } from "@/components/plano-biblico/ScheduleTable";
+import { formatPlanoDuracao } from "@/lib/planoBiblico";
 import {
   BiblePlanNotFoundError,
   BiblePlanUnauthorizedError,
@@ -162,7 +163,7 @@ export default function PlanoBiblicoPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Plano bíblico</p>
-          <h1 className="mt-3 text-3xl font-black text-[#004B87]">{planoAtivo.nome}</h1>
+          <h1 className="mt-3 text-3xl font-black text-[#004B87]">Plano bíblico de {formatPlanoDuracao(planoAtivo)}</h1>
           <p className="mt-3 text-gray-500">Leitura do dia, progresso e cronograma resumido.</p>
         </div>
         <LinkButton href="/app/plano-biblico/configurar" variant="secondary">
