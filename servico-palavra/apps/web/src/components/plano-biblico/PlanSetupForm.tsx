@@ -11,11 +11,13 @@ type PlanSetupFormProps = {
   submitLabel?: string;
 };
 
-const DURACOES: Array<[DuracaoPlano, string, number]> = [
-  ["6_meses", "6 meses", 6],
-  ["1_ano", "1 ano", 12],
-  ["2_anos", "2 anos", 24],
-  ["personalizado", "Personalizado", 0]
+type UnidadeDuracao = "meses" | "anos";
+
+const DURACOES: Array<[DuracaoPlano, string, UnidadeDuracao | null, number | null]> = [
+  ["6_meses", "6 meses", "meses", 6],
+  ["1_ano", "1 ano", "anos", 1],
+  ["2_anos", "2 anos", "anos", 2],
+  ["personalizado", "Personalizado", null, null]
 ];
 
 const NOMES_PLANO: Record<DuracaoPlano, string> = {
@@ -27,21 +29,32 @@ const NOMES_PLANO: Record<DuracaoPlano, string> = {
 
 export function PlanSetupForm({ mode = "create", onSubmit, submitLabel }: PlanSetupFormProps) {
   const [duracao, setDuracao] = useState<DuracaoPlano>("1_ano");
-  const [anos, setAnos] = useState("1");
-  const [meses, setMeses] = useState("0");
+  const [unidadePersonalizada, setUnidadePersonalizada] = useState<UnidadeDuracao>("meses");
+  const [quantidadePersonalizada, setQuantidadePersonalizada] = useState("1");
   const [manterProgresso, setManterProgresso] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const duracaoMeses = useMemo(() => {
-    const predefined = DURACOES.find(([value]) => value === duracao)?.[2] ?? 12;
+  const duracaoMeses = useMemo((): number => {
+    const [, , unidade, quantidade] = DURACOES.find(([value]) => value === duracao) ?? DURACOES[1];
 
-    if (predefined > 0) {
-      return predefined;
+    if (unidade && quantidade !== null) {
+      return unidade === "anos" ? quantidade * 12 : quantidade;
     }
 
-    return Number(anos || 0) * 12 + Number(meses || 0);
-  }, [anos, duracao, meses]);
+    const quantidadeCustomizada = Number(quantidadePersonalizada || 0);
+    return unidadePersonalizada === "anos" ? quantidadeCustomizada * 12 : quantidadeCustomizada;
+  }, [duracao, quantidadePersonalizada, unidadePersonalizada]);
+
+  function selectDuration(value: DuracaoPlano) {
+    setDuracao(value);
+
+    const [, , unidade, quantidade] = DURACOES.find(([duration]) => duration === value) ?? DURACOES[1];
+    if (unidade && quantidade !== null) {
+      setUnidadePersonalizada(unidade);
+      setQuantidadePersonalizada(String(quantidade));
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -83,14 +96,15 @@ export function PlanSetupForm({ mode = "create", onSubmit, submitLabel }: PlanSe
   return (
     <Card>
       <p className="text-sm font-bold uppercase tracking-wider text-[#FFCC00]">Plano bíblico</p>
-      <h2 className="mt-3 text-2xl font-black text-[#004B87]">Deseja criar seu plano bíblico personalizado?</h2>
+      <h2 className="mt-3 text-2xl font-black text-[#004B87]">Escolha em quanto tempo deseja concluir a leitura da Bíblia</h2>
+      <p className="mt-2 text-gray-500">Você pode usar uma duração pronta ou definir seu próprio tempo em meses ou anos.</p>
       <form className="mt-6" onSubmit={handleSubmit}>
         <div className="grid gap-3 md:grid-cols-4">
           {DURACOES.map(([value, label]) => (
             <button
               key={value}
               type="button"
-              onClick={() => setDuracao(value)}
+              onClick={() => selectDuration(value)}
               className={`rounded-xl border px-4 py-4 text-sm font-bold transition-all hover:-translate-y-0.5 ${
                 duracao === value ? "border-[#FFCC00] bg-yellow-50 text-[#004B87] shadow-sm" : "border-gray-100 bg-white text-gray-500 hover:bg-blue-50 hover:text-[#004B87]"
               }`}
@@ -100,23 +114,37 @@ export function PlanSetupForm({ mode = "create", onSubmit, submitLabel }: PlanSe
           ))}
         </div>
         {duracao === "personalizado" && (
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            <input
-              className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:ring-4 focus:ring-[#004B87]/10"
-              placeholder="Anos"
-              type="number"
-              min={0}
-              value={anos}
-              onChange={(event) => setAnos(event.target.value)}
-            />
-            <input
-              className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:ring-4 focus:ring-[#004B87]/10"
-              placeholder="Meses"
-              type="number"
-              min={0}
-              value={meses}
-              onChange={(event) => setMeses(event.target.value)}
-            />
+          <div className="mt-5 rounded-xl border border-gray-100 bg-gray-50/50 p-5">
+            <p className="font-bold text-[#004B87]">Escolha a duração do plano</p>
+            <div className="mt-4 flex flex-wrap gap-3" role="group" aria-label="Unidade de duração">
+              {(["meses", "anos"] as UnidadeDuracao[]).map((unidade) => (
+                <button
+                  key={unidade}
+                  type="button"
+                  onClick={() => setUnidadePersonalizada(unidade)}
+                  aria-pressed={unidadePersonalizada === unidade}
+                  className={`rounded-xl border px-5 py-3 text-sm font-bold transition-all ${
+                    unidadePersonalizada === unidade
+                      ? "border-[#FFCC00] bg-yellow-50 text-[#004B87] shadow-sm"
+                      : "border-gray-100 bg-white text-gray-500 hover:bg-blue-50 hover:text-[#004B87]"
+                  }`}
+                >
+                  {unidade === "meses" ? "Meses" : "Anos"}
+                </button>
+              ))}
+            </div>
+            <label className="mt-4 grid gap-2 text-sm font-bold text-gray-600">
+              {unidadePersonalizada === "meses" ? "Quantidade de meses" : "Quantidade de anos"}
+              <input
+                className="rounded-xl border border-gray-200 bg-white px-5 py-3.5 outline-none focus:border-[#004B87] focus:ring-4 focus:ring-[#004B87]/10"
+                type="number"
+                min={1}
+                max={unidadePersonalizada === "meses" ? 120 : 10}
+                inputMode="numeric"
+                value={quantidadePersonalizada}
+                onChange={(event) => setQuantidadePersonalizada(event.target.value)}
+              />
+            </label>
           </div>
         )}
         {mode === "change" && (
