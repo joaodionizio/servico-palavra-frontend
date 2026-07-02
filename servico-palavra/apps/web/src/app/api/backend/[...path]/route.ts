@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Kept server-only so the browser never needs to know the Render URL in production.
-const backendOrigin = (process.env.API_BACKEND_URL ?? "https://servico-palavra-api.onrender.com").replace(/\/+$/, "");
+const BACKEND_URL_MISSING_MESSAGE = "API_BACKEND_URL não configurada.";
 
 const hopByHopHeaders = new Set([
   "connection",
@@ -43,6 +42,20 @@ function getForwardedHeaders(request: NextRequest) {
 }
 
 async function proxy(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
+  const configuredBackendUrl = process.env.API_BACKEND_URL?.trim();
+
+  if (!configuredBackendUrl) {
+    console.error("[backend-proxy] API_BACKEND_URL is not configured.");
+    return NextResponse.json(
+      {
+        success: false,
+        message: BACKEND_URL_MISSING_MESSAGE
+      },
+      { status: 500 }
+    );
+  }
+
+  const backendOrigin = configuredBackendUrl.replace(/\/+$/, "");
   const { path } = await context.params;
   const backendPath = path.map(encodeURIComponent).join("/");
   const target = new URL(path[0] === "health" ? `/${backendPath}` : `/api/${backendPath}`, backendOrigin);
@@ -59,7 +72,13 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
       cache: "no-store",
       redirect: "manual"
     });
-  } catch {
+  } catch (error) {
+    console.error("[backend-proxy] Upstream request failed.", {
+      target: target.toString(),
+      method: request.method,
+      error
+    });
+
     return NextResponse.json(
       {
         success: false,
