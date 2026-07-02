@@ -23,12 +23,12 @@ function normalizeAuthResponse(response: BackendAuthResponse): AuthResponse {
 }
 
 export async function login(payload: LoginPayload) {
-  const response = await api.post<BackendAuthResponse, LoginPayload>("/api/auth/login", payload);
+  const response = await api.post<BackendAuthResponse, LoginPayload>("/api/auth/login", payload, { skipAuthExpiredHandler: true });
   return normalizeAuthResponse(response);
 }
 
 export async function register(payload: RegisterPayload) {
-  const response = await api.post<BackendAuthResponse, RegisterPayload>("/api/auth/register", payload);
+  const response = await api.post<BackendAuthResponse, RegisterPayload>("/api/auth/register", payload, { skipAuthExpiredHandler: true });
   return normalizeAuthResponse(response);
 }
 
@@ -43,5 +43,5 @@ export async function updateMe(payload: UpdateProfilePayload) {
 }
 
 export async function logout() {
-  return api.post<void>("/api/auth/logout");
+  return api.post<void>("/api/auth/logout", undefined, { skipAuthExpiredHandler: true });
 }

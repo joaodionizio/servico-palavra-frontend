@@ -49,13 +49,25 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   target.search = request.nextUrl.search;
   const body = request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer();
 
-  const upstream = await fetch(target, {
-    method: request.method,
-    headers: getForwardedHeaders(request),
-    body,
-    cache: "no-store",
-    redirect: "manual"
-  });
+  let upstream: Response;
+
+  try {
+    upstream = await fetch(target, {
+      method: request.method,
+      headers: getForwardedHeaders(request),
+      body,
+      cache: "no-store",
+      redirect: "manual"
+    });
+  } catch {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "A API esta temporariamente indisponivel. Aguarde alguns instantes e tente novamente."
+      },
+      { status: 503 }
+    );
+  }
 
   const responseHeaders = new Headers();
   upstream.headers.forEach((value, key) => {

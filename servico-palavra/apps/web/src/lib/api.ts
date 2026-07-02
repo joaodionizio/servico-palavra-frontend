@@ -26,7 +26,16 @@ function getApiUrl(path: string) {
   return `${API_URL.replace(/\/+$/, "")}${normalizeApiPath(path)}`;
 }
 
-export type ApiOptions = RequestInit;
+export type AuthExpiredDetail = {
+  status: 401;
+  message: string;
+};
+
+export const AUTH_EXPIRED_EVENT = "servico-palavra:auth-expired";
+
+export type ApiOptions = RequestInit & {
+  skipAuthExpiredHandler?: boolean;
+};
 
 type RequestOptions = ApiOptions & {
   responseType?: "json" | "text";
@@ -58,6 +67,25 @@ export class ApiError extends Error {
 
 let csrfToken: string | null = null;
 let csrfTokenRequest: Promise<string> | null = null;
+
+export function clearCsrfToken() {
+  csrfToken = null;
+  csrfTokenRequest = null;
+}
+
+function notifyAuthExpired(message: string) {
+  clearCsrfToken();
+
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(
+    new CustomEvent<AuthExpiredDetail>(AUTH_EXPIRED_EVENT, {
+      detail: { status: 401, message }
+    })
+  );
+}
 
 function isWriteMethod(method?: string) {
   const normalizedMethod = (method ?? "GET").toUpperCase();
@@ -144,7 +172,7 @@ async function prepareHeaders(options: RequestInit) {
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { responseType = "json", retryCsrf = true, ...requestOptions } = options;
+  const { responseType = "json", retryCsrf = true, skipAuthExpiredHandler = false, ...requestOptions } = options;
   const headers = await prepareHeaders(requestOptions);
 
   const response = await fetch(getApiUrl(path), {
@@ -167,8 +195,18 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     }
 
     if (retryCsrf && isWriteMethod(requestOptions.method) && isCsrfError(message)) {
-      csrfToken = null;
+      clearCsrfToken();
       return request<T>(path, { ...requestOptions, responseType, retryCsrf: false });
+    }
+
+    if (response.status === 401) {
+      clearCsrfToken();
+
+      if (!skipAuthExpiredHandler) {
+        notifyAuthExpired(message);
+      }
+    } else if (isCsrfError(message)) {
+      clearCsrfToken();
     }
 
     throw new ApiError(message, response.status);

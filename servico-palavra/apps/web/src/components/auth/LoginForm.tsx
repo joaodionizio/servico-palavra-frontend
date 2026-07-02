@@ -9,6 +9,7 @@ export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const { signIn } = useAuth();
+  const sessionExpired = params.get("expired") === "1";
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -39,6 +40,12 @@ export function LoginForm() {
       <h2 className="mt-3 text-3xl font-black text-[#004B87]">Entrar na conta</h2>
 
       <p className="mt-2 text-gray-500">Acesse para continuar sua formação.</p>
+
+      {sessionExpired && !error && (
+        <p className="mt-5 animate-fade-in rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm font-medium text-amber-700">
+          Sua sessão expirou por inatividade. Entre novamente para continuar.
+        </p>
+      )}
 
       <div className="mt-8 space-y-5">
         <input
