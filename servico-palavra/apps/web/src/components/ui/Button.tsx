@@ -18,7 +18,7 @@ const variants = {
   gold: "bg-[#FFCC00] text-slate-950 hover:bg-yellow-400 hover:shadow-lg dark:bg-[#FACC15] dark:text-slate-950 dark:hover:bg-yellow-300"
 };
 
-const base = "inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-bold transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60";
+const base = "inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-bold transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60";
 
 export function Button({ children, variant = "primary", className, ...props }: ButtonProps) {
   return (

@@ -106,15 +106,18 @@ export function FormacaoDetailContent({ slug }: { slug: string }) {
 
   return (
     <div className="mx-auto grid max-w-5xl gap-6 animate-fade-in">
-      <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+      <div className="content-detail-stage relative overflow-hidden rounded-[2rem] bg-[#003A70] p-8 text-white shadow-xl md:p-12">
+        <div className="content-detail-light" aria-hidden="true" />
+        <div className="relative z-10">
         <div className="flex flex-wrap items-center gap-3">
           {conteudo.categoria && <Badge>{conteudo.categoria.nome}</Badge>}
-          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-500">{conteudo.tipoLabel ?? conteudo.tipo}</span>
-          {conteudo.origemLabel && <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-500">{conteudo.origemLabel}</span>}
-          {conteudo.duracao && <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-500">{conteudo.duracao}</span>}
+          <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white/65">{conteudo.tipoLabel ?? conteudo.tipo}</span>
+          {conteudo.origemLabel && <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white/65">{conteudo.origemLabel}</span>}
+          {conteudo.duracao && <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white/65">{conteudo.duracao}</span>}
         </div>
-        <h1 className="mt-3 text-3xl font-black text-[#004B87]">{conteudo.titulo}</h1>
-        <p className="mt-3 max-w-3xl leading-7 text-gray-500">{conteudo.descricao}</p>
+        <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-.045em] text-white md:text-6xl">{conteudo.titulo}</h1>
+        <p className="mt-5 max-w-3xl leading-7 text-white/60">{conteudo.descricao}</p>
+        </div>
       </div>
 
       <ContentPlayer conteudo={conteudo} />

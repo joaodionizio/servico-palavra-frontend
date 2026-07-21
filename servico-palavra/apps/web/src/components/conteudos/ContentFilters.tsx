@@ -33,7 +33,7 @@ export function ContentFilters({
 }: ContentFiltersProps) {
   return (
     <form
-      className="grid gap-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:grid-cols-[1fr_220px_180px_auto]"
+      className="grid gap-3 rounded-[1.5rem] border border-slate-200/70 bg-[#FDFDFB] p-3 shadow-[0_12px_35px_rgba(0,51,102,.05)] md:grid-cols-[1fr_220px_180px_auto]"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit();
@@ -42,11 +42,11 @@ export function ContentFilters({
       <input
         value={busca}
         onChange={(event) => onBuscaChange(event.target.value)}
-        className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none transition-all focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10"
+        className="rounded-2xl border-0 bg-[#EEF3F5] px-5 py-3.5 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#004B87]/15"
         placeholder="Buscar por título ou tema"
       />
       <select
-        className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none transition-all focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10"
+        className="rounded-2xl border-0 bg-[#EEF3F5] px-5 py-3.5 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#004B87]/15"
         value={categoriaSlug}
         disabled={categoriasLoading}
         aria-invalid={Boolean(categoriasError)}
@@ -60,7 +60,7 @@ export function ContentFilters({
         ))}
       </select>
       <select
-        className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none transition-all focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10"
+        className="rounded-2xl border-0 bg-[#EEF3F5] px-5 py-3.5 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#004B87]/15"
         value={tipo || "todos"}
         onChange={(event) => onTipoChange(event.target.value === "todos" ? "" : (event.target.value as TipoConteudo))}
       >
@@ -73,7 +73,7 @@ export function ContentFilters({
       <button
         type="submit"
         disabled={loading}
-        className="rounded-xl bg-[#004B87] px-5 py-3.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#003366] disabled:translate-y-0 disabled:opacity-60"
+        className="rounded-2xl bg-[#FFCC00] px-6 py-3.5 text-sm font-black text-[#003A70] transition hover:-translate-y-0.5 hover:bg-[#FFE066] disabled:translate-y-0 disabled:opacity-60"
       >
         {loading ? "Buscando..." : "Buscar"}
       </button>

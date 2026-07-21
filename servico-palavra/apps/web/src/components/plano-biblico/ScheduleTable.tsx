@@ -18,9 +18,9 @@ export function ScheduleTable({ dias, onToggleDay, pendingDayId }: ScheduleTable
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-[1.5rem] border border-slate-200/70 bg-[#FDFDFB] shadow-[0_8px_30px_rgba(0,51,102,.045)]">
       {dias.map((dia) => (
-        <div key={dia.id} className="grid gap-3 border-b border-gray-100 p-5 last:border-0 md:grid-cols-[120px_1fr_140px] md:items-center">
+        <div key={dia.id} className="grid gap-3 border-b border-slate-100 p-5 transition-colors last:border-0 hover:bg-[#F4F7F8] md:grid-cols-[120px_1fr_140px] md:items-center">
           <div>
             <strong className="text-[#004B87]">Dia {dia.dia}</strong>
             {dia.data && <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-gray-400">{dia.data}</p>}

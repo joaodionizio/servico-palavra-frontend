@@ -94,9 +94,9 @@ export function PlanSetupForm({ mode = "create", onSubmit, submitLabel }: PlanSe
   }
 
   return (
-    <Card>
+    <Card className="rounded-[2rem] p-8 md:p-12">
       <p className="text-sm font-bold uppercase tracking-wider text-[#FFCC00]">Plano bíblico</p>
-      <h2 className="mt-3 text-2xl font-black text-[#004B87]">Escolha em quanto tempo deseja concluir a leitura da Bíblia</h2>
+      <h2 className="mt-3 max-w-3xl text-3xl font-black tracking-[-.035em] text-[#004B87] md:text-5xl">Escolha em quanto tempo deseja concluir a leitura da Bíblia</h2>
       <p className="mt-2 text-gray-500">Você pode usar uma duração pronta ou definir seu próprio tempo em meses ou anos.</p>
       <form className="mt-6" onSubmit={handleSubmit}>
         <div className="grid gap-3 md:grid-cols-4">

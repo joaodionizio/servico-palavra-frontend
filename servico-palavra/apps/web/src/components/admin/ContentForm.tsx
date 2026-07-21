@@ -273,7 +273,7 @@ export function ContentForm({ mode = "create", conteudoId }: ContentFormProps) {
   }
 
   return (
-    <form className="grid gap-6 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm" onSubmit={handleSubmit}>
+    <form className="grid gap-6 rounded-[2rem] border border-slate-200/70 bg-[#FDFDFB] p-8 shadow-sm md:p-10" onSubmit={handleSubmit}>
       {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
       {message && <p className="rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">{message}</p>}
 

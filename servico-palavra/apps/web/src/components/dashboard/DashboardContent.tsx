@@ -104,19 +104,20 @@ export function DashboardContent() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 animate-fade-in">
-      <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all hover:shadow-md md:p-10">
+      <section className="dashboard-hero relative min-h-[380px] overflow-hidden rounded-[2rem] border border-slate-200/70 bg-[#FDFDFB] p-8 shadow-sm md:flex md:items-center md:p-14">
+        <div className="dashboard-ribbon" aria-hidden="true"><i /><i /><i /></div>
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
+          <div className="relative z-10 max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Bem-vindo</p>
-            <h2 className="mt-3 text-3xl font-bold text-[#004B87]">Sua jornada de formação</h2>
-            <p className="mt-3 max-w-2xl text-gray-500">
+            <h2 className="mt-3 text-4xl font-black tracking-[-.045em] text-[#003A70] md:text-6xl">Sua jornada de formação</h2>
+            <p className="mt-5 max-w-2xl text-slate-500">
               Continue sua caminhada bíblica, espiritual e pastoral com formações, favoritos, progresso e plano bíblico no seu ritmo.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-3">
+      <section className="journey-stats grid gap-6 md:grid-cols-3">
         <DashboardCard
           index={0}
           title="Continuar"
@@ -127,7 +128,7 @@ export function DashboardContent() {
         <DashboardCard index={2} title="Favoritos" value={String(dashboard.estatisticas.totalFavoritos)} description="Separados para rever" />
       </section>
 
-      <section className="grid gap-6 md:grid-cols-3">
+      <section className="journey-focus grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           {continuingContent ? (
             <ContinueWatchingCard conteudo={continuingContent} />

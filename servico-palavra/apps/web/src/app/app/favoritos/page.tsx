@@ -41,10 +41,13 @@ export default function FavoritosPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">
-      <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+      <section className="page-stage page-stage-favorites">
+        <div className="page-stage-art" aria-hidden="true"><i /><i /><i /></div>
+        <div className="relative z-10">
         <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Favoritos</p>
-        <h1 className="mt-3 text-3xl font-black text-[#004B87]">Favoritos</h1>
+        <h1 className="mt-3 text-5xl font-black tracking-[-.05em] text-[#004B87] md:text-7xl">Favoritos</h1>
         <p className="mt-2 text-gray-500">Conteúdos separados para revisitar com calma.</p>
+        </div>
       </section>
 
       {state.status === "loading" && <Loading label="Carregando favoritos..." />}
@@ -54,7 +57,7 @@ export default function FavoritosPage() {
       )}
 
       {state.conteudos.length > 0 && (
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {state.conteudos.map((conteudo) => (
             <ContentCard key={conteudo.id} conteudo={conteudo} />
           ))}

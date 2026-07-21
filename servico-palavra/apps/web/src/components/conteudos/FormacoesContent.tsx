@@ -86,10 +86,13 @@ export function FormacoesContent() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">
-      <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-        <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Formação</p>
-        <h1 className="mt-3 text-3xl font-black text-[#004B87]">Formações</h1>
-        <p className="mt-2 text-gray-500">Conteúdos bíblicos e espirituais para sua caminhada de formação.</p>
+      <section className="formation-hero relative overflow-hidden rounded-[2rem] bg-[#003A70] p-8 text-white shadow-xl shadow-blue-950/10 md:p-12">
+        <div className="formation-sculpture" aria-hidden="true"><i /><i /><i /></div>
+        <div className="relative z-10 max-w-2xl">
+          <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Formação</p>
+          <h1 className="mt-3 text-5xl font-black tracking-[-.05em] text-white md:text-7xl">Formações</h1>
+          <p className="mt-4 text-white/65">Conteúdos bíblicos e espirituais para sua caminhada de formação.</p>
+        </div>
       </section>
 
       <ContentFilters
@@ -115,7 +118,7 @@ export function FormacoesContent() {
       )}
 
       {conteudos.length > 0 && (
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="formation-grid grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {conteudos.map((conteudo) => (
             <ContentCard key={conteudo.id} conteudo={conteudo} />
           ))}

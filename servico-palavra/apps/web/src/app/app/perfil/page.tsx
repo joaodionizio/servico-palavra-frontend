@@ -105,13 +105,16 @@ export default function PerfilPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 animate-fade-in">
-      <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+      <section className="page-stage page-stage-profile">
+        <div className="profile-monogram" aria-hidden="true">{usuario?.nome?.charAt(0) ?? "S"}</div>
+        <div className="relative z-10">
         <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Perfil</p>
-        <h1 className="mt-3 text-3xl font-black text-[#004B87]">Perfil</h1>
+        <h1 className="mt-3 text-5xl font-black tracking-[-.05em] text-[#004B87] md:text-7xl">Perfil</h1>
         <p className="mt-2 text-gray-500">Confira e atualize seus dados básicos de acesso.</p>
+        </div>
       </section>
 
-      <Card>
+      <Card className="profile-card p-6 md:p-10">
         {loading && <p className="font-semibold text-[#004B87]">Carregando perfil...</p>}
 
         {!loading && !usuario && <p className="text-gray-500">Não foi possível carregar os dados do perfil. Entre novamente para continuar.</p>}

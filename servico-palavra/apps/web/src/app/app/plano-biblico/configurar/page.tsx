@@ -78,9 +78,9 @@ export default function ConfigurarPlanoPage() {
 
   return (
     <div className="mx-auto grid max-w-5xl gap-6 animate-fade-in">
-      <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+      <section className="page-stage">
         <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Plano bíblico</p>
-        <h1 className="mt-3 text-3xl font-black text-[#004B87]">{mode === "change" ? "Alterar plano bíblico" : "Criar plano bíblico"}</h1>
+        <h1 className="mt-3 text-5xl font-black tracking-[-.05em] text-[#004B87] md:text-6xl">{mode === "change" ? "Alterar plano bíblico" : "Criar plano bíblico"}</h1>
         <p className="mt-2 text-gray-500">{mode === "change" ? "Ao trocar o plano, escolha como deseja tratar o progresso atual." : "Escolha a duração para iniciar seu plano personalizado."}</p>
       </section>
       <PlanSetupForm mode={mode} onSubmit={handleSubmit} submitLabel={mode === "change" ? "Salvar alteração" : "Criar plano"} />

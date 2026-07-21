@@ -73,23 +73,23 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col justify-center p-8 md:p-12">
-      <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#004B87]/50">Nova conta</p>
+    <form onSubmit={handleSubmit} className="flex flex-col justify-center p-8 md:p-12 lg:p-16">
+      <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#D3A900]">Nova conta</p>
 
-      <h2 className="mt-3 text-3xl font-black text-[#004B87]">Criar cadastro</h2>
+      <h2 className="mt-3 text-4xl font-black tracking-tight text-[#003A70]">Criar cadastro</h2>
 
       <p className="mt-2 text-gray-500">Informe seus dados para salvar seu progresso.</p>
 
       <div className="mt-8 space-y-4">
         <input
-          className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none transition-all duration-300 focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10"
+          className="auth-line-input"
           placeholder="Seu nome"
           name="nome"
           autoComplete="name"
           required
         />
         <input
-          className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none transition-all duration-300 focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10"
+          className="auth-line-input"
           placeholder="Seu email"
           type="email"
           name="email"
@@ -97,7 +97,7 @@ export function RegisterForm() {
           required
         />
         <input
-          className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none transition-all duration-300 focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10"
+          className="auth-line-input"
           placeholder="Crie uma senha"
           type="password"
           name="senha"
@@ -107,7 +107,7 @@ export function RegisterForm() {
           required
         />
         <input
-          className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none transition-all duration-300 focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10"
+          className="auth-line-input"
           placeholder="Confirme sua senha"
           type="password"
           name="confirmarSenha"
@@ -122,7 +122,7 @@ export function RegisterForm() {
 
       <button
         disabled={loading}
-        className="mt-8 w-full rounded-xl bg-[#004B87] px-5 py-4 font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#003366] hover:shadow-lg disabled:transform-none disabled:opacity-60"
+        className="mt-8 w-full rounded-full bg-[#004B87] px-5 py-4 font-bold text-white transition-all hover:-translate-y-1 hover:bg-[#003366] hover:shadow-xl disabled:transform-none disabled:opacity-60"
       >
         {loading ? "Criando conta..." : "Criar conta"}
       </button>

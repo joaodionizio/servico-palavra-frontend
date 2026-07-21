@@ -11,8 +11,8 @@ export function ContentPlayer({ conteudo }: { conteudo: Conteudo }) {
 
   if (embedUrl) {
     return (
-      <Card className="overflow-hidden p-0">
-        <div className="aspect-video w-full bg-black">
+      <Card className="overflow-hidden rounded-[2rem] p-0">
+        <div className="aspect-video w-full bg-[#001B35]">
           <iframe
             src={embedUrl}
             title={`Vídeo: ${conteudo.titulo}`}
@@ -43,7 +43,7 @@ export function ContentPlayer({ conteudo }: { conteudo: Conteudo }) {
   }
 
   return (
-    <Card className="grid gap-6 md:grid-cols-[220px_1fr] md:items-center">
+    <Card className="grid gap-8 rounded-[2rem] md:grid-cols-[260px_1fr] md:items-center">
       {thumbnailUrl ? (
         <img src={thumbnailUrl} alt={`Capa de ${conteudo.titulo}`} className="aspect-video w-full rounded-xl object-cover md:aspect-square" />
       ) : (

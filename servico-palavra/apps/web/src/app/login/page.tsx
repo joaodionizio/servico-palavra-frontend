@@ -4,28 +4,37 @@ import { BrandEyebrow } from "@/components/branding/BrandEyebrow";
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#F8FAFC] p-6 animate-fade-in">
-      <section className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] bg-white shadow-2xl shadow-blue-900/10 transition-all md:grid-cols-2">
-        <div className="auth-brand-panel relative hidden overflow-hidden bg-[#004B87] p-12 text-white md:flex md:flex-col md:justify-between">
-          <div className="absolute right-0 top-0 -mr-10 -mt-10 h-64 w-64 rounded-full bg-white opacity-5 blur-3xl" />
+    <main className="prayer-auth min-h-screen overflow-hidden">
+      <div className="prayer-grain" aria-hidden="true" />
 
-          <div className="relative z-10">
-            <BrandEyebrow
-              variant="onBlue"
-              className="text-xl font-semibold tracking-wide sm:text-2xl"
-            />
-            <h1 className="mt-4 text-4xl font-black leading-tight text-white">Serviço da Palavra</h1>
-            <p className="mt-5 leading-relaxed text-white/80">
+      <header className="relative z-20 flex items-center justify-between px-6 py-6 md:px-12 lg:px-16">
+        <BrandEyebrow variant="light" className="text-xl font-semibold tracking-wide sm:text-2xl" />
+      </header>
+
+      <section className="relative z-10 mx-auto grid min-h-[calc(100vh-88px)] max-w-[1600px] items-center gap-8 px-6 pb-10 md:px-12 lg:grid-cols-[1.25fr_.75fr] lg:px-16">
+        <div className="relative flex min-h-[400px] items-center lg:min-h-[680px]">
+          <div className="relative z-10 max-w-3xl">
+            <h1 className="prayer-display text-[clamp(4.3rem,9vw,9.5rem)] font-black uppercase leading-[.76] tracking-[-.08em] text-[#003A70]">
+              Serviço
+              <span className="block font-brand-script normal-case tracking-[-.04em] text-[#E8B900]">da Palavra</span>
+            </h1>
+            <p className="mt-9 max-w-md border-l-2 border-[#FFCC00] pl-6 text-base leading-7 text-slate-500 md:text-lg">
               Acompanhe formações, favoritos, progresso e sua caminhada espiritual em um só lugar.
             </p>
+            <p className="mt-8 text-sm italic text-slate-400">“Ignorar as Escrituras é ignorar Cristo.” — São Jerônimo</p>
           </div>
 
-          <p className="relative z-10 text-sm italic text-white/70">“Ignorar as Escrituras é ignorar Cristo.” — São Jerônimo</p>
+          <div className="word-sculpture" aria-hidden="true">
+            <div className="word-page word-page-one" />
+            <div className="word-page word-page-two" />
+            <div className="word-page word-page-three" />
+            <div className="word-light" />
+          </div>
         </div>
 
-        <Suspense>
-          <LoginForm />
-        </Suspense>
+        <div className="prayer-login-card mx-auto w-full max-w-[460px] overflow-hidden rounded-[1.75rem]">
+          <Suspense><LoginForm /></Suspense>
+        </div>
       </section>
     </main>
   );

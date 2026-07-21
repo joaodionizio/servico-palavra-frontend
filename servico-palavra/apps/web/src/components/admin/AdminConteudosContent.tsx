@@ -131,11 +131,11 @@ export function AdminConteudosContent() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">
-      <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+      <div className="admin-stage flex flex-wrap items-start justify-between gap-4 p-8 md:p-12">
         <div>
           <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Admin</p>
-          <h1 className="mt-3 text-3xl font-black text-[#004B87]">Conteúdos</h1>
-          <p className="mt-2 text-gray-500">Listar, criar, editar, publicar e despublicar conteúdos.</p>
+          <h1 className="mt-3 text-5xl font-black tracking-[-.05em] text-white md:text-6xl">Conteúdos</h1>
+          <p className="mt-2 text-white/60">Listar, criar, editar, publicar e despublicar conteúdos.</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <LinkButton href="/admin/categorias" variant="secondary">

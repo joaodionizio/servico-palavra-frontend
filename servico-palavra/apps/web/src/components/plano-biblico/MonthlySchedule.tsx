@@ -210,7 +210,7 @@ export function MonthlySchedule({ dias, onToggleDay, pendingDayId }: MonthlySche
                 {section.map((group) => (
                   <button
                     key={group.mes}
-                    className="min-h-52 rounded-2xl border border-[#FFCC00]/60 bg-white p-6 text-left shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#FFCC00]/80 hover:shadow-md"
+                    className="group relative min-h-60 overflow-hidden rounded-[1.5rem] border border-slate-200/70 bg-[#FDFDFB] p-7 text-left shadow-sm transition-all duration-500 ease-out hover:-translate-y-2 hover:border-[#004B87]/20 hover:shadow-xl"
                     type="button"
                     onClick={() => setSelectedMonthNumber(group.mes)}
                   >
