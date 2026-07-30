@@ -4,8 +4,8 @@ type BrandEyebrowProps = {
 };
 
 const sentinelasColorByVariant = {
-  light: "text-[#004B87] dark:text-[#BFECEF]",
-  onBlue: "text-[#BFECEF]"
+  light: "text-[#004B87] dark:text-white",
+  onBlue: "text-[#BFECEF] dark:text-white"
 };
 
 export function BrandEyebrow({

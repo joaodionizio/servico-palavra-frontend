@@ -32,6 +32,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [menuOpen, setMenuOpen] = useState(false);
   const [railCollapsed, setRailCollapsed] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     const savedTheme = (() => { try { return window.localStorage.getItem("servico-palavra-theme"); } catch { return null; } })();
@@ -53,7 +54,21 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
     });
   }
 
-  async function sair() { await signOut(); router.push("/login"); }
+  async function sair() {
+    if (signingOut) return;
+
+    setSigningOut(true);
+
+    try {
+      await Promise.all([
+        signOut(),
+        new Promise((resolve) => window.setTimeout(resolve, 450))
+      ]);
+      router.push("/login");
+    } finally {
+      setSigningOut(false);
+    }
+  }
 
   function toggleRail() {
     setRailCollapsed((current) => {
@@ -82,7 +97,10 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
       </nav>
       <div className="app-rail-actions">
         <button type="button" onClick={toggleTheme}>{theme === "dark" ? "☀" : "◐"}<span>{theme === "dark" ? "Modo claro" : "Modo escuro"}</span></button>
-        <button type="button" onClick={sair}>↗<span>Sair</span></button>
+        <button type="button" onClick={sair} disabled={signingOut} aria-busy={signingOut}>
+          {signingOut ? <i className="action-orbit rail-spinner" aria-hidden="true" /> : "↗"}
+          <span>{signingOut ? "Saindo..." : "Sair"}</span>
+        </button>
       </div>
     </>
   );

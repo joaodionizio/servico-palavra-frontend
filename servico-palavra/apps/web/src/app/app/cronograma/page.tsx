@@ -128,11 +128,12 @@ export default function CronogramaPage() {
       <section className="schedule-stage relative mx-auto overflow-hidden rounded-[2rem] bg-[#FFCC00] px-8 py-14 text-left md:px-14 md:py-20">
         <div className="schedule-orbit" aria-hidden="true" />
         <div className="relative z-10 max-w-3xl">
-        <p className="text-sm font-bold uppercase tracking-[0.45em] text-[#FFCC00]">Visão geral do percurso</p>
-        <h1 className="mt-5 text-5xl font-black tracking-[-.055em] text-[#003A70] md:text-7xl">Cronograma Completo</h1>
-        <p className="mt-5 text-lg leading-relaxed text-gray-500">
-          Consulte as principais leituras e fases do plano organizadas por mês. A leitura diária detalhada continua disponível na aba Plano.
-        </p></div>
+          <p className="text-sm font-black uppercase tracking-[0.45em] text-[#003A70]/70">Visão geral do percurso</p>
+          <h1 className="mt-5 text-5xl font-black tracking-[-.055em] text-[#003A70] md:text-7xl">Cronograma Completo</h1>
+          <p className="mt-5 text-lg font-medium leading-relaxed text-[#003A70]/75">
+            Consulte as principais leituras e fases do plano organizadas por mês. A leitura diária detalhada continua disponível na aba Plano.
+          </p>
+        </div>
       </section>
       {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
       <MonthlySchedule dias={dias} onToggleDay={handleToggleDay} pendingDayId={pendingDayId} />
