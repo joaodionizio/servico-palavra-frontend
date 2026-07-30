@@ -4,7 +4,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Servico da Palavra",
-  description: "Plataforma de Formacao Biblica e Espiritual"
+  description: "Plataforma de Formacao Biblica e Espiritual",
+  icons: {
+    icon: "/sentinelas-da-manha.png",
+    shortcut: "/sentinelas-da-manha.png",
+    apple: "/sentinelas-da-manha.png"
+  }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
