@@ -27,6 +27,8 @@ type ApiStats = {
   loginCalls: number;
   authMeCalls: number;
   logoutCalls: number;
+  forgotPasswordCalls: number;
+  resetPasswordCalls: number;
 };
 
 async function json(route: Route, body: unknown, status = 200) {
@@ -41,7 +43,9 @@ async function mockApi(page: Page, authenticated = true) {
   const stats: ApiStats = {
     loginCalls: 0,
     authMeCalls: 0,
-    logoutCalls: 0
+    logoutCalls: 0,
+    forgotPasswordCalls: 0,
+    resetPasswordCalls: 0
   };
 
   await page.route("**/mock-api/**", async (route) => {
@@ -55,6 +59,34 @@ async function mockApi(page: Page, authenticated = true) {
     if (path.endsWith("/api/auth/login") && request.method() === "POST") {
       stats.loginCalls += 1;
       return json(route, { success: true, data: { usuario } });
+    }
+
+    if (path.endsWith("/api/auth/password/forgot") && request.method() === "POST") {
+      stats.forgotPasswordCalls += 1;
+      return json(route, {
+        success: true,
+        message: "Se existir uma conta com esse e-mail, enviaremos as instruções de recuperação.",
+        errors: null
+      });
+    }
+
+    if (path.endsWith("/api/auth/password/reset") && request.method() === "POST") {
+      stats.resetPasswordCalls += 1;
+      const payload = request.postDataJSON() as { token?: string };
+
+      if (payload.token === "invalid") {
+        return json(route, {
+          success: false,
+          message: null,
+          errors: ["Link de recuperacao invalido ou expirado."]
+        }, 400);
+      }
+
+      return json(route, {
+        success: true,
+        message: "Senha redefinida com sucesso.",
+        errors: null
+      });
     }
 
     if (path.endsWith("/api/auth/me")) {
@@ -103,6 +135,71 @@ test("logout navega assim que a requisicao real termina", async ({ page }) => {
   expect(stats.logoutCalls).toBe(1);
 });
 
+test("login oferece acesso por teclado ao fluxo de recuperacao", async ({ page }) => {
+  await page.goto("/login");
+  const recoveryLink = page.getByRole("link", { name: "Esqueci minha senha" });
+  await expect(recoveryLink).toBeVisible();
+  await recoveryLink.focus();
+  await expect(recoveryLink).toBeFocused();
+  await recoveryLink.press("Enter");
+  await expect(page).toHaveURL(/\/esqueci-senha$/);
+});
+
+test("solicitacao de recuperacao mostra confirmacao generica", async ({ page }) => {
+  const stats = await mockApi(page);
+  await page.goto("/esqueci-senha");
+  await page.getByLabel("E-mail").fill("qualquer@example.com");
+  await page.getByRole("button", { name: "Enviar link de recuperação" }).click();
+
+  await expect(page.getByRole("status")).toContainText("Se existir uma conta com esse e-mail");
+  await expect(page.getByText("Por segurança, mostramos a mesma confirmação")).toBeVisible();
+  expect(stats.forgotPasswordCalls).toBe(1);
+});
+
+test("reset valido conclui sem autenticar automaticamente", async ({ page }) => {
+  const stats = await mockApi(page);
+  await page.goto("/redefinir-senha?userId=11111111-2222-3333-4444-555555555555&token=valid");
+  await page.getByLabel("Nova senha").fill("NovaSenha123");
+  await page.getByLabel("Confirme a nova senha").fill("NovaSenha123");
+  await page.getByRole("button", { name: "Redefinir senha" }).click();
+
+  await expect(page.getByRole("heading", { name: "Senha redefinida" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Entrar com a nova senha" })).toHaveAttribute("href", "/login");
+  expect(stats.resetPasswordCalls).toBe(1);
+  expect(stats.loginCalls).toBe(0);
+});
+
+test("token invalido oferece solicitar novo link", async ({ page }) => {
+  const stats = await mockApi(page);
+  await page.goto("/redefinir-senha?userId=11111111-2222-3333-4444-555555555555&token=invalid");
+  await page.getByLabel("Nova senha").fill("NovaSenha123");
+  await page.getByLabel("Confirme a nova senha").fill("NovaSenha123");
+  await page.getByRole("button", { name: "Redefinir senha" }).click();
+
+  await expect(page.getByRole("alert")).toContainText("inválido ou expirou");
+  expect(stats.resetPasswordCalls).toBe(1);
+});
+
+test("link sem parametros mostra estado invalido sem chamar reset", async ({ page }) => {
+  const stats = await mockApi(page);
+  await page.goto("/redefinir-senha");
+
+  await expect(page.getByRole("heading", { name: "Link inválido" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Solicitar novo link" })).toHaveAttribute("href", "/esqueci-senha");
+  expect(stats.resetPasswordCalls).toBe(0);
+});
+
+test("senhas divergentes sao rejeitadas antes da API", async ({ page }) => {
+  const stats = await mockApi(page);
+  await page.goto("/redefinir-senha?userId=11111111-2222-3333-4444-555555555555&token=valid");
+  await page.getByLabel("Nova senha").fill("NovaSenha123");
+  await page.getByLabel("Confirme a nova senha").fill("OutraSenha123");
+  await page.getByRole("button", { name: "Redefinir senha" }).click();
+
+  await expect(page.getByRole("alert")).toContainText("As senhas não conferem");
+  expect(stats.resetPasswordCalls).toBe(0);
+});
+
 test("menu móvel abre e expõe a navegação principal", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page);
@@ -129,6 +226,18 @@ for (const viewport of [
     await page.goto("/login");
     await expect(page.getByPlaceholder("Seu email")).toBeVisible();
     await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
+
+    const overflow = await page.evaluate(() =>
+      document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+    );
+    expect(overflow).toBe(false);
+  });
+
+  test(`recuperacao sem overflow horizontal em ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/esqueci-senha");
+    await expect(page.getByRole("heading", { name: "Esqueceu sua senha?" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Enviar link de recuperação" })).toBeVisible();
 
     const overflow = await page.evaluate(() =>
       document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
