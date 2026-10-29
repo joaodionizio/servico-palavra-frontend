@@ -54,9 +54,21 @@ jobs:
         working-directory: servico-palavra/apps/web
         run: npx playwright test --grep "login oferece acesso|solicitacao"
 
-      - name: E2E — recuperação / reset
+      - name: E2E — reset / sucesso
         working-directory: servico-palavra/apps/web
-        run: npx playwright test --grep "reset valido|token invalido|link sem parametros|senhas divergentes"
+        run: npx playwright test --grep "reset valido"
+
+      - name: E2E — reset / token inválido
+        working-directory: servico-palavra/apps/web
+        run: npx playwright test --grep "token invalido"
+
+      - name: E2E — reset / parâmetros ausentes
+        working-directory: servico-palavra/apps/web
+        run: npx playwright test --grep "link sem parametros"
+
+      - name: E2E — reset / senhas divergentes
+        working-directory: servico-palavra/apps/web
+        run: npx playwright test --grep "senhas divergentes"
 
       - name: E2E — recuperação / segurança e motion
         working-directory: servico-palavra/apps/web
