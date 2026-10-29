@@ -9,38 +9,49 @@ const usuario = {
 
 const planId = "11111111-1111-1111-1111-111111111111";
 
+const formations = [
+  {
+    id: "formacao-1",
+    slug: "formacao-com-titulo-longo",
+    titulo: "Formação bíblica com um título propositalmente longo para validar a recomposição responsiva",
+    descricao: "Conteúdo de formação com descrição suficiente para ocupar mais de uma linha sem forçar largura horizontal.",
+    tipo: "video",
+    origem: "youtube",
+    categoria: "Espiritualidade",
+    duracaoMinutos: 42,
+    publicado: true
+  },
+  {
+    id: "formacao-2",
+    slug: "lectio-divina",
+    titulo: "Lectio Divina na vida cotidiana",
+    descricao: "Prática de oração e leitura.",
+    tipo: "audio",
+    origem: "interno",
+    categoria: "Oração",
+    publicado: true
+  },
+  {
+    id: "formacao-3",
+    slug: "evangelhos",
+    titulo: "Introdução aos Evangelhos",
+    descricao: "Uma visão pastoral dos Evangelhos.",
+    tipo: "texto",
+    origem: "interno",
+    categoria: "Bíblia",
+    publicado: true
+  }
+];
+
 const dashboard = {
   conteudosConcluidos: 4,
   favoritos: 2,
   possuiPlanoBiblicoAtivo: true,
-  formacoesRecentes: [
-    {
-      id: "formacao-1",
-      slug: "formacao-com-titulo-longo",
-      titulo: "Formação bíblica com um título propositalmente longo para validar a recomposição responsiva",
-      descricao: "Conteúdo de formação com descrição suficiente para ocupar mais de uma linha sem forçar largura horizontal.",
-      tipo: "video",
-      origem: "youtube",
-      categoriaNome: "Espiritualidade",
-      duracao: "42 min"
-    },
-    {
-      id: "formacao-2",
-      slug: "lectio-divina",
-      titulo: "Lectio Divina na vida cotidiana",
-      descricao: "Prática de oração e leitura.",
-      tipo: "audio",
-      categoriaNome: "Oração"
-    },
-    {
-      id: "formacao-3",
-      slug: "evangelhos",
-      titulo: "Introdução aos Evangelhos",
-      descricao: "Uma visão pastoral dos Evangelhos.",
-      tipo: "texto",
-      categoriaNome: "Bíblia"
-    }
-  ],
+  formacoesRecentes: formations.map((item) => ({
+    ...item,
+    categoriaNome: item.categoria,
+    duracao: item.duracaoMinutos ? `${item.duracaoMinutos} min` : undefined
+  })),
   favoritosRecentes: [],
   conteudosComProgresso: [
     {
@@ -131,6 +142,29 @@ async function mockApi(page: Page) {
       return json(route, { success: true, data: dashboard });
     }
 
+    if (path.endsWith("/api/categorias")) {
+      return json(route, {
+        success: true,
+        data: [
+          { id: "cat-1", nome: "Espiritualidade", slug: "espiritualidade", ordem: 1, ativo: true },
+          { id: "cat-2", nome: "Bíblia", slug: "biblia", ordem: 2, ativo: true }
+        ]
+      });
+    }
+
+    if (path.endsWith("/api/conteudos")) {
+      return json(route, {
+        success: true,
+        data: {
+          itens: formations,
+          pagina: 1,
+          tamanhoPagina: 12,
+          totalItens: formations.length,
+          totalPaginas: 1
+        }
+      });
+    }
+
     if (path.endsWith("/api/planos-biblicos/ativo")) {
       return json(route, { success: true, data: planoAtivo });
     }
@@ -198,6 +232,17 @@ for (const viewport of viewports) {
       await page.keyboard.press("Escape");
       await expect(page.getByRole("button", { name: "Abrir menu" })).toHaveAttribute("aria-expanded", "false");
     }
+  });
+
+  test(`formacoes sem overflow horizontal em ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await signIn(page);
+    await page.goto("/app/formacoes");
+
+    await expect(page.getByRole("heading", { name: "Formações" })).toBeVisible();
+    await expect(page.getByText("Formação bíblica com um título propositalmente longo", { exact: false }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Ver formação" }).first()).toBeVisible();
+    await expectNoHorizontalOverflow(page);
   });
 
   test(`plano biblico sem overflow horizontal em ${viewport.width}px`, async ({ page }) => {
