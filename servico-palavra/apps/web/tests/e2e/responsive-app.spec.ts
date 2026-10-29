@@ -224,13 +224,17 @@ for (const viewport of viewports) {
     await expectNoHorizontalOverflow(page);
 
     if (viewport.width < 1024) {
-      const menuButton = page.getByRole("button", { name: "Abrir menu" });
+      const menuButton = page.locator('button[aria-controls="app-navigation-drawer"]');
       await expect(menuButton).toBeVisible();
+      await expect(menuButton).toHaveAccessibleName("Abrir menu");
+      await expect(menuButton).toHaveAttribute("aria-expanded", "false");
       await menuButton.click();
+      await expect(menuButton).toHaveAccessibleName("Fechar menu");
       await expect(menuButton).toHaveAttribute("aria-expanded", "true");
       await expect(page.getByRole("link", { name: "Cronograma", exact: true })).toBeVisible();
       await page.keyboard.press("Escape");
-      await expect(page.getByRole("button", { name: "Abrir menu" })).toHaveAttribute("aria-expanded", "false");
+      await expect(menuButton).toHaveAccessibleName("Abrir menu");
+      await expect(menuButton).toHaveAttribute("aria-expanded", "false");
     }
   });
 
