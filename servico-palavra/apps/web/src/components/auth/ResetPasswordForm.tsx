@@ -67,10 +67,10 @@ export function ResetPasswordForm() {
       <div className="flex flex-col justify-center p-8 md:p-12">
         <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#D3A900]">Recuperação</p>
         <h2 className="mt-3 text-3xl font-black tracking-tight text-[#003A70]">Link inválido</h2>
-        <p className="mt-5 rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm leading-6 text-amber-800" role="alert">
+        <p className="mt-5 rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm leading-6 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200" role="alert">
           Este link não contém todas as informações necessárias. Solicite uma nova recuperação de senha.
         </p>
-        <Link href="/esqueci-senha" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-[#004B87] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#003366]">
+        <Link href="/esqueci-senha" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-[#004B87] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#003366] motion-reduce:transition-none">
           Solicitar novo link
         </Link>
       </div>
@@ -82,10 +82,10 @@ export function ResetPasswordForm() {
       <div className="flex flex-col justify-center p-8 md:p-12">
         <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#D3A900]">Recuperação</p>
         <h2 className="mt-3 text-3xl font-black tracking-tight text-[#003A70]">Senha redefinida</h2>
-        <p className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-sm leading-6 text-emerald-800" role="status">
+        <p className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-sm leading-6 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200" role="status">
           Sua senha foi alterada com sucesso. Você já pode entrar usando a nova senha.
         </p>
-        <Link href="/login" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-[#004B87] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#003366]">
+        <Link href="/login" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-[#004B87] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#003366] motion-reduce:transition-none">
           Entrar com a nova senha
         </Link>
       </div>
@@ -128,7 +128,7 @@ export function ResetPasswordForm() {
       <p className="mt-4 text-sm leading-6 text-slate-500">{PASSWORD_REQUIREMENTS}</p>
 
       {error && (
-        <p className="mt-5 rounded-xl border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600" role="alert">
+        <p className="mt-5 rounded-xl border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200" role="alert">
           {error}
         </p>
       )}
@@ -137,12 +137,12 @@ export function ResetPasswordForm() {
         type="submit"
         disabled={loading}
         aria-busy={loading}
-        className="mt-8 min-h-13 w-full rounded-full bg-[#004B87] px-5 py-4 font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#003366] hover:shadow-lg disabled:transform-none disabled:opacity-60"
+        className="mt-8 min-h-12 w-full rounded-full bg-[#004B87] px-5 py-4 font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#003366] hover:shadow-lg disabled:transform-none disabled:opacity-60 motion-reduce:transform-none motion-reduce:transition-none"
       >
         {loading ? "Redefinindo senha..." : "Redefinir senha"}
       </button>
 
-      <Link href="/login" className="mt-6 text-center text-sm font-bold text-[#004B87] transition-colors hover:text-[#D3A900]">
+      <Link href="/login" className="mt-6 text-center text-sm font-bold text-[#004B87] transition-colors hover:text-[#D3A900] motion-reduce:transition-none">
         Voltar para o login
       </Link>
     </form>
