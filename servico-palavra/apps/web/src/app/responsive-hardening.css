@@ -1,0 +1,113 @@
+@media (max-width: 1023px) {
+  .app-main {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+
+  .app-mobile-header {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-hero {
+    min-height: auto;
+    padding: 2rem;
+    border-radius: 1.5rem;
+  }
+
+  .dashboard-ribbon {
+    right: -12%;
+    width: 48%;
+    opacity: 0.48;
+  }
+
+  .journey-stats {
+    margin-top: -34px;
+    padding-inline: 12px;
+  }
+
+  .daily-reading {
+    padding: 2rem;
+  }
+
+  .daily-reading h3 {
+    font-size: clamp(2rem, 8vw, 3rem);
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-main {
+    padding-top: 84px;
+    padding-bottom: 36px;
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
+  .dashboard-hero {
+    padding: 1.5rem;
+  }
+
+  .dashboard-hero h2 {
+    font-size: clamp(2.15rem, 11vw, 3.25rem);
+    line-height: 0.98;
+  }
+
+  .dashboard-ribbon {
+    right: -24%;
+    width: 62%;
+    opacity: 0.34;
+  }
+
+  .journey-stats {
+    margin-top: -24px;
+    padding-inline: 8px;
+  }
+
+  .journey-focus,
+  .formation-grid {
+    gap: 1rem;
+  }
+
+  .schedule-row {
+    padding: 1rem;
+  }
+
+  .schedule-actions {
+    width: 100%;
+  }
+
+  .schedule-actions .ui-control {
+    flex: 1 1 auto;
+  }
+
+  .daily-reading {
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+  }
+
+  .daily-reading .ui-control {
+    width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  .dashboard-hero {
+    padding: 1.25rem;
+  }
+
+  .dashboard-ribbon {
+    opacity: 0.24;
+  }
+
+  .journey-stats {
+    margin-top: -16px;
+    padding-inline: 0;
+  }
+
+  .content-card .ui-control {
+    width: 100%;
+  }
+}
