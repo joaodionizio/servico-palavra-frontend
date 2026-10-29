@@ -45,6 +45,25 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
 
   useEffect(() => setMenuOpen(false), [pathname]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [menuOpen]);
+
   function toggleTheme() {
     setTheme((current) => {
       const next = current === "dark" ? "light" : "dark";
@@ -77,7 +96,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
 
   const navigation = (
     <>
-      <nav className="app-rail-nav">
+      <nav className="app-rail-nav" aria-label={admin ? "Navegação administrativa" : "Navegação principal"}>
         {items.map(([label, href, icon]) => {
           const active = !admin && isActivePath(pathname, href);
           return (
@@ -93,7 +112,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
         )}
       </nav>
       <div className="app-rail-actions">
-        <button type="button" onClick={toggleTheme}>{theme === "dark" ? "☀" : "◐"}<span>{theme === "dark" ? "Modo claro" : "Modo escuro"}</span></button>
+        <button type="button" onClick={toggleTheme} aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}>{theme === "dark" ? "☀" : "◐"}<span>{theme === "dark" ? "Modo claro" : "Modo escuro"}</span></button>
         <button type="button" onClick={sair} disabled={signingOut} aria-busy={signingOut}>
           {signingOut ? <i className="action-orbit rail-spinner" aria-hidden="true" /> : "↗"}
           <span>{signingOut ? "Saindo..." : "Sair"}</span>
@@ -103,13 +122,21 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
   );
 
   return (
-    <div className={`app-experience min-h-screen bg-[#F4F7F8] text-gray-800 ${railCollapsed ? "rail-collapsed" : ""}`}>
+    <div className={`app-experience min-h-screen bg-[#F4F7F8] text-gray-800 dark:bg-[#050505] dark:text-slate-100 ${railCollapsed ? "rail-collapsed" : ""}`}>
       <header className="app-mobile-header">
         <Link href="/app"><BrandEyebrow variant="light" className="text-lg font-black" /></Link>
-        <button type="button" aria-label="Abrir menu" onClick={() => setMenuOpen((value) => !value)}>{menuOpen ? "×" : "☰"}</button>
+        <button
+          type="button"
+          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={menuOpen}
+          aria-controls="app-navigation-drawer"
+          onClick={() => setMenuOpen((value) => !value)}
+        >
+          {menuOpen ? "×" : "☰"}
+        </button>
       </header>
 
-      <aside className={`app-rail ${menuOpen ? "open" : ""}`}>
+      <aside id="app-navigation-drawer" className={`app-rail ${menuOpen ? "open" : ""}`} aria-label="Menu da aplicação">
         <button type="button" className="app-rail-toggle" onClick={toggleRail} aria-label={railCollapsed ? "Expandir menu" : "Recolher menu"} title={railCollapsed ? "Expandir menu" : "Recolher menu"}>{railCollapsed ? "›" : "‹"}</button>
         <Link href="/app" className="app-rail-brand">
           <BrandEyebrow variant="onBlue" className="text-xl font-semibold" />
@@ -121,7 +148,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
 
       {menuOpen && <button className="app-menu-backdrop" aria-label="Fechar menu" onClick={() => setMenuOpen(false)} />}
 
-      <main className="app-main"><div className="animate-fade-in">{children}</div></main>
+      <main className="app-main" id="main-content"><div className="animate-fade-in">{children}</div></main>
     </div>
   );
 }
