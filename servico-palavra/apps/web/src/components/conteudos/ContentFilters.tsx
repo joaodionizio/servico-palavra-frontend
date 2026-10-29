@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import { TIPO_CONTEUDO_LABELS, type CategoriaConteudo, type TipoConteudo } from "@/types/conteudo";
 
 const tipos: Array<TipoConteudo | "todos"> = ["todos", "video", "audio", "documento", "link", "texto"];
@@ -18,6 +19,8 @@ type ContentFiltersProps = {
   onSubmit?: () => void;
 };
 
+const fieldClass = "min-h-11 min-w-0 w-full rounded-2xl border border-transparent bg-[#EEF3F5] px-4 py-3 text-sm text-slate-700 transition-colors focus:border-[#004B87]/20 focus:bg-white focus:ring-2 focus:ring-[#004B87]/15 sm:px-5 sm:py-3.5 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-sky-200/20 dark:focus:bg-slate-900 dark:focus:ring-sky-300/15";
+
 export function ContentFilters({
   busca = "",
   categoriaSlug = "todas",
@@ -33,7 +36,7 @@ export function ContentFilters({
 }: ContentFiltersProps) {
   return (
     <form
-      className="grid gap-3 rounded-[1.5rem] border border-slate-200/70 bg-[#FDFDFB] p-3 shadow-[0_12px_35px_rgba(0,51,102,.05)] md:grid-cols-[1fr_220px_180px_auto]"
+      className="grid gap-3 rounded-[1.5rem] border border-slate-200/70 bg-[#FDFDFB] p-3 shadow-[0_12px_35px_rgba(0,51,102,.05)] md:grid-cols-[minmax(0,1fr)_minmax(170px,220px)_minmax(150px,180px)_auto] dark:border-slate-700 dark:bg-slate-900/70"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit();
@@ -42,13 +45,15 @@ export function ContentFilters({
       <input
         value={busca}
         onChange={(event) => onBuscaChange(event.target.value)}
-        className="rounded-2xl border-0 bg-[#EEF3F5] px-5 py-3.5 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#004B87]/15"
+        className={fieldClass}
+        aria-label="Buscar formações por título ou tema"
         placeholder="Buscar por título ou tema"
       />
       <select
-        className="rounded-2xl border-0 bg-[#EEF3F5] px-5 py-3.5 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#004B87]/15"
+        className={fieldClass}
         value={categoriaSlug}
         disabled={categoriasLoading}
+        aria-label="Filtrar por categoria"
         aria-invalid={Boolean(categoriasError)}
         onChange={(event) => onCategoriaChange(event.target.value)}
       >
@@ -60,8 +65,9 @@ export function ContentFilters({
         ))}
       </select>
       <select
-        className="rounded-2xl border-0 bg-[#EEF3F5] px-5 py-3.5 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#004B87]/15"
+        className={fieldClass}
         value={tipo || "todos"}
+        aria-label="Filtrar por tipo de conteúdo"
         onChange={(event) => onTipoChange(event.target.value === "todos" ? "" : (event.target.value as TipoConteudo))}
       >
         {tipos.map((tipo) => (
@@ -70,13 +76,9 @@ export function ContentFilters({
           </option>
         ))}
       </select>
-      <button
-        type="submit"
-        disabled={loading}
-        className="rounded-2xl bg-[#FFCC00] px-6 py-3.5 text-sm font-black text-[#003A70] transition hover:-translate-y-0.5 hover:bg-[#FFE066] disabled:translate-y-0 disabled:opacity-60"
-      >
+      <Button type="submit" disabled={loading} variant="gold" className="!rounded-2xl px-6 sm:min-w-28">
         {loading ? "Buscando..." : "Buscar"}
-      </button>
+      </Button>
     </form>
   );
 }
