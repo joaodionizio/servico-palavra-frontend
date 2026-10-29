@@ -1,5 +1,17 @@
 import { api } from "@/lib/api";
-import type { ApiEnvelope, AuthResponse, BackendAuthResponse, BackendUsuario, LoginPayload, RegisterPayload, UpdateProfilePayload, Usuario } from "@/types/auth";
+import type {
+  ApiEnvelope,
+  ApiMessageResponse,
+  AuthResponse,
+  BackendAuthResponse,
+  BackendUsuario,
+  ForgotPasswordPayload,
+  LoginPayload,
+  RegisterPayload,
+  ResetPasswordPayload,
+  UpdateProfilePayload,
+  Usuario
+} from "@/types/auth";
 
 function normalizeUsuario(usuario: BackendUsuario): Usuario {
   const roles = Array.isArray(usuario.roles) ? usuario.roles.filter((role): role is string => typeof role === "string") : [];
@@ -30,6 +42,14 @@ export async function login(payload: LoginPayload) {
 export async function register(payload: RegisterPayload) {
   const response = await api.post<BackendAuthResponse, RegisterPayload>("/api/auth/register", payload, { skipAuthExpiredHandler: true });
   return normalizeAuthResponse(response);
+}
+
+export async function requestPasswordReset(payload: ForgotPasswordPayload) {
+  return api.post<ApiMessageResponse, ForgotPasswordPayload>("/api/auth/password/forgot", payload, { skipAuthExpiredHandler: true });
+}
+
+export async function resetPassword(payload: ResetPasswordPayload) {
+  return api.post<ApiMessageResponse, ResetPasswordPayload>("/api/auth/password/reset", payload, { skipAuthExpiredHandler: true });
 }
 
 export async function getMe() {
