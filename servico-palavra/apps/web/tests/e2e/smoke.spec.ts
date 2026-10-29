@@ -209,7 +209,7 @@ test("token invalido oferece solicitar novo link", async ({ page }) => {
   await page.getByLabel("Confirme a nova senha", { exact: true }).fill("NovaSenha123");
   await page.getByRole("button", { name: "Redefinir senha" }).click();
 
-  await expect(page.getByRole("alert")).toContainText("inválido ou expirou");
+  await expect(page.getByRole("alert").filter({ hasText: "inválido ou expirou" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Solicitar novo link" })).toHaveAttribute("href", "/esqueci-senha");
   expect(stats.resetPasswordCalls).toBe(1);
 });
@@ -230,7 +230,7 @@ test("senhas divergentes sao rejeitadas antes da API", async ({ page }) => {
   await page.getByLabel("Confirme a nova senha", { exact: true }).fill("OutraSenha123");
   await page.getByRole("button", { name: "Redefinir senha" }).click();
 
-  await expect(page.getByRole("alert")).toContainText("As senhas não conferem");
+  await expect(page.getByRole("alert").filter({ hasText: "As senhas não conferem" })).toBeVisible();
   expect(stats.resetPasswordCalls).toBe(0);
 });
 
