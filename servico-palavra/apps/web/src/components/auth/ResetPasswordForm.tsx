@@ -6,12 +6,14 @@ import { FormEvent, useState } from "react";
 import { resetPassword } from "@/lib/auth";
 import { isStrongEnoughPassword, PASSWORD_REQUIREMENTS } from "@/lib/passwordPolicy";
 
+const INVALID_RESET_ERROR = "Link de recuperacao invalido ou expirado.";
+
 function getResetErrorMessage(error: unknown) {
   if (!(error instanceof Error)) {
     return "Não foi possível redefinir sua senha agora.";
   }
 
-  if (error.message === "Link de recuperacao invalido ou expirado.") {
+  if (error.message === INVALID_RESET_ERROR) {
     return "Este link de recuperação é inválido ou expirou. Solicite um novo link.";
   }
 
@@ -29,12 +31,14 @@ export function ResetPasswordForm() {
   const invalidLink = !userId || !token;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [invalidResetLink, setInvalidResetLink] = useState(false);
   const [success, setSuccess] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError(null);
+    setInvalidResetLink(false);
 
     const form = new FormData(event.currentTarget);
     const novaSenha = String(form.get("novaSenha") ?? "");
@@ -56,6 +60,7 @@ export function ResetPasswordForm() {
       await resetPassword({ userId, token, novaSenha });
       setSuccess(true);
     } catch (err) {
+      setInvalidResetLink(err instanceof Error && err.message === INVALID_RESET_ERROR);
       setError(getResetErrorMessage(err));
     } finally {
       setLoading(false);
@@ -128,9 +133,16 @@ export function ResetPasswordForm() {
       <p className="mt-4 text-sm leading-6 text-slate-500">{PASSWORD_REQUIREMENTS}</p>
 
       {error && (
-        <p className="mt-5 rounded-xl border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200" role="alert">
-          {error}
-        </p>
+        <div className="mt-5 space-y-3">
+          <p className="rounded-xl border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200" role="alert">
+            {error}
+          </p>
+          {invalidResetLink && (
+            <Link href="/esqueci-senha" className="inline-flex min-h-11 items-center text-sm font-bold text-[#004B87] underline decoration-[#FFCC00] decoration-2 underline-offset-4 motion-reduce:transition-none">
+              Solicitar novo link
+            </Link>
+          )}
+        </div>
       )}
 
       <button
