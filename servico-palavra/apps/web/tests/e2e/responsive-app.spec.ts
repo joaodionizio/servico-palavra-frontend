@@ -90,15 +90,16 @@ const planoAtivo = {
   status: "Ativo"
 };
 
-const dias = Array.from({ length: 7 }, (_, index) => ({
+const planDates = ["2026-10-29", "2026-10-30", "2026-10-31", "2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04"];
+const dias = planDates.map((dataPrevista, index) => ({
   id: `dia-${index + 1}`,
   diaNumero: index + 1,
   mesNumero: 1,
-  dataPrevista: `2026-10-${String(29 + index).padStart(2, "0")}`,
+  dataPrevista,
   leiturasTexto: index === 0
     ? "Gênesis 1–3, João 1 e uma referência longa para testar quebra de linha no cronograma"
     : `Leitura bíblica do dia ${index + 1}`,
-  concluido: index === 0
+  concluido: false
 }));
 
 async function json(route: Route, body: unknown, status = 200) {
@@ -205,7 +206,7 @@ for (const viewport of viewports) {
     await page.goto("/app/plano-biblico");
 
     await expect(page.getByText("Leitura do dia 1", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Desmarcar leitura" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Marcar como concluído" })).toBeVisible();
     await expect(page.getByText("Gênesis 1–3", { exact: false }).first()).toBeVisible();
     await expectNoHorizontalOverflow(page);
   });
