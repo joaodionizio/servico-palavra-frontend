@@ -1,21 +1,20 @@
 # Story E1-FE-01 — Remover round-trip e delays artificiais de autenticação
 
-Status: blocked  
-Prioridade: P0  
-Bloqueada por: E0-FE-01-quality-gate-frontend
+Status: in-progress  
+Prioridade: P0
 
 ## Objetivo
 Reduzir a latência percebida de login e logout sem remover a identidade visual da experiência.
 
 ## Contexto
-O backend já retorna `AuthResponse.Usuario` no login. Mesmo assim, `useAuth.signIn` executa um segundo `GET /api/auth/me`. Depois disso, `LoginForm` força até 450 ms de feedback e mais 1150 ms de animação antes de navegar. O logout também espera artificialmente 450 ms em paralelo ao `signOut`.
+Antes desta story, o backend já retornava `AuthResponse.Usuario` no login, mas `useAuth.signIn` executava um segundo `GET /api/auth/me`. Depois disso, `LoginForm` forçava até 450 ms de feedback e mais 1150 ms de animação antes de navegar. O logout também esperava artificialmente 450 ms em paralelo ao `signOut`.
 
 ## Escopo
 - usar diretamente o usuário retornado por `login()` como estado autenticado;
 - remover o `GET /api/auth/me` redundante do caminho feliz do login;
 - manter `getMe()` para bootstrap/refresh de sessão quando realmente necessário;
 - remover esperas artificiais que bloqueiam navegação no login e logout;
-- preservar feedback visual imediato e, quando possível, permitir que motion continue sem impedir a navegação;
+- preservar feedback visual imediato e, quando possível, permitir que motion acompanhe sem impedir navegação;
 - preservar mensagens de erro, sessão expirada, CSRF e cookies;
 - adicionar/ajustar testes E2E para provar o comportamento.
 
@@ -37,17 +36,28 @@ O backend já retorna `AuthResponse.Usuario` no login. Mesmo assim, `useAuth.sig
 9. E2E comprova login → dashboard e logout → login com API mockada.
 10. A alteração não introduz regressão visual em mobile/desktop e respeita `prefers-reduced-motion` quando houver animação.
 
-## Medição
-Antes/depois, registrar no teste ou na story:
-- quantidade de chamadas de autenticação no caminho feliz;
-- atraso artificial removido;
-- tempo aproximado entre resposta do login e início da navegação, sem usar o tempo de rede como requisito rígido de CI.
+## Implementação em andamento
+- `useAuth.signIn` passou a usar diretamente `response.usuario`.
+- removidos os waits artificiais de 450 ms e 1150 ms do login.
+- removido wait artificial de 450 ms do logout.
+- E2E agora conta `POST /login`, `GET /me` e `POST /logout` para impedir regressão de rede.
 
-## Arquivos prováveis
+## Medição
+Antes:
+- caminho feliz do login: `POST /login` + `GET /me`;
+- atraso artificial de até ~1600 ms após autenticação;
+- logout adicionava pelo menos 450 ms.
+
+Depois esperado:
+- caminho feliz: 1 `POST /login`, 0 `GET /me` redundante;
+- navegação inicia assim que a requisição real termina;
+- logout navega assim que `POST /logout` termina.
+
+## Arquivos alterados
 - `servico-palavra/apps/web/src/hooks/useAuth.ts`
 - `servico-palavra/apps/web/src/components/auth/LoginForm.tsx`
 - `servico-palavra/apps/web/src/components/layout/AppShell.tsx`
-- testes Playwright do E0
+- `servico-palavra/apps/web/tests/e2e/smoke.spec.ts`
 
 ## Riscos
 - animação de login depender da permanência da página atual;
