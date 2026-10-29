@@ -1,0 +1,41 @@
+name: Frontend Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: servico-palavra/apps/web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: servico-palavra/apps/web
+        run: npm ci
+
+      - name: Audit production dependencies
+        working-directory: servico-palavra/apps/web
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Install Chromium
+        working-directory: servico-palavra/apps/web
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify frontend
+        run: npm run verify
