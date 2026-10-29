@@ -5,8 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
-const LOGIN_TRANSITION_MS = 1150;
-
 export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -41,7 +39,6 @@ export function LoginForm() {
     event.preventDefault();
     setLoading(true);
     setError(null);
-    const feedbackStartedAt = Date.now();
 
     const form = new FormData(event.currentTarget);
 
@@ -51,14 +48,10 @@ export function LoginForm() {
         senha: String(form.get("senha"))
       });
 
-      const remainingFeedbackTime = Math.max(0, 450 - (Date.now() - feedbackStartedAt));
-      await new Promise((resolve) => window.setTimeout(resolve, remainingFeedbackTime));
       openExistingBook();
-      await new Promise((resolve) => window.setTimeout(resolve, LOGIN_TRANSITION_MS));
       router.push(params.get("redirect") ?? "/app");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Email ou senha inválidos.");
-    } finally {
       setLoading(false);
     }
   }
