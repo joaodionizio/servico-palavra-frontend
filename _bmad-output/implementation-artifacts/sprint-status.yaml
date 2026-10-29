@@ -9,7 +9,7 @@ stories:
     title: "Quality gate, lint, testes e E2E do frontend"
   E1-FE-01-performance-login-logout:
     priority: P0
-    status: ready-for-dev
+    status: in-progress
     title: "Remover round-trip e delays artificiais de autenticação"
   E1-FE-02-recuperacao-de-senha:
     priority: P0
