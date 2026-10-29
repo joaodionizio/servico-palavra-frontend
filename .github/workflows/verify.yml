@@ -12,7 +12,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -50,9 +50,17 @@ jobs:
         working-directory: servico-palavra/apps/web
         run: npx playwright test --grep "login usa|logout navega|menu móvel|rota protegida"
 
-      - name: E2E — recuperação
+      - name: E2E — recuperação / solicitação
         working-directory: servico-palavra/apps/web
-        run: npx playwright test --grep "recuperacao|solicitacao|reset valido|token de reset|token invalido|link sem parametros|senhas divergentes"
+        run: npx playwright test --grep "login oferece acesso|solicitacao"
+
+      - name: E2E — recuperação / reset
+        working-directory: servico-palavra/apps/web
+        run: npx playwright test --grep "reset valido|token invalido|link sem parametros|senhas divergentes"
+
+      - name: E2E — recuperação / segurança e motion
+        working-directory: servico-palavra/apps/web
+        run: npx playwright test --grep "token de reset|preserva dark mode"
 
       - name: E2E — responsividade
         working-directory: servico-palavra/apps/web
