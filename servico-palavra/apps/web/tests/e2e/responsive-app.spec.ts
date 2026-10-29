@@ -249,6 +249,16 @@ for (const viewport of viewports) {
     await expectNoHorizontalOverflow(page);
   });
 
+  test(`cronograma sem overflow horizontal em ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await signIn(page);
+    await page.goto("/app/cronograma");
+
+    await expect(page.getByRole("heading", { name: "Cronograma Completo" })).toBeVisible();
+    await expect(page.getByText("Mês 1", { exact: true }).first()).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  });
+
   test(`plano biblico sem overflow horizontal em ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await signIn(page);
