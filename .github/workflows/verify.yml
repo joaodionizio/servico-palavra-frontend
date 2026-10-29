@@ -33,9 +33,18 @@ jobs:
         working-directory: servico-palavra/apps/web
         run: npm audit --omit=dev --audit-level=high
 
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
       - name: Install Chromium
         working-directory: servico-palavra/apps/web
         run: npx playwright install --with-deps chromium
 
-      - name: Verify frontend
-        run: npm run verify
+      - name: E2E
+        run: npm run test:e2e
