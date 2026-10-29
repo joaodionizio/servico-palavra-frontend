@@ -26,6 +26,16 @@ export type RegisterPayload = {
   senha: string;
 };
 
+export type ForgotPasswordPayload = {
+  email: string;
+};
+
+export type ResetPasswordPayload = {
+  userId: string;
+  token: string;
+  novaSenha: string;
+};
+
 export type UpdateProfilePayload = {
   nome: string;
   email: string;
@@ -38,6 +48,12 @@ export type AuthResponse = {
 export type ApiEnvelope<T> = {
   success: boolean;
   data: T;
+  message: string | null;
+  errors: string[] | null;
+};
+
+export type ApiMessageResponse = {
+  success: boolean;
   message: string | null;
   errors: string[] | null;
 };
