@@ -13,7 +13,7 @@ stories:
     title: "Remover round-trip e delays artificiais de autenticação"
   E1-FE-02-recuperacao-de-senha:
     priority: P0
-    status: in-progress
+    status: done
     title: "Fluxo de recuperação de senha"
   E4-FE-01-design-system-v2:
     priority: P1
