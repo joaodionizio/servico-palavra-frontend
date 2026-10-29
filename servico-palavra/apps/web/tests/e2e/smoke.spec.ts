@@ -23,6 +23,12 @@ const dashboard = {
   }
 };
 
+type ApiStats = {
+  loginCalls: number;
+  authMeCalls: number;
+  logoutCalls: number;
+};
+
 async function json(route: Route, body: unknown, status = 200) {
   await route.fulfill({
     status,
@@ -32,6 +38,12 @@ async function json(route: Route, body: unknown, status = 200) {
 }
 
 async function mockApi(page: Page, authenticated = true) {
+  const stats: ApiStats = {
+    loginCalls: 0,
+    authMeCalls: 0,
+    logoutCalls: 0
+  };
+
   await page.route("**/mock-api/**", async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
@@ -41,10 +53,12 @@ async function mockApi(page: Page, authenticated = true) {
     }
 
     if (path.endsWith("/api/auth/login") && request.method() === "POST") {
+      stats.loginCalls += 1;
       return json(route, { success: true, data: { usuario } });
     }
 
     if (path.endsWith("/api/auth/me")) {
+      stats.authMeCalls += 1;
       return authenticated
         ? json(route, { success: true, data: usuario })
         : json(route, { success: false, message: "Sessão expirada." }, 401);
@@ -55,25 +69,38 @@ async function mockApi(page: Page, authenticated = true) {
     }
 
     if (path.endsWith("/api/auth/logout")) {
+      stats.logoutCalls += 1;
       return json(route, { success: true });
     }
 
     return json(route, { success: true, data: [] });
   });
+
+  return stats;
 }
 
 async function signIn(page: Page) {
-  await mockApi(page, true);
+  const stats = await mockApi(page, true);
   await page.goto("/login");
   await page.getByPlaceholder("Seu email").fill("teste@example.com");
   await page.getByPlaceholder("Sua senha").fill("senha-teste");
   await page.getByRole("button", { name: "Entrar" }).click();
-  await expect(page).toHaveURL(/\/app(?:$|[/?#])/, { timeout: 15_000 });
+  await expect(page).toHaveURL(/\/app(?:$|[/?#])/, { timeout: 10_000 });
   await expect(page.getByRole("heading", { name: "Sua jornada de formação" })).toBeVisible();
+  return stats;
 }
 
-test("login autenticado chega ao dashboard com API mockada", async ({ page }) => {
-  await signIn(page);
+test("login usa a resposta do POST sem GET /me redundante", async ({ page }) => {
+  const stats = await signIn(page);
+  expect(stats.loginCalls).toBe(1);
+  expect(stats.authMeCalls).toBe(0);
+});
+
+test("logout navega assim que a requisicao real termina", async ({ page }) => {
+  const stats = await signIn(page);
+  await page.getByRole("button", { name: "Sair" }).click();
+  await expect(page).toHaveURL(/\/login(?:$|[/?#])/, { timeout: 5_000 });
+  expect(stats.logoutCalls).toBe(1);
 });
 
 test("menu móvel abre e expõe a navegação principal", async ({ page }) => {
