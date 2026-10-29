@@ -88,6 +88,12 @@ export function LoginForm() {
         />
       </div>
 
+      <div className="mt-4 flex justify-end">
+        <Link href="/esqueci-senha" className="text-sm font-bold text-[#004B87] transition-colors hover:text-[#D3A900] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004B87] focus-visible:ring-offset-4">
+          Esqueci minha senha
+        </Link>
+      </div>
+
       {error && <p className="mt-5 animate-fade-in rounded-xl border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">{error}</p>}
 
       <button
