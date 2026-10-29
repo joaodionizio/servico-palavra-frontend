@@ -1,0 +1,122 @@
+:root {
+  --sp-brand: var(--brand-blue, #004b87);
+  --sp-brand-strong: var(--brand-blue-dark, #003366);
+  --sp-accent: var(--brand-yellow, #ffcc00);
+  --sp-page: var(--background, #f8fafc);
+  --sp-surface: var(--surface, #ffffff);
+  --sp-surface-muted: var(--surface-muted, #f8fafc);
+  --sp-border: var(--border-soft, #e5e7eb);
+  --sp-text: var(--foreground, #1f2937);
+  --sp-text-muted: var(--text-muted, #64748b);
+  --sp-focus: #0b73b9;
+  --sp-success: #15803d;
+  --sp-danger: #b91c1c;
+  --sp-radius-control: 999px;
+  --sp-radius-card: 1.5rem;
+  --sp-radius-hero: 2rem;
+  --sp-shadow-card: 0 8px 30px rgba(0, 51, 102, 0.045);
+  --sp-shadow-card-hover: 0 18px 48px rgba(0, 51, 102, 0.11);
+  --sp-motion-fast: 160ms;
+  --sp-motion-base: 240ms;
+  --sp-motion-slow: 420ms;
+  --sp-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.dark {
+  --sp-focus: #facc15;
+  --sp-shadow-card: 0 8px 30px rgba(0, 0, 0, 0.24);
+  --sp-shadow-card-hover: 0 18px 48px rgba(0, 0, 0, 0.36);
+}
+
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--sp-focus);
+  outline-offset: 3px;
+}
+
+:where(button, a, input, textarea, select) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ui-control {
+  min-height: 44px;
+  touch-action: manipulation;
+  transition:
+    transform var(--sp-motion-fast) var(--sp-ease),
+    box-shadow var(--sp-motion-base) var(--sp-ease),
+    background-color var(--sp-motion-fast) ease,
+    border-color var(--sp-motion-fast) ease,
+    color var(--sp-motion-fast) ease,
+    opacity var(--sp-motion-fast) ease;
+}
+
+.ui-control:active:not(:disabled) {
+  transform: translateY(0) scale(0.985);
+}
+
+.ui-card {
+  border-radius: var(--sp-radius-card);
+  box-shadow: var(--sp-shadow-card);
+  transition:
+    transform var(--sp-motion-base) var(--sp-ease),
+    box-shadow var(--sp-motion-base) var(--sp-ease),
+    border-color var(--sp-motion-fast) ease,
+    background-color var(--sp-motion-fast) ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ui-control:not(:disabled):hover {
+    transform: translateY(-2px);
+  }
+
+  .ui-card.card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sp-shadow-card-hover);
+  }
+}
+
+.app-rail-nav a,
+.app-rail-actions button,
+.app-rail-toggle,
+.app-mobile-header button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.app-rail-nav a:focus-visible,
+.app-rail-actions button:focus-visible,
+.app-rail-toggle:focus-visible,
+.app-mobile-header button:focus-visible {
+  outline-color: var(--sp-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .ui-control,
+  .ui-control:hover,
+  .ui-control:active,
+  .ui-card,
+  .ui-card:hover,
+  .content-card,
+  .content-card:hover,
+  .content-cover-image,
+  .content-cover-image:hover,
+  .app-rail-nav a,
+  .app-rail-nav a:hover,
+  .app-rail-toggle,
+  .app-rail-toggle:hover {
+    transform: none !important;
+  }
+}
