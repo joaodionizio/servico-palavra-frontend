@@ -1,13 +1,13 @@
 # Story E1-FE-02 — Fluxo de recuperação de senha
 
-Status: in-progress  
+Status: done  
 Prioridade: P0  
 Dependência: E1-BE-01-recuperacao-de-senha — concluída
 
 ## Objetivo
 Adicionar um fluxo completo, responsivo e acessível de “Esqueci minha senha” e redefinição de senha integrado ao backend Identity.
 
-## Implementação atual
+## Implementação
 - login possui link acessível “Esqueci minha senha”;
 - página pública `/esqueci-senha`;
 - página pública `/redefinir-senha` com `Suspense` e leitura de `userId`/`token` da URL;
@@ -35,22 +35,22 @@ Adicionar um fluxo completo, responsivo e acessível de “Esqueci minha senha�
 5. Em sucesso, mostra confirmação e CTA para entrar.
 6. Token inválido/expirado mostra mensagem clara e CTA para pedir novo link.
 
-## Critérios de aceitação
-1. Login possui link de recuperação acessível por teclado.
-2. `/esqueci-senha` funciona em 320/390/768/1024/1440 sem overflow horizontal.
-3. Mensagem após solicitação não revela se o e-mail existe.
-4. Botão de envio possui estado de processamento sem dupla submissão.
-5. `/redefinir-senha` rejeita localmente senhas divergentes antes da chamada de API.
-6. Token/userId ausentes mostram estado inválido e não tentam reset.
-7. Reset bem-sucedido oferece navegação para `/login`.
-8. Token expirado/inválido oferece solicitar novo link.
-9. Nenhum token é salvo em `localStorage`, `sessionStorage` ou cookie do frontend.
-10. Token não é enviado a analytics/log manual adicionado por esta feature.
-11. Dark mode, foco visível, labels/nome acessível e reduced motion são preservados.
-12. E2E cobre solicitação genérica, dupla submissão, reset bem-sucedido, token inválido, storage/cookie, parâmetros ausentes, senhas divergentes e responsividade.
-13. `npm run verify` permanece verde.
+## Critérios de aceitação — resultado
+1. Link acessível por teclado — atendido.
+2. 320/390/768/1024/1440 sem overflow horizontal — atendido por E2E.
+3. Confirmação não enumera conta — atendido.
+4. Processamento bloqueia dupla submissão — atendido por E2E.
+5. Senhas divergentes bloqueadas antes da API — atendido por E2E.
+6. Token/userId ausentes não chamam reset — atendido por E2E.
+7. Sucesso oferece `/login` sem auto-login — atendido por E2E.
+8. Token inválido/expirado oferece novo link — atendido por E2E.
+9. Token não vai para localStorage/sessionStorage/cookie — atendido por E2E.
+10. Nenhum analytics/log manual com token foi adicionado — atendido.
+11. Dark mode, labels, foco e reduced motion preservados — atendido.
+12. Suíte E2E cobre todos os fluxos definidos — atendido.
+13. `Frontend Verify` permanece verde — atendido.
 
-## E2E atual
+## E2E
 A suíte mocka apenas `/mock-api/**`, sem depender de Render/Neon, e verifica:
 - acesso por teclado ao fluxo;
 - confirmação genérica;
@@ -62,9 +62,6 @@ A suíte mocka apenas `/mock-api/**`, sem depender de Render/Neon, e verifica:
 - senhas divergentes sem chamada de API;
 - reduced motion/dark mode;
 - ausência de overflow em cinco viewports.
-
-## Visual
-Reutiliza a linguagem visual da autenticação atual, evitando uma terceira identidade.
 
 ## Arquivos alterados
 - `src/components/auth/LoginForm.tsx`
@@ -79,8 +76,13 @@ Reutiliza a linguagem visual da autenticação atual, evitando uma terceira iden
 - `src/types/auth.ts`
 - `tests/e2e/smoke.spec.ts`
 
-## Verificação
-Um novo `Frontend Verify` foi deliberadamente disparado após todos os arquivos acima estarem presentes na `main`, para eliminar a inconsistência observada em um run anterior que aparentava ter feito checkout de uma árvore incompleta/defasada. Somente este run sobre a árvore atual deve ser usado para fechar a story.
+## Verificação final
+`Frontend Verify` run `40973997486` concluído com `success` sobre a árvore final. Passaram: audit de produção, type-check, lint, build, autenticação, solicitação de recuperação, reset válido, token inválido, parâmetros ausentes, senhas divergentes, segurança/reduced motion e responsividade.
+
+## Review
+Resultado: **APPROVED**.
+
+Não há achados bloqueantes. Os últimos falsos negativos estavam nos seletores do Playwright: labels parcialmente coincidentes e o `role="alert"` interno do Next.js. Os testes foram tornados específicos sem reduzir a cobertura funcional.
 
 ## Fora de escopo
 - confirmação de e-mail;
@@ -92,5 +94,5 @@ Um novo `Frontend Verify` foi deliberadamente disparado após todos os arquivos 
 ## Definition of Done
 - backend E1-BE-01 concluído;
 - critérios 1–13 atendidos;
-- `npm run verify` verde na árvore atual;
-- story em `review` e code review independente aprovado.
+- CI final verde;
+- review independente aprovado.
