@@ -75,10 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (payload: LoginPayload) => {
     const response = await login(payload);
-    const currentUsuario = await getMe().catch(() => response.usuario);
-    setUsuario(currentUsuario);
+    setUsuario(response.usuario);
     setStatus("authenticated");
-    return currentUsuario;
+    return response.usuario;
   }, []);
 
   const signUp = useCallback(async (payload: RegisterPayload) => {
