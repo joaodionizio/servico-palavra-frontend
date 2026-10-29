@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { LinkButton } from "@/components/ui/Button";
+import { Button, LinkButton } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { BibleProgressCard } from "@/components/plano-biblico/BibleProgressCard";
 import { DailyReadingCard } from "@/components/plano-biblico/DailyReadingCard";
 import { ScheduleTable } from "@/components/plano-biblico/ScheduleTable";
@@ -104,11 +105,12 @@ export default function PlanoBiblicoPage() {
   if (loading) {
     return (
       <div className="mx-auto grid max-w-5xl gap-6 animate-fade-in">
-        <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Plano bíblico</p>
-          <h1 className="mt-3 text-3xl font-black text-[#004B87]">Plano Bíblico</h1>
-          <p className="mt-3 max-w-2xl text-gray-500">Carregando seu plano bíblico...</p>
-        </section>
+        <Card>
+          <p className="text-sm font-bold uppercase tracking-widest text-[#C99600] dark:text-[#FFCC00]">Plano bíblico</p>
+          <h1 className="mt-3 text-3xl font-black text-[var(--sp-brand)] dark:text-sky-100">Plano Bíblico</h1>
+          <p className="mt-3 max-w-2xl text-gray-500 dark:text-slate-300">Carregando seu plano bíblico...</p>
+          <div className="mt-6 h-2 w-full max-w-md animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
+        </Card>
       </div>
     );
   }
@@ -116,14 +118,14 @@ export default function PlanoBiblicoPage() {
   if (state === "unauthorized") {
     return (
       <div className="mx-auto grid max-w-5xl gap-6 animate-fade-in">
-        <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Plano bíblico</p>
-          <h1 className="mt-3 text-3xl font-black text-[#004B87]">Acesse sua conta</h1>
-          <p className="mt-3 max-w-2xl text-gray-500">Entre novamente para carregar seu plano bíblico personalizado.</p>
+        <Card>
+          <p className="text-sm font-bold uppercase tracking-widest text-[#C99600] dark:text-[#FFCC00]">Plano bíblico</p>
+          <h1 className="mt-3 text-3xl font-black text-[var(--sp-brand)] dark:text-sky-100">Acesse sua conta</h1>
+          <p className="mt-3 max-w-2xl text-gray-500 dark:text-slate-300">Entre novamente para carregar seu plano bíblico personalizado.</p>
           <LinkButton href="/login" variant="primary" className="mt-6">
             Entrar
           </LinkButton>
-        </section>
+        </Card>
       </div>
     );
   }
@@ -131,14 +133,14 @@ export default function PlanoBiblicoPage() {
   if (state === "error") {
     return (
       <div className="mx-auto grid max-w-5xl gap-6 animate-fade-in">
-        <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Plano bíblico</p>
-          <h1 className="mt-3 text-3xl font-black text-[#004B87]">Não foi possível carregar o plano</h1>
-          <p className="mt-3 max-w-2xl text-gray-500">{error ?? "Tente novamente em instantes."}</p>
-          <button className="mt-6 rounded-xl bg-[#004B87] px-5 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#003366]" onClick={() => void loadPlano()}>
+        <Card className="border-red-100 bg-red-50/60 dark:border-red-950/70 dark:bg-red-950/20">
+          <p className="text-sm font-bold uppercase tracking-widest text-red-600 dark:text-red-300">Plano bíblico</p>
+          <h1 className="mt-3 text-3xl font-black text-[var(--sp-brand)] dark:text-sky-100">Não foi possível carregar o plano</h1>
+          <p className="mt-3 max-w-2xl text-gray-600 dark:text-slate-300">{error ?? "Tente novamente em instantes."}</p>
+          <Button className="mt-6" onClick={() => void loadPlano()}>
             Tentar novamente
-          </button>
-        </section>
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -146,38 +148,38 @@ export default function PlanoBiblicoPage() {
   if (!planoAtivo) {
     return (
       <div className="mx-auto grid max-w-5xl gap-6 animate-fade-in">
-        <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Plano bíblico</p>
-          <h1 className="mt-3 text-3xl font-black text-[#004B87]">Plano Bíblico</h1>
-          <p className="mt-3 max-w-2xl text-gray-500">Configure seu plano apenas quando desejar iniciar este módulo.</p>
+        <Card>
+          <p className="text-sm font-bold uppercase tracking-widest text-[#C99600] dark:text-[#FFCC00]">Plano bíblico</p>
+          <h1 className="mt-3 text-3xl font-black text-[var(--sp-brand)] dark:text-sky-100">Plano Bíblico</h1>
+          <p className="mt-3 max-w-2xl text-gray-500 dark:text-slate-300">Configure seu plano apenas quando desejar iniciar este módulo.</p>
           <LinkButton href="/app/plano-biblico/configurar" variant="primary" className="mt-6">
             Criar plano
           </LinkButton>
-        </section>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-6 animate-fade-in">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Plano bíblico</p>
-          <h1 className="mt-3 text-3xl font-black text-[#004B87]">Plano bíblico de {formatPlanoDuracao(planoAtivo)}</h1>
-          <p className="mt-3 text-gray-500">Leitura do dia, progresso e cronograma resumido.</p>
+    <div className="mx-auto grid max-w-5xl gap-5 animate-fade-in sm:gap-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-sm font-bold uppercase tracking-widest text-[#C99600] dark:text-[#FFCC00]">Plano bíblico</p>
+          <h1 className="mt-3 break-words text-3xl font-black text-[var(--sp-brand)] dark:text-sky-100">Plano bíblico de {formatPlanoDuracao(planoAtivo)}</h1>
+          <p className="mt-3 text-gray-500 dark:text-slate-300">Leitura do dia, progresso e cronograma resumido.</p>
         </div>
-        <LinkButton href="/app/plano-biblico/configurar" variant="secondary">
+        <LinkButton href="/app/plano-biblico/configurar" variant="secondary" className="sm:shrink-0">
           Alterar plano
         </LinkButton>
       </div>
-      {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
+      {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:bg-red-950/30 dark:text-red-200">{error}</p>}
       {planoAtivo.leituraHoje ? (
         <DailyReadingCard dia={planoAtivo.leituraHoje} onToggle={handleToggleDay} loading={completingDayId === planoAtivo.leituraHoje.id} />
       ) : (
-        <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <h2 className="text-2xl font-black text-[#004B87]">Base bíblica indisponível</h2>
-          <p className="mt-3 text-gray-500">Não há leituras disponíveis para este plano no momento. Tente atualizar a página ou configurar um novo plano.</p>
-        </section>
+        <Card>
+          <h2 className="text-2xl font-black text-[var(--sp-brand)] dark:text-sky-100">Base bíblica indisponível</h2>
+          <p className="mt-3 text-gray-500 dark:text-slate-300">Não há leituras disponíveis para este plano no momento. Tente atualizar a página ou configurar um novo plano.</p>
+        </Card>
       )}
       <BibleProgressCard plano={planoAtivo} />
       <ScheduleTable dias={diasPlano.slice(0, 7)} onToggleDay={handleToggleDay} pendingDayId={completingDayId} />
