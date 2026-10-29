@@ -30,7 +30,7 @@ jobs:
 
       - name: Add quality dependencies
         working-directory: servico-palavra/apps/web
-        run: npm install --save-dev eslint eslint-config-next@16.2.7 @playwright/test
+        run: npm install --save-dev eslint eslint-config-next@16.4.3 @playwright/test
 
       - name: Audit production dependencies
         working-directory: servico-palavra/apps/web
@@ -258,7 +258,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main
           git add \
             package.json \
             servico-palavra/apps/web/package.json \
