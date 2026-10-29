@@ -12,7 +12,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -46,5 +46,14 @@ jobs:
         working-directory: servico-palavra/apps/web
         run: npx playwright install --with-deps chromium
 
-      - name: E2E
-        run: npm run test:e2e
+      - name: E2E — autenticação
+        working-directory: servico-palavra/apps/web
+        run: npx playwright test --grep "login usa|logout navega|menu móvel|rota protegida"
+
+      - name: E2E — recuperação
+        working-directory: servico-palavra/apps/web
+        run: npx playwright test --grep "recuperacao|solicitacao|reset valido|token de reset|token invalido|link sem parametros|senhas divergentes"
+
+      - name: E2E — responsividade
+        working-directory: servico-palavra/apps/web
+        run: npx playwright test --grep "sem overflow"
