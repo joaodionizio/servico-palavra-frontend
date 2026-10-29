@@ -178,8 +178,8 @@ test("solicitacao bloqueia dupla submissao enquanto a API responde", async ({ pa
 test("reset valido conclui sem autenticar automaticamente", async ({ page }) => {
   const stats = await mockApi(page);
   await page.goto("/redefinir-senha?userId=11111111-2222-3333-4444-555555555555&token=valid");
-  await page.getByLabel("Nova senha").fill("NovaSenha123");
-  await page.getByLabel("Confirme a nova senha").fill("NovaSenha123");
+  await page.getByLabel("Nova senha", { exact: true }).fill("NovaSenha123");
+  await page.getByLabel("Confirme a nova senha", { exact: true }).fill("NovaSenha123");
   await page.getByRole("button", { name: "Redefinir senha" }).click();
 
   await expect(page.getByRole("heading", { name: "Senha redefinida" })).toBeVisible();
@@ -205,8 +205,8 @@ test("token de reset permanece apenas na URL e nao vai para storage ou cookie", 
 test("token invalido oferece solicitar novo link", async ({ page }) => {
   const stats = await mockApi(page);
   await page.goto("/redefinir-senha?userId=11111111-2222-3333-4444-555555555555&token=invalid");
-  await page.getByLabel("Nova senha").fill("NovaSenha123");
-  await page.getByLabel("Confirme a nova senha").fill("NovaSenha123");
+  await page.getByLabel("Nova senha", { exact: true }).fill("NovaSenha123");
+  await page.getByLabel("Confirme a nova senha", { exact: true }).fill("NovaSenha123");
   await page.getByRole("button", { name: "Redefinir senha" }).click();
 
   await expect(page.getByRole("alert")).toContainText("inválido ou expirou");
@@ -226,8 +226,8 @@ test("link sem parametros mostra estado invalido sem chamar reset", async ({ pag
 test("senhas divergentes sao rejeitadas antes da API", async ({ page }) => {
   const stats = await mockApi(page);
   await page.goto("/redefinir-senha?userId=11111111-2222-3333-4444-555555555555&token=valid");
-  await page.getByLabel("Nova senha").fill("NovaSenha123");
-  await page.getByLabel("Confirme a nova senha").fill("OutraSenha123");
+  await page.getByLabel("Nova senha", { exact: true }).fill("NovaSenha123");
+  await page.getByLabel("Confirme a nova senha", { exact: true }).fill("OutraSenha123");
   await page.getByRole("button", { name: "Redefinir senha" }).click();
 
   await expect(page.getByRole("alert")).toContainText("As senhas não conferem");
