@@ -5,7 +5,7 @@ workflow: bmad-lite
 stories:
   E0-FE-01-quality-gate-frontend:
     priority: P1
-    status: ready-for-dev
+    status: in-progress
     title: "Quality gate, lint, testes e E2E do frontend"
   E1-FE-01-performance-login-logout:
     priority: P0
