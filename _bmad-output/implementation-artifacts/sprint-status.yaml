@@ -17,15 +17,15 @@ stories:
     title: "Fluxo de recuperação de senha"
   E4-FE-01-design-system-v2:
     priority: P1
-    status: in-progress
+    status: done
     title: "Consolidar tokens e componentes do design system"
   E5-FE-01-responsive-hardening:
     priority: P1
-    status: ready-for-dev
+    status: done
     title: "Hardening responsivo em 320/390/768/1024/1440"
   E7-FE-01-accessibility-shell-modals:
     priority: P1
-    status: backlog
+    status: ready-for-dev
     title: "Foco, teclado e ARIA em navegação e modais"
   E8-FE-01-frontend-architecture:
     priority: P2
