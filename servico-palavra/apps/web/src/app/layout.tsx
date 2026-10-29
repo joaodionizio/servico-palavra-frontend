@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/hooks/useAuth";
 import "./globals.css";
+import "./design-system.css";
 
 export const metadata: Metadata = {
   title: "Servico da Palavra",
