@@ -1,0 +1,39 @@
+name: Prepare Frontend E0 Lock
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/prepare-frontend-e0.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: servico-palavra/apps/web/package-lock.json
+
+      - name: Add quality dependencies
+        working-directory: servico-palavra/apps/web
+        run: npm install --save-dev eslint eslint-config-next@16.2.7 @playwright/test
+
+      - name: Upload generated package files
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-e0-package-files
+          path: |
+            servico-palavra/apps/web/package.json
+            servico-palavra/apps/web/package-lock.json
+          if-no-files-found: error
