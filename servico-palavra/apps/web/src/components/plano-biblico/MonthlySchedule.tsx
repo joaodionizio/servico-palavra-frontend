@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import type { DiaPlanoBiblico } from "@/types/planoBiblico";
 
 type MonthlyScheduleProps = {
@@ -184,48 +185,44 @@ export function MonthlySchedule({ dias, onToggleDay, pendingDayId }: MonthlySche
   const selectedMonth = groups.find((group) => group.mes === selectedMonthNumber) ?? null;
 
   if (dias.length === 0) {
-    return (
-      <div className="rounded-2xl border border-gray-100 bg-white p-6 text-gray-500 shadow-sm">
-        Nenhuma leitura foi gerada para este plano.
-      </div>
-    );
+    return <Card className="text-gray-500 dark:text-slate-300">Nenhuma leitura foi gerada para este plano.</Card>;
   }
 
   return (
     <>
-      <div className="space-y-14">
+      <div className="space-y-9 sm:space-y-12 lg:space-y-14">
         {sections.map((section) => {
           const firstMonth = section[0]?.mes ?? 1;
           const lastMonth = section[section.length - 1]?.mes ?? firstMonth;
           const title = `Meses ${firstMonth} ao ${lastMonth}: ${getDominantPhase(section)}`;
 
           return (
-            <section key={`${firstMonth}-${lastMonth}`} className="space-y-8">
+            <section key={`${firstMonth}-${lastMonth}`} className="space-y-5 sm:space-y-8">
               <div className="grid items-center gap-4 md:grid-cols-[1fr_auto_1fr]">
                 <div className="hidden h-px bg-[#FFCC00] md:block" />
-                <h2 className="text-center text-2xl font-black uppercase tracking-widest text-[#004B87] md:text-3xl">{title}</h2>
+                <h2 className="break-words text-center text-xl font-black uppercase tracking-wider text-[var(--sp-brand)] sm:text-2xl md:text-3xl md:tracking-widest dark:text-sky-100">{title}</h2>
                 <div className="hidden h-px bg-[#FFCC00] md:block" />
               </div>
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {section.map((group) => (
                   <button
                     key={group.mes}
-                    className="group relative min-h-60 overflow-hidden rounded-[1.5rem] border border-slate-200/70 bg-[#FDFDFB] p-7 text-left shadow-sm transition-all duration-500 ease-out hover:-translate-y-2 hover:border-[#004B87]/20 hover:shadow-xl"
+                    className="ui-card card-hover group relative min-h-52 min-w-0 overflow-hidden border border-slate-200/70 bg-[#FDFDFB] p-5 text-left sm:min-h-60 sm:p-7 dark:border-slate-700 dark:bg-slate-900/70"
                     type="button"
                     onClick={() => setSelectedMonthNumber(group.mes)}
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xl font-black uppercase tracking-wider text-[#004B87]">Mês {group.mes}</p>
-                        <p className="mt-2 text-sm font-bold uppercase tracking-wider text-[#FFCC00]">{group.fase}</p>
+                      <div className="min-w-0">
+                        <p className="text-lg font-black uppercase tracking-wider text-[var(--sp-brand)] sm:text-xl dark:text-sky-100">Mês {group.mes}</p>
+                        <p className="mt-2 break-words text-sm font-bold uppercase tracking-wider text-[#C99600] dark:text-[#FFCC00]">{group.fase}</p>
                       </div>
-                      <span className="mt-1 h-3 w-3 rotate-45 bg-[#FFCC00]" aria-hidden />
+                      <span className="mt-1 h-3 w-3 shrink-0 rotate-45 bg-[#FFCC00]" aria-hidden />
                     </div>
-                    <div className="mt-5 border-t border-gray-100 pt-5">
-                      <p className="min-h-14 text-base leading-relaxed text-gray-500">{group.resumo}</p>
+                    <div className="mt-5 border-t border-gray-100 pt-5 dark:border-slate-800">
+                      <p className="min-h-14 break-words text-base leading-relaxed text-gray-500 dark:text-slate-300">{group.resumo}</p>
                       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
                         <Badge>{getStatusLabel(group.status)}</Badge>
-                        <span className="rounded-xl bg-blue-50 px-3 py-2 text-sm font-bold text-[#004B87]">
+                        <span className="rounded-xl bg-blue-50 px-3 py-2 text-sm font-bold text-[var(--sp-brand)] dark:bg-sky-200/10 dark:text-sky-100">
                           {group.concluidos}/{group.dias.length} dias
                         </span>
                       </div>
@@ -239,36 +236,36 @@ export function MonthlySchedule({ dias, onToggleDay, pendingDayId }: MonthlySche
       </div>
 
       {selectedMonth && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-[#003366]/40 px-4 py-8" role="dialog" aria-modal="true" aria-labelledby="month-schedule-title" onClick={() => setSelectedMonthNumber(null)}>
-          <section className="max-h-[88vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
-            <div className="border-b border-gray-100 p-6 md:p-8">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Mês {selectedMonth.mes}</p>
-                  <h2 id="month-schedule-title" className="mt-2 text-3xl font-black text-[#004B87]">
+        <div className="fixed inset-0 z-50 grid place-items-center bg-[#003366]/55 px-3 py-5 backdrop-blur-sm sm:px-4 sm:py-8" role="dialog" aria-modal="true" aria-labelledby="month-schedule-title" onClick={() => setSelectedMonthNumber(null)}>
+          <section className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[var(--sp-radius-card)] border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950" onClick={(event) => event.stopPropagation()}>
+            <div className="border-b border-gray-100 p-5 sm:p-6 md:p-8 dark:border-slate-800">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-sm font-bold uppercase tracking-widest text-[#C99600] dark:text-[#FFCC00]">Mês {selectedMonth.mes}</p>
+                  <h2 id="month-schedule-title" className="mt-2 break-words text-2xl font-black text-[var(--sp-brand)] sm:text-3xl dark:text-sky-100">
                     {selectedMonth.fase}
                   </h2>
-                  <p className="mt-2 text-gray-500">{selectedMonth.resumo}</p>
+                  <p className="mt-2 break-words text-gray-500 dark:text-slate-300">{selectedMonth.resumo}</p>
                 </div>
-                <button className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-bold text-gray-500 transition-all hover:bg-[#004B87] hover:text-white" type="button" onClick={() => setSelectedMonthNumber(null)}>
+                <Button variant="secondary" type="button" onClick={() => setSelectedMonthNumber(null)} className="w-full shrink-0 sm:w-auto">
                   Fechar
-                </button>
+                </Button>
               </div>
               <div className="mt-5 flex flex-wrap items-center gap-3">
                 <Badge>{getStatusLabel(selectedMonth.status)}</Badge>
-                <span className="rounded-xl bg-blue-50 px-3 py-2 text-sm font-bold text-[#004B87]">
+                <span className="rounded-xl bg-blue-50 px-3 py-2 text-sm font-bold text-[var(--sp-brand)] dark:bg-sky-200/10 dark:text-sky-100">
                   {selectedMonth.concluidos}/{selectedMonth.dias.length} dias
                 </span>
               </div>
             </div>
             <div className="max-h-[58vh] overflow-y-auto">
               {selectedMonth.dias.map((dia) => (
-                <div key={dia.id} className="grid gap-3 border-b border-gray-100 p-5 last:border-0 md:grid-cols-[120px_1fr_170px] md:items-center">
+                <div key={dia.id} className="grid gap-3 border-b border-gray-100 p-4 sm:p-5 last:border-0 md:grid-cols-[120px_1fr_170px] md:items-center dark:border-slate-800">
                   <div>
-                    <strong className="text-[#004B87]">Dia {dia.dia}</strong>
-                    {(dia.dataPrevista ?? dia.data) && <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-gray-400">{dia.dataPrevista ?? dia.data}</p>}
+                    <strong className="text-[var(--sp-brand)] dark:text-sky-100">Dia {dia.dia}</strong>
+                    {(dia.dataPrevista ?? dia.data) && <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-400">{dia.dataPrevista ?? dia.data}</p>}
                   </div>
-                  <span className="text-gray-500">{dia.leitura}</span>
+                  <span className="break-words text-gray-500 dark:text-slate-300">{dia.leitura}</span>
                   <div className="flex flex-wrap items-center gap-2 md:justify-end">
                     <Badge>{dia.status === "concluido" ? "Concluído" : "Pendente"}</Badge>
                     {onToggleDay && (
