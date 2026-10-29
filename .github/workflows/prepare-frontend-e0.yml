@@ -32,6 +32,10 @@ jobs:
         working-directory: servico-palavra/apps/web
         run: npm install --save-dev eslint eslint-config-next@16.2.7 @playwright/test
 
+      - name: Audit production dependencies
+        working-directory: servico-palavra/apps/web
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Configure package scripts
         run: |
           node <<'NODE'
@@ -203,8 +207,8 @@ jobs:
             await page.setViewportSize({ width: 390, height: 844 });
             await signIn(page);
             await page.getByRole("button", { name: "Abrir menu" }).click();
-            await expect(page.getByRole("link", { name: "Início" })).toBeVisible();
-            await expect(page.getByRole("link", { name: "Formações" })).toBeVisible();
+            await expect(page.getByRole("link", { name: "Início", exact: true })).toBeVisible();
+            await expect(page.getByRole("link", { name: "Formações", exact: true })).toBeVisible();
           });
 
           test("rota protegida redireciona para login quando a sessão expira", async ({ page }) => {
@@ -254,6 +258,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add \
             package.json \
             servico-palavra/apps/web/package.json \
