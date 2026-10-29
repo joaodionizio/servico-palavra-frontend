@@ -40,7 +40,7 @@ export function ForgotPasswordForm() {
         <p className="mt-5 text-sm leading-6 text-slate-500">
           Por segurança, mostramos a mesma confirmação mesmo quando não encontramos uma conta cadastrada.
         </p>
-        <Link href="/login" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-[#004B87] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#003366] motion-reduce:transition-none">
+        <Link href="/login" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-[#004B87] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#003366] motion-reduce:duration-0 motion-reduce:transition-none">
           Voltar para o login
         </Link>
       </div>
@@ -76,14 +76,14 @@ export function ForgotPasswordForm() {
         type="submit"
         disabled={loading}
         aria-busy={loading}
-        className="mt-8 min-h-12 w-full rounded-full bg-[#004B87] px-5 py-4 font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#003366] hover:shadow-lg disabled:transform-none disabled:opacity-60 motion-reduce:transform-none motion-reduce:transition-none"
+        className="mt-8 min-h-12 w-full rounded-full bg-[#004B87] px-5 py-4 font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#003366] hover:shadow-lg disabled:transform-none disabled:opacity-60 motion-reduce:duration-0 motion-reduce:transform-none motion-reduce:transition-none"
       >
         {loading ? "Enviando instruções..." : "Enviar link de recuperação"}
       </button>
 
       <p className="mt-8 text-center text-sm text-slate-500">
         Lembrou sua senha?{" "}
-        <Link href="/login" className="font-bold text-[#004B87] transition-colors hover:text-[#D3A900] motion-reduce:transition-none">
+        <Link href="/login" className="font-bold text-[#004B87] transition-colors hover:text-[#D3A900] motion-reduce:duration-0 motion-reduce:transition-none">
           Voltar para entrar
         </Link>
       </p>
