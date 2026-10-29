@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ContentCard } from "@/components/conteudos/ContentCard";
 import { ContentFilters } from "@/components/conteudos/ContentFilters";
+import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Loading } from "@/components/ui/Loading";
 import { listCategoriasConteudo } from "@/services/categoryService";
@@ -85,13 +86,13 @@ export function FormacoesContent() {
   const hasMore = state.status === "ready" && state.page.pagina < state.page.totalPaginas;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">
-      <section className="formation-hero relative overflow-hidden rounded-[2rem] bg-[#003A70] p-8 text-white shadow-xl shadow-blue-950/10 md:p-12">
+    <div className="mx-auto max-w-6xl space-y-5 animate-fade-in sm:space-y-6">
+      <section className="formation-hero relative overflow-hidden rounded-[var(--sp-radius-hero)] bg-[#003A70] p-6 text-white shadow-xl shadow-blue-950/10 sm:p-8 md:p-12 dark:bg-[#061D33]">
         <div className="formation-sculpture" aria-hidden="true"><i /><i /><i /></div>
         <div className="relative z-10 max-w-2xl">
           <p className="text-sm font-bold uppercase tracking-widest text-[#FFCC00]">Formação</p>
-          <h1 className="mt-3 text-5xl font-black tracking-[-.05em] text-white md:text-7xl">Formações</h1>
-          <p className="mt-4 text-white/65">Conteúdos bíblicos e espirituais para sua caminhada de formação.</p>
+          <h1 className="mt-3 text-4xl font-black tracking-[-.05em] text-white sm:text-5xl md:text-7xl">Formações</h1>
+          <p className="mt-4 max-w-xl text-white/75">Conteúdos bíblicos e espirituais para sua caminhada de formação.</p>
         </div>
       </section>
 
@@ -109,7 +110,7 @@ export function FormacoesContent() {
         onSubmit={() => loadFormacoes(1)}
       />
 
-      {categoriasState.status === "error" && <p className="text-sm font-semibold text-yellow-700">{categoriasState.message}</p>}
+      {categoriasState.status === "error" && <p role="status" className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">{categoriasState.message}</p>}
 
       {state.status === "loading" && <Loading label="Carregando formações..." />}
       {state.status === "error" && <EmptyState title="Não foi possível carregar" description={`${state.message} Tente novamente ou ajuste os filtros.`} />}
@@ -118,7 +119,7 @@ export function FormacoesContent() {
       )}
 
       {conteudos.length > 0 && (
-        <div className="formation-grid grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="formation-grid grid gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
           {conteudos.map((conteudo) => (
             <ContentCard key={conteudo.id} conteudo={conteudo} />
           ))}
@@ -127,13 +128,9 @@ export function FormacoesContent() {
 
       {hasMore && (
         <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={() => loadFormacoes(pagina + 1)}
-            className="rounded-xl bg-[#004B87] px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#003366]"
-          >
+          <Button type="button" onClick={() => loadFormacoes(pagina + 1)} className="w-full sm:w-auto">
             Carregar mais
-          </button>
+          </Button>
         </div>
       )}
     </div>
