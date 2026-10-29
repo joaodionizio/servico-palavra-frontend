@@ -31,6 +31,10 @@ type ApiStats = {
   resetPasswordCalls: number;
 };
 
+type MockApiOptions = {
+  forgotDelayMs?: number;
+};
+
 async function json(route: Route, body: unknown, status = 200) {
   await route.fulfill({
     status,
@@ -39,7 +43,7 @@ async function json(route: Route, body: unknown, status = 200) {
   });
 }
 
-async function mockApi(page: Page, authenticated = true) {
+async function mockApi(page: Page, authenticated = true, options: MockApiOptions = {}) {
   const stats: ApiStats = {
     loginCalls: 0,
     authMeCalls: 0,
@@ -63,6 +67,9 @@ async function mockApi(page: Page, authenticated = true) {
 
     if (path.endsWith("/api/auth/password/forgot") && request.method() === "POST") {
       stats.forgotPasswordCalls += 1;
+      if (options.forgotDelayMs) {
+        await new Promise((resolve) => setTimeout(resolve, options.forgotDelayMs));
+      }
       return json(route, {
         success: true,
         message: "Se existir uma conta com esse e-mail, enviaremos as instruções de recuperação.",
@@ -156,6 +163,18 @@ test("solicitacao de recuperacao mostra confirmacao generica", async ({ page }) 
   expect(stats.forgotPasswordCalls).toBe(1);
 });
 
+test("solicitacao bloqueia dupla submissao enquanto a API responde", async ({ page }) => {
+  const stats = await mockApi(page, true, { forgotDelayMs: 500 });
+  await page.goto("/esqueci-senha");
+  await page.getByLabel("E-mail").fill("qualquer@example.com");
+
+  const submit = page.getByRole("button", { name: "Enviar link de recuperação" });
+  await submit.click();
+  await expect(page.getByRole("button", { name: "Enviando instruções..." })).toBeDisabled();
+  await expect(page.getByRole("status")).toBeVisible();
+  expect(stats.forgotPasswordCalls).toBe(1);
+});
+
 test("reset valido conclui sem autenticar automaticamente", async ({ page }) => {
   const stats = await mockApi(page);
   await page.goto("/redefinir-senha?userId=11111111-2222-3333-4444-555555555555&token=valid");
@@ -169,6 +188,20 @@ test("reset valido conclui sem autenticar automaticamente", async ({ page }) => 
   expect(stats.loginCalls).toBe(0);
 });
 
+test("token de reset permanece apenas na URL e nao vai para storage ou cookie", async ({ page }) => {
+  const token = "storage-secret-token";
+  await mockApi(page);
+  await page.goto(`/redefinir-senha?userId=11111111-2222-3333-4444-555555555555&token=${token}`);
+
+  const stored = await page.evaluate((sensitiveToken) => ({
+    local: Object.values(localStorage).some((value) => value.includes(sensitiveToken)),
+    session: Object.values(sessionStorage).some((value) => value.includes(sensitiveToken)),
+    cookie: document.cookie.includes(sensitiveToken)
+  }), token);
+
+  expect(stored).toEqual({ local: false, session: false, cookie: false });
+});
+
 test("token invalido oferece solicitar novo link", async ({ page }) => {
   const stats = await mockApi(page);
   await page.goto("/redefinir-senha?userId=11111111-2222-3333-4444-555555555555&token=invalid");
@@ -177,6 +210,7 @@ test("token invalido oferece solicitar novo link", async ({ page }) => {
   await page.getByRole("button", { name: "Redefinir senha" }).click();
 
   await expect(page.getByRole("alert")).toContainText("inválido ou expirou");
+  await expect(page.getByRole("link", { name: "Solicitar novo link" })).toHaveAttribute("href", "/esqueci-senha");
   expect(stats.resetPasswordCalls).toBe(1);
 });
 
@@ -198,6 +232,27 @@ test("senhas divergentes sao rejeitadas antes da API", async ({ page }) => {
 
   await expect(page.getByRole("alert")).toContainText("As senhas não conferem");
   expect(stats.resetPasswordCalls).toBe(0);
+});
+
+test("recuperacao preserva dark mode e reduced motion quando ativos", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/esqueci-senha");
+  await page.evaluate(() => document.documentElement.classList.add("dark"));
+
+  const submit = page.getByRole("button", { name: "Enviar link de recuperação" });
+  await expect(submit).toBeVisible();
+
+  const styles = await submit.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      transitionDuration: style.transitionDuration,
+      transform: style.transform
+    };
+  });
+
+  expect(styles.transitionDuration === "0s" || styles.transitionDuration === "0ms").toBe(true);
+  expect(styles.transform).toBe("none");
+  await expect(page.getByRole("heading", { name: "Esqueceu sua senha?" })).toBeVisible();
 });
 
 test("menu móvel abre e expõe a navegação principal", async ({ page }) => {
