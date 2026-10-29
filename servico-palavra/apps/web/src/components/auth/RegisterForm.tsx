@@ -4,10 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-
-function isStrongEnoughPassword(senha: string) {
-  return senha.length >= 6 && senha.length <= 8 && /[a-z]/.test(senha) && /[A-Z]/.test(senha) && /\d/.test(senha);
-}
+import { isStrongEnoughPassword, PASSWORD_REQUIREMENTS } from "@/lib/passwordPolicy";
 
 function getRegisterErrorMessage(err: unknown) {
   const fallback = "Não foi possível criar sua conta. Verifique os dados e tente novamente.";
@@ -17,7 +14,7 @@ function getRegisterErrorMessage(err: unknown) {
   }
 
   if (err.message === "Nao foi possivel concluir o cadastro.") {
-    return "Não foi possível concluir o cadastro. Verifique se o e-mail já não está cadastrado e use uma senha de 6 a 8 caracteres, com letra maiúscula, letra minúscula e número.";
+    return `Não foi possível concluir o cadastro. Verifique se o e-mail já não está cadastrado. ${PASSWORD_REQUIREMENTS}`;
   }
 
   return err.message;
@@ -53,7 +50,7 @@ export function RegisterForm() {
     }
 
     if (!isStrongEnoughPassword(senha)) {
-      setError("Use uma senha de 6 a 8 caracteres, com letra maiúscula, letra minúscula e número.");
+      setError(PASSWORD_REQUIREMENTS);
       setLoading(false);
       return;
     }
@@ -103,7 +100,6 @@ export function RegisterForm() {
           name="senha"
           autoComplete="new-password"
           minLength={6}
-          maxLength={8}
           required
         />
         <input
@@ -113,10 +109,11 @@ export function RegisterForm() {
           name="confirmarSenha"
           autoComplete="new-password"
           minLength={6}
-          maxLength={8}
           required
         />
       </div>
+
+      <p className="mt-4 text-sm text-gray-500">{PASSWORD_REQUIREMENTS}</p>
 
       {error && <p className="mt-5 animate-fade-in rounded-xl border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">{error}</p>}
 
