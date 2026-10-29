@@ -60,10 +60,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
     setSigningOut(true);
 
     try {
-      await Promise.all([
-        signOut(),
-        new Promise((resolve) => window.setTimeout(resolve, 450))
-      ]);
+      await signOut();
       router.push("/login");
     } finally {
       setSigningOut(false);
