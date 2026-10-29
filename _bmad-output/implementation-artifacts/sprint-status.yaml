@@ -1,0 +1,33 @@
+project: servico-palavra-frontend
+updated: 2026-10-29
+workflow: bmad-lite
+
+stories:
+  E0-FE-01-quality-gate-frontend:
+    priority: P1
+    status: ready-for-dev
+    title: "Quality gate, lint, testes e E2E do frontend"
+  E1-FE-01-performance-login-logout:
+    priority: P0
+    status: backlog
+    title: "Remover round-trip e delays artificiais de autenticação"
+  E1-FE-02-recuperacao-de-senha:
+    priority: P0
+    status: backlog
+    title: "Fluxo de recuperação de senha"
+  E4-FE-01-design-system-v2:
+    priority: P1
+    status: backlog
+    title: "Consolidar tokens e componentes do design system"
+  E5-FE-01-responsive-hardening:
+    priority: P1
+    status: backlog
+    title: "Hardening responsivo em 320/390/768/1024/1440"
+  E7-FE-01-accessibility-shell-modals:
+    priority: P1
+    status: backlog
+    title: "Foco, teclado e ARIA em navegação e modais"
+  E8-FE-01-frontend-architecture:
+    priority: P2
+    status: backlog
+    title: "Reduzir CSS e componentes/services excessivamente grandes"
