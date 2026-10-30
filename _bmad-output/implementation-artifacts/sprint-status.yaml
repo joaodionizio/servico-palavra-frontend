@@ -29,5 +29,5 @@ stories:
     title: "Foco, teclado e ARIA em navegação e modais"
   E8-FE-01-frontend-architecture:
     priority: P2
-    status: in-progress
+    status: done
     title: "Reduzir CSS e componentes/services excessivamente grandes"
