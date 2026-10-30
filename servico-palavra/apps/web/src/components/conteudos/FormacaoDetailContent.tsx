@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ContentPlayer } from "@/components/conteudos/ContentPlayer";
 import { MaterialSupportList } from "@/components/conteudos/MaterialSupportList";
 import { Badge } from "@/components/ui/Badge";
@@ -25,18 +25,18 @@ export function FormacaoDetailContent({ slug }: { slug: string }) {
   const [state, setState] = useState<FormacaoDetailState>({ status: "loading", conteudo: null });
   const [actionMessage, setActionMessage] = useState("");
 
-  const loadConteudo = useCallback(async () => {
-    try {
-      const conteudo = await getConteudoBySlug(slug);
-      setState({ status: "ready", conteudo });
-    } catch {
-      setState({ status: "error", conteudo: null, message: "Não foi possível carregar esta formação." });
-    }
-  }, [slug]);
-
   useEffect(() => {
+    async function loadConteudo() {
+      try {
+        const conteudo = await getConteudoBySlug(slug);
+        setState({ status: "ready", conteudo });
+      } catch {
+        setState({ status: "error", conteudo: null, message: "Não foi possível carregar esta formação." });
+      }
+    }
+
     void loadConteudo();
-  }, [loadConteudo]);
+  }, [slug]);
 
   async function toggleFavorito() {
     if (state.status !== "ready") {
