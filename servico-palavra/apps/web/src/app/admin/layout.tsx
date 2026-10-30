@@ -4,7 +4,9 @@ import { AppShell } from "@/components/layout/AppShell";
 export default function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <AuthGate requiredRole="Admin">
-      <AppShell admin>{children}</AppShell>
+      <AppShell admin>
+        <div className="admin-area">{children}</div>
+      </AppShell>
     </AuthGate>
   );
 }
