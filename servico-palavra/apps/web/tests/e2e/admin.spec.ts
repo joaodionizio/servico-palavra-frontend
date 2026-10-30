@@ -93,6 +93,7 @@ async function mockAdminApi(page: Page, options: AdminMockOptions = {}) {
         slug: "nova-categoria",
         descricao: String(payload.descricao ?? ""),
         cor: String(payload.cor ?? "#0A4F8F"),
+        icone: String(payload.icone ?? ""),
         ordem: 2,
         ativo: true
       };
