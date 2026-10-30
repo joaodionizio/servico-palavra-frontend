@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { BrandEyebrow } from "@/components/branding/BrandEyebrow";
 
 const items = [
@@ -33,6 +34,17 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
   const [menuOpen, setMenuOpen] = useState(false);
   const [railCollapsed, setRailCollapsed] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [isMobileNav, setIsMobileNav] = useState(false);
+  const drawerRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  useFocusTrap({
+    active: isMobileNav && menuOpen,
+    containerRef: drawerRef,
+    onEscape: closeMenu,
+    initialFocusSelector: ".app-rail-nav a"
+  });
 
   useEffect(() => {
     const savedTheme = (() => { try { return window.localStorage.getItem("servico-palavra-theme"); } catch { return null; } })();
@@ -43,26 +55,66 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
     try { setRailCollapsed(window.localStorage.getItem("servico-palavra-rail") === "collapsed"); } catch {}
   }, []);
 
-  useEffect(() => setMenuOpen(false), [pathname]);
-
   useEffect(() => {
-    if (!menuOpen) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
+    const media = window.matchMedia("(max-width: 1023px)");
+    const updateMode = () => {
+      setIsMobileNav(media.matches);
+      if (!media.matches) {
         setMenuOpen(false);
       }
+    };
+
+    updateMode();
+    media.addEventListener("change", updateMode);
+    return () => media.removeEventListener("change", updateMode);
+  }, []);
+
+  useEffect(() => closeMenu(), [pathname, closeMenu]);
+
+  useEffect(() => {
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+
+    const shouldHideDrawer = isMobileNav && !menuOpen;
+    drawer.inert = shouldHideDrawer;
+    if (shouldHideDrawer) {
+      drawer.setAttribute("aria-hidden", "true");
+    } else {
+      drawer.removeAttribute("aria-hidden");
     }
 
-    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      drawer.inert = false;
+      drawer.removeAttribute("aria-hidden");
+    };
+  }, [isMobileNav, menuOpen]);
+
+  useEffect(() => {
+    if (!isMobileNav || !menuOpen) return;
+
+    const main = mainRef.current;
+    const previousOverflow = document.body.style.overflow;
+    const previousAriaHidden = main?.getAttribute("aria-hidden") ?? null;
+    const previousInert = main?.inert ?? false;
+
+    document.body.style.overflow = "hidden";
+    if (main) {
+      main.inert = true;
+      main.setAttribute("aria-hidden", "true");
+    }
+
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
+      if (main) {
+        main.inert = previousInert;
+        if (previousAriaHidden === null) {
+          main.removeAttribute("aria-hidden");
+        } else {
+          main.setAttribute("aria-hidden", previousAriaHidden);
+        }
+      }
     };
-  }, [menuOpen]);
+  }, [isMobileNav, menuOpen]);
 
   function toggleTheme() {
     setTheme((current) => {
@@ -136,7 +188,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
         </button>
       </header>
 
-      <aside id="app-navigation-drawer" className={`app-rail ${menuOpen ? "open" : ""}`} aria-label="Menu da aplicação">
+      <aside ref={drawerRef} id="app-navigation-drawer" className={`app-rail ${menuOpen ? "open" : ""}`} aria-label="Menu da aplicação">
         <button type="button" className="app-rail-toggle" onClick={toggleRail} aria-label={railCollapsed ? "Expandir menu" : "Recolher menu"} title={railCollapsed ? "Expandir menu" : "Recolher menu"}>{railCollapsed ? "›" : "‹"}</button>
         <Link href="/app" className="app-rail-brand">
           <BrandEyebrow variant="onBlue" className="text-xl font-semibold" />
@@ -146,9 +198,9 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
         {navigation}
       </aside>
 
-      {menuOpen && <button className="app-menu-backdrop" aria-label="Fechar menu" onClick={() => setMenuOpen(false)} />}
+      {menuOpen && <button className="app-menu-backdrop" aria-label="Fechar menu" tabIndex={-1} onClick={closeMenu} />}
 
-      <main className="app-main" id="main-content"><div className="animate-fade-in">{children}</div></main>
+      <main ref={mainRef} className="app-main" id="main-content"><div className="animate-fade-in">{children}</div></main>
     </div>
   );
 }
