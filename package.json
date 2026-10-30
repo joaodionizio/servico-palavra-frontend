@@ -11,7 +11,8 @@
     "lint": "npm --prefix servico-palavra/apps/web run lint",
     "test:e2e": "npm --prefix servico-palavra/apps/web run test:e2e",
     "test": "npm run test:e2e",
-    "verify": "npm --prefix servico-palavra/apps/web run verify"
+    "verify": "npm --prefix servico-palavra/apps/web run verify",
+    "smoke:production": "npm --prefix servico-palavra/apps/web run smoke:production"
   },
   "keywords": [],
   "author": "",
