@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Loading } from "@/components/ui/Loading";
+import { StatusNotice } from "@/components/ui/StatusNotice";
 import { ApiError } from "@/lib/api";
 import { deleteAdminConteudo, listAdminConteudos, TIPO_CONTEUDO_OPTIONS, updateAdminConteudoPublicacao } from "@/services/adminContentService";
 import type { AdminConteudo, AdminConteudoPage } from "@/types/conteudo";
@@ -157,7 +158,7 @@ export function AdminConteudosContent() {
           <h1 className="mt-3 text-5xl font-black tracking-[-.05em] text-white md:text-6xl">Conteúdos</h1>
           <p className="mt-2 text-white/60">Listar, criar, editar, publicar e despublicar conteúdos.</p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="admin-actions flex flex-wrap gap-3">
           <LinkButton href="/admin/categorias" variant="secondary">
             Categorias
           </LinkButton>
@@ -166,14 +167,14 @@ export function AdminConteudosContent() {
       </div>
 
       <form
-        className="grid gap-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:grid-cols-[1fr_180px_160px_160px_auto]"
+        className="admin-filter-grid grid gap-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:grid-cols-[1fr_180px_160px_160px_auto]"
         onSubmit={(event) => {
           event.preventDefault();
           void loadConteudos(1);
         }}
       >
-        <input value={busca} onChange={(event) => setBusca(event.target.value)} placeholder="Buscar conteúdo" className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
-        <select value={categoriaSlug} onChange={(event) => setCategoriaSlug(event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10">
+        <input aria-label="Buscar conteúdo" value={busca} onChange={(event) => setBusca(event.target.value)} placeholder="Buscar conteúdo" className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
+        <select aria-label="Filtrar por categoria" value={categoriaSlug} onChange={(event) => setCategoriaSlug(event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10">
           <option value="">Todas</option>
           {categorias.map((categoria) => (
             <option key={categoria.id} value={categoria.slug ?? categoria.id}>
@@ -181,7 +182,7 @@ export function AdminConteudosContent() {
             </option>
           ))}
         </select>
-        <select value={tipo} onChange={(event) => setTipo(event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10">
+        <select aria-label="Filtrar por tipo" value={tipo} onChange={(event) => setTipo(event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10">
           <option value="">Todos os tipos</option>
           {TIPO_CONTEUDO_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -189,19 +190,19 @@ export function AdminConteudosContent() {
             </option>
           ))}
         </select>
-        <select value={publicado} onChange={(event) => setPublicado(event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10">
+        <select aria-label="Filtrar por publicação" value={publicado} onChange={(event) => setPublicado(event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10">
           <option value="">Todos</option>
           <option value="true">Publicados</option>
           <option value="false">Rascunhos</option>
         </select>
-        <Button type="submit" disabled={state.status === "loading"}>
+        <Button type="submit" loading={state.status === "loading"} loadingLabel="Buscando">
           Buscar
         </Button>
       </form>
 
-      {categoriaError && <p className="text-sm font-semibold text-yellow-700">{categoriaError}</p>}
-      {actionMessage && <p className="rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">{actionMessage}</p>}
-      {actionError && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{actionError}</p>}
+      {categoriaError && <StatusNotice variant="info">{categoriaError}</StatusNotice>}
+      {actionMessage && <StatusNotice variant="success">{actionMessage}</StatusNotice>}
+      {actionError && <StatusNotice variant="error">{actionError}</StatusNotice>}
 
       {state.status === "loading" && <Loading label="Carregando conteúdos..." />}
       {state.status === "error" && <EmptyState title="Não foi possível carregar" description={`${state.message} Confirme seu acesso de Admin e tente novamente.`} />}
@@ -210,24 +211,36 @@ export function AdminConteudosContent() {
       )}
 
       {conteudos.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="admin-list-panel">
           {conteudos.map((conteudo) => (
-            <div key={conteudo.id} className="grid gap-3 border-b border-gray-100 p-5 last:border-0 md:grid-cols-[1fr_120px_120px_300px] md:items-center">
-              <div>
-                <strong className="text-[#004B87]">{conteudo.titulo}</strong>
+            <div key={conteudo.id} className="admin-list-row grid gap-3 border-b border-gray-100 p-5 last:border-0 md:grid-cols-[1fr_120px_120px_300px] md:items-center">
+              <div className="min-w-0">
+                <strong className="block truncate text-[#004B87]">{conteudo.titulo}</strong>
                 <p className="mt-1 text-sm text-gray-500">{conteudo.categoria?.nome ?? "Sem categoria"}</p>
               </div>
               <Badge>{conteudo.tipoLabel ?? conteudo.tipo}</Badge>
-              <span className="text-sm font-semibold text-gray-500">{conteudo.publicado ? "Publicado" : "Rascunho"}</span>
-              <div className="flex flex-wrap gap-2 md:justify-end">
-                <Button type="button" variant={conteudo.publicado ? "secondary" : "gold"} disabled={publishingId === conteudo.id} onClick={() => togglePublicacao(conteudo)}>
-                  {publishingId === conteudo.id ? "Atualizando..." : conteudo.publicado ? "Despublicar" : "Publicar"}
+              <span className="text-sm font-semibold text-gray-500 dark:text-slate-300">{conteudo.publicado ? "Publicado" : "Rascunho"}</span>
+              <div className="admin-actions flex flex-wrap gap-2 md:justify-end">
+                <Button
+                  type="button"
+                  variant={conteudo.publicado ? "secondary" : "gold"}
+                  loading={publishingId === conteudo.id}
+                  loadingLabel="Atualizando"
+                  onClick={() => togglePublicacao(conteudo)}
+                >
+                  {conteudo.publicado ? "Despublicar" : "Publicar"}
                 </Button>
                 <LinkButton href={`/admin/conteudos/${conteudo.id}/editar`} variant="secondary">
                   Editar
                 </LinkButton>
-                <Button type="button" variant="ghost" disabled={deletingId === conteudo.id} onClick={() => excluirConteudo(conteudo)}>
-                  {deletingId === conteudo.id ? "Excluindo..." : "Excluir"}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  loading={deletingId === conteudo.id}
+                  loadingLabel="Excluindo"
+                  onClick={() => excluirConteudo(conteudo)}
+                >
+                  Excluir
                 </Button>
               </div>
             </div>
@@ -236,11 +249,11 @@ export function AdminConteudosContent() {
       )}
 
       {state.status === "ready" && state.page.totalPaginas > 1 && (
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="admin-actions flex flex-wrap items-center justify-center gap-3">
           <Button type="button" variant="secondary" disabled={state.page.pagina <= 1} onClick={() => loadConteudos(state.page.pagina - 1)}>
             Anterior
           </Button>
-          <span className="text-sm font-bold text-gray-500">
+          <span className="admin-pagination-label text-sm font-bold text-gray-500">
             Página {state.page.pagina} de {state.page.totalPaginas}
           </span>
           <Button type="button" variant="secondary" disabled={state.page.pagina >= state.page.totalPaginas} onClick={() => loadConteudos(state.page.pagina + 1)}>
