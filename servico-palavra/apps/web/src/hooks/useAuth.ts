@@ -20,17 +20,17 @@ type AuthContextValue = {
   signOut: () => Promise<void>;
 };
 
-type AuthRequestCache = {
-  current: Promise<Usuario | null> | null;
-};
-
 const AuthContext = createContext<AuthContextValue | null>(null);
+let pendingGetMeRequest: Promise<Usuario | null> | null = null;
+
+function clearPendingGetMeRequest() {
+  pendingGetMeRequest = null;
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [status, setStatus] = useState<AuthStatus>("idle");
-  const [requestCache] = useState<AuthRequestCache>(() => ({ current: null }));
 
   const refreshUsuario = useCallback(async (options: { force?: boolean } = {}) => {
     if (!options.force && usuario && status === "authenticated") {
@@ -41,8 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     }
 
-    if (!options.force && requestCache.current) {
-      return requestCache.current;
+    if (!options.force && pendingGetMeRequest) {
+      return pendingGetMeRequest;
     }
 
     if (status !== "authenticated") {
@@ -61,14 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return null;
       })
       .finally(() => {
-        if (requestCache.current === request) {
-          requestCache.current = null;
+        if (pendingGetMeRequest === request) {
+          clearPendingGetMeRequest();
         }
       });
 
-    requestCache.current = request;
+    pendingGetMeRequest = request;
     return request;
-  }, [requestCache, status, usuario]);
+  }, [status, usuario]);
 
   const ensureUsuario = useCallback(async () => {
     const currentUsuario = await refreshUsuario();
@@ -82,20 +82,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (payload: LoginPayload) => {
     const response = await login(payload);
-    requestCache.current = null;
+    clearPendingGetMeRequest();
     setUsuario(response.usuario);
     setStatus("authenticated");
     return response.usuario;
-  }, [requestCache]);
+  }, []);
 
   const signUp = useCallback(async (payload: RegisterPayload) => {
     const response = await register(payload);
     const currentUsuario = await getMe().catch(() => response.usuario);
-    requestCache.current = null;
+    clearPendingGetMeRequest();
     setUsuario(currentUsuario);
     setStatus("authenticated");
     return currentUsuario;
-  }, [requestCache]);
+  }, []);
 
   const updateProfile = useCallback(async (payload: UpdateProfilePayload) => {
     const currentUsuario = await updateMe(payload);
@@ -106,18 +106,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await logout().catch(() => undefined);
-    requestCache.current = null;
+    clearPendingGetMeRequest();
     clearCsrfToken();
     setUsuario(null);
     setStatus("unauthenticated");
-  }, [requestCache]);
+  }, []);
 
   useEffect(() => {
     function handleAuthExpired() {
       const currentPath = `${window.location.pathname}${window.location.search}`;
       const redirectTarget = currentPath.startsWith("/login") ? "/login?expired=1" : `/login?expired=1&redirect=${encodeURIComponent(currentPath)}`;
 
-      requestCache.current = null;
+      clearPendingGetMeRequest();
       clearCsrfToken();
       setUsuario(null);
       setStatus("unauthenticated");
@@ -129,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
     };
-  }, [requestCache, router]);
+  }, [router]);
 
   const value = useMemo(
     () => ({ usuario, loading: status === "loading", status, refreshUsuario, ensureUsuario, signIn, signUp, updateProfile, signOut }),
