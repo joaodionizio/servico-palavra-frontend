@@ -20,6 +20,23 @@ type CategoriasState =
   | { status: "ready"; categorias: CategoriaConteudo[]; message?: never }
   | { status: "error"; categorias: CategoriaConteudo[]; message: string };
 
+type FormacoesQuery = {
+  busca: string;
+  categoriaSlug: string;
+  tipo: TipoConteudo | "";
+  pagina: number;
+};
+
+function fetchFormacoesPage({ busca, categoriaSlug, tipo, pagina }: FormacoesQuery) {
+  return listConteudos({
+    busca,
+    categoriaSlug: categoriaSlug === "todas" ? "" : categoriaSlug,
+    tipo,
+    pagina,
+    tamanhoPagina: 12
+  });
+}
+
 export function FormacoesContent() {
   const [busca, setBusca] = useState("");
   const [categoriaSlug, setCategoriaSlug] = useState("todas");
@@ -32,13 +49,7 @@ export function FormacoesContent() {
     setState((current) => (nextPage === 1 ? { status: "loading", page: null } : current));
 
     try {
-      const page = await listConteudos({
-        busca,
-        categoriaSlug: categoriaSlug === "todas" ? "" : categoriaSlug,
-        tipo,
-        pagina: nextPage,
-        tamanhoPagina: 12
-      });
+      const page = await fetchFormacoesPage({ busca, categoriaSlug, tipo, pagina: nextPage });
 
       setState((current) => {
         if (nextPage > 1 && current.status === "ready") {
@@ -60,13 +71,21 @@ export function FormacoesContent() {
   }
 
   useEffect(() => {
-    loadFormacoes(1);
+    async function loadInitialFormacoes() {
+      try {
+        const page = await fetchFormacoesPage({ busca: "", categoriaSlug: "todas", tipo: "", pagina: 1 });
+        setState({ status: "ready", page });
+        setPagina(1);
+      } catch {
+        setState({ status: "error", page: null, message: "Não foi possível carregar as formações agora." });
+      }
+    }
+
+    void loadInitialFormacoes();
   }, []);
 
   useEffect(() => {
     async function loadCategorias() {
-      setCategoriasState({ status: "loading", categorias: [] });
-
       try {
         const categorias = await listCategoriasConteudo();
         setCategoriasState({ status: "ready", categorias });
@@ -79,7 +98,7 @@ export function FormacoesContent() {
       }
     }
 
-    loadCategorias();
+    void loadCategorias();
   }, []);
 
   const conteudos: Conteudo[] = state.status === "ready" ? state.page.itens : [];
