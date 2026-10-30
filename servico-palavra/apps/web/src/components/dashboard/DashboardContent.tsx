@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BiblePlanSummaryCard } from "@/components/dashboard/BiblePlanSummaryCard";
 import { ContinueWatchingCard } from "@/components/dashboard/ContinueWatchingCard";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
@@ -58,9 +58,7 @@ function DashboardError({ message, onRetry }: { message: string; onRetry: () => 
 export function DashboardContent() {
   const [state, setState] = useState<DashboardState>({ status: "loading", data: null });
 
-  async function loadDashboard() {
-    setState({ status: "loading", data: null });
-
+  const loadDashboard = useCallback(async () => {
     try {
       const data = await getDashboardMe();
       setState({ status: "ready", data });
@@ -72,18 +70,23 @@ export function DashboardContent() {
 
       setState({ status: "error", data: null, message });
     }
-  }
+  }, []);
 
   useEffect(() => {
-    loadDashboard();
-  }, []);
+    void loadDashboard();
+  }, [loadDashboard]);
+
+  function retryDashboard() {
+    setState({ status: "loading", data: null });
+    void loadDashboard();
+  }
 
   if (state.status === "loading") {
     return <DashboardLoading />;
   }
 
   if (state.status === "error") {
-    return <DashboardError message={state.message} onRetry={loadDashboard} />;
+    return <DashboardError message={state.message} onRetry={retryDashboard} />;
   }
 
   const dashboard = state.data;
