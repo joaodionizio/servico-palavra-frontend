@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -89,23 +89,29 @@ export function AdminCategoriasContent() {
   const [actionMessage, setActionMessage] = useState("");
   const [actionError, setActionError] = useState("");
 
-  const fetchCategorias = useCallback(async () => {
+  useEffect(() => {
+    async function loadInitialCategorias() {
+      try {
+        const categorias = await listAdminCategorias();
+        setState({ status: "ready", categorias });
+      } catch (error) {
+        setState({ status: "error", categorias: [], message: getErrorMessage(error) });
+      }
+    }
+
+    void loadInitialCategorias();
+  }, []);
+
+  async function refreshCategorias() {
+    setState({ status: "loading", categorias: [] });
+    setActionError("");
+
     try {
       const categorias = await listAdminCategorias();
       setState({ status: "ready", categorias });
     } catch (error) {
       setState({ status: "error", categorias: [], message: getErrorMessage(error) });
     }
-  }, []);
-
-  useEffect(() => {
-    void fetchCategorias();
-  }, [fetchCategorias]);
-
-  function refreshCategorias() {
-    setState({ status: "loading", categorias: [] });
-    setActionError("");
-    void fetchCategorias();
   }
 
   function updateField(field: keyof CategoriaFormState, value: string | boolean) {
@@ -276,7 +282,7 @@ export function AdminCategoriasContent() {
           <Button type="submit" disabled={saving}>
             {saving ? "Salvando..." : editing ? "Salvar alterações" : "Criar categoria"}
           </Button>
-          <Button type="button" variant="secondary" onClick={refreshCategorias} disabled={state.status === "loading"}>
+          <Button type="button" variant="secondary" onClick={() => void refreshCategorias()} disabled={state.status === "loading"}>
             Atualizar lista
           </Button>
         </div>
