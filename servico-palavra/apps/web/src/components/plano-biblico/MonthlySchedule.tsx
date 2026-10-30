@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import type { DiaPlanoBiblico } from "@/types/planoBiblico";
 
 type MonthlyScheduleProps = {
@@ -182,7 +183,16 @@ export function MonthlySchedule({ dias, onToggleDay, pendingDayId }: MonthlySche
   const groups = useMemo(() => groupByMonth(dias), [dias]);
   const sections = useMemo(() => groupIntoSections(groups), [groups]);
   const [selectedMonthNumber, setSelectedMonthNumber] = useState<number | null>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const closeMonth = useCallback(() => setSelectedMonthNumber(null), []);
   const selectedMonth = groups.find((group) => group.mes === selectedMonthNumber) ?? null;
+
+  useFocusTrap({
+    active: selectedMonth !== null,
+    containerRef: dialogRef,
+    onEscape: closeMonth,
+    initialFocusSelector: "[data-dialog-close='true']"
+  });
 
   if (dias.length === 0) {
     return <Card className="text-gray-500 dark:text-slate-300">Nenhuma leitura foi gerada para este plano.</Card>;
@@ -209,6 +219,7 @@ export function MonthlySchedule({ dias, onToggleDay, pendingDayId }: MonthlySche
                     key={group.mes}
                     className="ui-card card-hover group relative min-h-52 min-w-0 overflow-hidden border border-slate-200/70 bg-[#FDFDFB] p-5 text-left sm:min-h-60 sm:p-7 dark:border-slate-700 dark:bg-slate-900/70"
                     type="button"
+                    aria-haspopup="dialog"
                     onClick={() => setSelectedMonthNumber(group.mes)}
                   >
                     <div className="flex items-start justify-between gap-4">
@@ -236,8 +247,16 @@ export function MonthlySchedule({ dias, onToggleDay, pendingDayId }: MonthlySche
       </div>
 
       {selectedMonth && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-[#003366]/55 px-3 py-5 backdrop-blur-sm sm:px-4 sm:py-8" role="dialog" aria-modal="true" aria-labelledby="month-schedule-title" onClick={() => setSelectedMonthNumber(null)}>
-          <section className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[var(--sp-radius-card)] border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950" onClick={(event) => event.stopPropagation()}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-[#003366]/55 px-3 py-5 backdrop-blur-sm sm:px-4 sm:py-8" onClick={closeMonth}>
+          <section
+            ref={dialogRef}
+            className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[var(--sp-radius-card)] border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="month-schedule-title"
+            aria-describedby="month-schedule-description"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="border-b border-gray-100 p-5 sm:p-6 md:p-8 dark:border-slate-800">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
@@ -245,9 +264,9 @@ export function MonthlySchedule({ dias, onToggleDay, pendingDayId }: MonthlySche
                   <h2 id="month-schedule-title" className="mt-2 break-words text-2xl font-black text-[var(--sp-brand)] sm:text-3xl dark:text-sky-100">
                     {selectedMonth.fase}
                   </h2>
-                  <p className="mt-2 break-words text-gray-500 dark:text-slate-300">{selectedMonth.resumo}</p>
+                  <p id="month-schedule-description" className="mt-2 break-words text-gray-500 dark:text-slate-300">{selectedMonth.resumo}</p>
                 </div>
-                <Button variant="secondary" type="button" onClick={() => setSelectedMonthNumber(null)} className="w-full shrink-0 sm:w-auto">
+                <Button data-dialog-close="true" variant="secondary" type="button" onClick={closeMonth} className="w-full shrink-0 sm:w-auto">
                   Fechar
                 </Button>
               </div>
