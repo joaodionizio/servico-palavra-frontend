@@ -1,53 +1,77 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { MonthlySchedule } from "@/components/plano-biblico/MonthlySchedule";
 import { BiblePlanNotFoundError, BiblePlanUnauthorizedError, concluirDia, desmarcarDia, getCronograma, getPlanoAtivo } from "@/services/biblePlanService";
 import type { DiaPlanoBiblico } from "@/types/planoBiblico";
 
+type CronogramaViewState = "ready" | "empty" | "unauthorized" | "error";
+
+async function fetchCronogramaSchedule() {
+  const activePlan = await getPlanoAtivo();
+  return getCronograma(activePlan.id);
+}
+
+function getCronogramaErrorState(loadError: unknown): { state: CronogramaViewState; error: string | null } {
+  if (loadError instanceof BiblePlanNotFoundError) {
+    return { state: "empty", error: null };
+  }
+
+  if (loadError instanceof BiblePlanUnauthorizedError) {
+    return { state: "unauthorized", error: null };
+  }
+
+  return {
+    state: "error",
+    error: loadError instanceof Error ? loadError.message : "Não foi possível carregar o cronograma."
+  };
+}
+
 export default function CronogramaPage() {
   const [dias, setDias] = useState<DiaPlanoBiblico[]>([]);
   const [loading, setLoading] = useState(true);
-  const [state, setState] = useState<"ready" | "empty" | "unauthorized" | "error">("ready");
+  const [state, setState] = useState<CronogramaViewState>("ready");
   const [error, setError] = useState<string | null>(null);
   const [pendingDayId, setPendingDayId] = useState<string | null>(null);
 
-  const loadCronograma = useCallback(async () => {
-    try {
-      const activePlan = await getPlanoAtivo();
-      const schedule = await getCronograma(activePlan.id);
+  useEffect(() => {
+    async function loadInitialCronograma() {
+      try {
+        const schedule = await fetchCronogramaSchedule();
+        setDias(schedule);
+        setState("ready");
+        setError(null);
+      } catch (loadError) {
+        const next = getCronogramaErrorState(loadError);
+        setDias([]);
+        setState(next.state);
+        setError(next.error);
+      } finally {
+        setLoading(false);
+      }
+    }
 
+    void loadInitialCronograma();
+  }, []);
+
+  async function retryCronograma() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const schedule = await fetchCronogramaSchedule();
       setDias(schedule);
       setState("ready");
-      setError(null);
     } catch (loadError) {
+      const next = getCronogramaErrorState(loadError);
       setDias([]);
-
-      if (loadError instanceof BiblePlanNotFoundError) {
-        setState("empty");
-        setError(null);
-      } else if (loadError instanceof BiblePlanUnauthorizedError) {
-        setState("unauthorized");
-        setError(null);
-      } else {
-        setState("error");
-        setError(loadError instanceof Error ? loadError.message : "Não foi possível carregar o cronograma.");
-      }
+      setState(next.state);
+      setError(next.error);
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    void loadCronograma();
-  }, [loadCronograma]);
-
-  function retryCronograma() {
-    setLoading(true);
-    setError(null);
-    void loadCronograma();
   }
 
   async function handleToggleDay(dia: DiaPlanoBiblico) {
@@ -123,7 +147,7 @@ export default function CronogramaPage() {
           <p className="text-sm font-bold uppercase tracking-widest text-red-600 dark:text-red-300">Cronograma</p>
           <h1 className="mt-3 text-3xl font-black text-[var(--sp-brand)] dark:text-sky-100">Não foi possível carregar o cronograma</h1>
           <p className="mt-2 text-gray-600 dark:text-slate-300">{error ?? "Tente novamente em instantes."}</p>
-          <Button className="mt-6" onClick={retryCronograma}>
+          <Button className="mt-6" onClick={() => void retryCronograma()}>
             Tentar novamente
           </Button>
         </Card>
