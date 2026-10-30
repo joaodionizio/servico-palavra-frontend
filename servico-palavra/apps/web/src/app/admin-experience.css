@@ -1,0 +1,193 @@
+.admin-area {
+  min-width: 0;
+}
+
+.admin-area .admin-stage {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--sp-brand) 18%, transparent);
+  border-radius: var(--sp-radius-hero);
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255, 204, 0, 0.18), transparent 30%),
+    linear-gradient(135deg, var(--sp-brand-strong), var(--sp-brand));
+  box-shadow: var(--sp-shadow-card);
+}
+
+.admin-area .admin-stage h1 {
+  text-wrap: balance;
+}
+
+.admin-area form,
+.admin-area .admin-panel,
+.admin-area .admin-list-panel {
+  border-color: var(--sp-border) !important;
+  background: var(--sp-surface) !important;
+  color: var(--sp-text);
+  box-shadow: var(--sp-shadow-card);
+}
+
+.admin-area form {
+  border-radius: var(--sp-radius-card) !important;
+}
+
+.admin-area label,
+.admin-area form h2,
+.admin-area form h3,
+.admin-area .admin-list-panel strong {
+  color: var(--sp-text) !important;
+}
+
+.admin-area form p,
+.admin-area .admin-list-panel p,
+.admin-area .admin-pagination-label {
+  color: var(--sp-text-muted) !important;
+}
+
+.admin-area :where(input:not([type="checkbox"]):not([type="color"]), textarea, select) {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border-color: var(--sp-border) !important;
+  background: var(--sp-surface-muted) !important;
+  color: var(--sp-text) !important;
+  transition:
+    border-color var(--sp-motion-fast) ease,
+    box-shadow var(--sp-motion-fast) ease,
+    background-color var(--sp-motion-fast) ease;
+}
+
+.admin-area :where(input:not([type="checkbox"]):not([type="color"]), textarea, select):focus {
+  border-color: var(--sp-brand) !important;
+  background: var(--sp-surface) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sp-brand) 12%, transparent) !important;
+}
+
+.admin-area input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--sp-brand);
+}
+
+.admin-area input[type="color"] {
+  min-height: 48px;
+  border-color: var(--sp-border) !important;
+  background: var(--sp-surface-muted) !important;
+}
+
+.admin-area select option {
+  background: var(--sp-surface);
+  color: var(--sp-text);
+}
+
+.admin-area .admin-list-panel {
+  overflow: hidden;
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius-card);
+}
+
+.admin-area .admin-list-row {
+  border-color: var(--sp-border) !important;
+  transition: background-color var(--sp-motion-fast) ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .admin-area .admin-list-row:hover {
+    background: color-mix(in srgb, var(--sp-brand) 4%, var(--sp-surface));
+  }
+}
+
+.admin-area .admin-list-row strong {
+  color: var(--sp-brand) !important;
+}
+
+.dark .admin-area .admin-list-row strong {
+  color: #93c5fd !important;
+}
+
+.admin-area .admin-actions {
+  min-width: 0;
+}
+
+.admin-area .admin-actions > * {
+  flex: 0 0 auto;
+}
+
+.admin-area .admin-filter-grid {
+  align-items: end;
+}
+
+.admin-area .admin-sticky-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  margin-inline: -0.25rem;
+  padding: 0.75rem 0.25rem 0.25rem;
+  background: linear-gradient(to top, var(--sp-surface) 72%, transparent);
+}
+
+@media (max-width: 767px) {
+  .admin-area {
+    width: 100%;
+  }
+
+  .admin-area .admin-stage {
+    padding: 1.5rem !important;
+    border-radius: 1.5rem;
+  }
+
+  .admin-area .admin-stage h1 {
+    margin-top: 0.5rem !important;
+    font-size: clamp(2rem, 11vw, 3rem) !important;
+    line-height: 0.95;
+  }
+
+  .admin-area .admin-stage > div:last-child,
+  .admin-area .admin-actions {
+    width: 100%;
+  }
+
+  .admin-area .admin-stage > div:last-child > *,
+  .admin-area .admin-actions > * {
+    flex: 1 1 9rem;
+  }
+
+  .admin-area form {
+    padding: 1.25rem !important;
+  }
+
+  .admin-area .admin-filter-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .admin-area .admin-list-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 1.1rem !important;
+  }
+
+  .admin-area .admin-list-row .admin-actions {
+    justify-content: stretch !important;
+  }
+
+  .admin-area .admin-list-row .admin-actions > * {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+}
+
+@media (max-width: 389px) {
+  .admin-area .admin-stage {
+    padding: 1.25rem !important;
+  }
+
+  .admin-area form {
+    padding: 1rem !important;
+  }
+
+  .admin-area .admin-list-row .admin-actions > * {
+    flex-basis: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-area .admin-list-row {
+    transition: none !important;
+  }
+}
