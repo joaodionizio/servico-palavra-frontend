@@ -25,7 +25,7 @@ stories:
     title: "Hardening responsivo em 320/390/768/1024/1440"
   E6-FE-01-interaction-feedback:
     priority: P1
-    status: in-progress
+    status: done
     title: "Microinterações, feedback e reconciliação do plano"
   E7-FE-01-accessibility-shell-modals:
     priority: P1
