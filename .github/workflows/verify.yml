@@ -77,3 +77,7 @@ jobs:
       - name: E2E — responsividade
         working-directory: servico-palavra/apps/web
         run: npx playwright test --grep "sem overflow"
+
+      - name: E2E — acessibilidade de foco
+        working-directory: servico-palavra/apps/web
+        run: npx playwright test tests/e2e/accessibility.spec.ts
