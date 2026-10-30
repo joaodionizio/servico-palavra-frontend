@@ -15,22 +15,22 @@ export default function CronogramaPage() {
   const [pendingDayId, setPendingDayId] = useState<string | null>(null);
 
   const loadCronograma = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
     try {
       const activePlan = await getPlanoAtivo();
       const schedule = await getCronograma(activePlan.id);
 
       setDias(schedule);
       setState("ready");
+      setError(null);
     } catch (loadError) {
       setDias([]);
 
       if (loadError instanceof BiblePlanNotFoundError) {
         setState("empty");
+        setError(null);
       } else if (loadError instanceof BiblePlanUnauthorizedError) {
         setState("unauthorized");
+        setError(null);
       } else {
         setState("error");
         setError(loadError instanceof Error ? loadError.message : "Não foi possível carregar o cronograma.");
@@ -43,6 +43,12 @@ export default function CronogramaPage() {
   useEffect(() => {
     void loadCronograma();
   }, [loadCronograma]);
+
+  function retryCronograma() {
+    setLoading(true);
+    setError(null);
+    void loadCronograma();
+  }
 
   async function handleToggleDay(dia: DiaPlanoBiblico) {
     const nextStatus: DiaPlanoBiblico["status"] = dia.status === "concluido" ? "pendente" : "concluido";
@@ -117,7 +123,7 @@ export default function CronogramaPage() {
           <p className="text-sm font-bold uppercase tracking-widest text-red-600 dark:text-red-300">Cronograma</p>
           <h1 className="mt-3 text-3xl font-black text-[var(--sp-brand)] dark:text-sky-100">Não foi possível carregar o cronograma</h1>
           <p className="mt-2 text-gray-600 dark:text-slate-300">{error ?? "Tente novamente em instantes."}</p>
-          <Button className="mt-6" onClick={() => void loadCronograma()}>
+          <Button className="mt-6" onClick={retryCronograma}>
             Tentar novamente
           </Button>
         </Card>
