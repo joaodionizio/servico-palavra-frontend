@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Loading } from "@/components/ui/Loading";
+import { StatusNotice } from "@/components/ui/StatusNotice";
 import { ApiError } from "@/lib/api";
 import {
   createAdminCategoria,
@@ -228,7 +229,7 @@ export function AdminCategoriasContent() {
           <h1 className="mt-3 text-5xl font-black tracking-[-.05em] text-white md:text-6xl">Categorias</h1>
           <p className="mt-2 text-white/60">Gerencie categorias usadas nos filtros e no cadastro de formações.</p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="admin-actions flex flex-wrap gap-3">
           <LinkButton href="/admin/conteudos" variant="secondary">
             Conteúdos
           </LinkButton>
@@ -248,8 +249,8 @@ export function AdminCategoriasContent() {
           )}
         </div>
 
-        {actionMessage && <p className="rounded-xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">{actionMessage}</p>}
-        {actionError && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{actionError}</p>}
+        {actionMessage && <StatusNotice variant="success">{actionMessage}</StatusNotice>}
+        {actionError && <StatusNotice variant="error">{actionError}</StatusNotice>}
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-2 text-sm font-bold text-gray-600 md:col-span-2">
@@ -262,7 +263,7 @@ export function AdminCategoriasContent() {
           </label>
           <label className="grid gap-2 text-sm font-bold text-gray-600">
             Cor <span className="text-xs font-semibold text-gray-400">Opcional</span>
-            <input type="color" value={form.cor || "#0A4F8F"} onChange={(event) => updateField("cor", event.target.value)} className="h-12 rounded-xl border border-gray-200 bg-gray-50/50 px-3 py-2 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
+            <input aria-label="Cor da categoria" type="color" value={form.cor || "#0A4F8F"} onChange={(event) => updateField("cor", event.target.value)} className="h-12 rounded-xl border border-gray-200 bg-gray-50/50 px-3 py-2 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
           </label>
           <label className="grid gap-2 text-sm font-bold text-gray-600">
             Ícone <span className="text-xs font-semibold text-gray-400">Opcional</span>
@@ -272,17 +273,17 @@ export function AdminCategoriasContent() {
             Ordem <span className="text-xs font-semibold text-gray-400">Opcional</span>
             <input type="number" value={form.ordem} onChange={(event) => updateField("ordem", event.target.value)} className="rounded-xl border border-gray-200 bg-gray-50/50 px-5 py-3.5 outline-none focus:border-[#004B87] focus:bg-white focus:ring-4 focus:ring-[#004B87]/10" />
           </label>
-          <label className="inline-flex items-center gap-2 pt-7 text-sm font-bold text-gray-600">
+          <label className="inline-flex min-h-11 items-center gap-2 pt-4 text-sm font-bold text-gray-600 md:pt-7">
             <input type="checkbox" checked={form.ativo} onChange={(event) => updateField("ativo", event.target.checked)} />
             Categoria ativa
           </label>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <Button type="submit" disabled={saving}>
-            {saving ? "Salvando..." : editing ? "Salvar alterações" : "Criar categoria"}
+        <div className="admin-actions admin-sticky-actions flex flex-wrap gap-3">
+          <Button type="submit" loading={saving} loadingLabel="Salvando">
+            {editing ? "Salvar alterações" : "Criar categoria"}
           </Button>
-          <Button type="button" variant="secondary" onClick={() => void refreshCategorias()} disabled={state.status === "loading"}>
+          <Button type="button" variant="secondary" onClick={() => void refreshCategorias()} loading={state.status === "loading"} loadingLabel="Atualizando">
             Atualizar lista
           </Button>
         </div>
@@ -295,26 +296,38 @@ export function AdminCategoriasContent() {
       )}
 
       {categorias.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="admin-list-panel">
           {categorias.map((categoria) => (
-            <div key={categoria.id} className="grid gap-3 border-b border-gray-100 p-5 last:border-0 md:grid-cols-[1fr_120px_280px] md:items-center">
-              <div>
+            <div key={categoria.id} className="admin-list-row grid gap-3 border-b border-gray-100 p-5 last:border-0 md:grid-cols-[1fr_120px_280px] md:items-center">
+              <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="h-4 w-4 rounded-full border border-gray-200" style={{ backgroundColor: categoria.cor ?? "#0A4F8F" }} />
-                  <strong className="text-[#004B87]">{categoria.nome}</strong>
+                  <span className="h-4 w-4 rounded-full border border-gray-200" style={{ backgroundColor: categoria.cor ?? "#0A4F8F" }} aria-hidden="true" />
+                  <strong className="truncate text-[#004B87]">{categoria.nome}</strong>
                 </div>
                 <p className="mt-1 text-sm text-gray-500">{categoria.descricao || categoria.slug || "Sem descrição"}</p>
               </div>
               <Badge>{categoria.ativo ?? true ? "Ativa" : "Inativa"}</Badge>
-              <div className="flex flex-wrap gap-2 md:justify-end">
-                <Button type="button" variant={categoria.ativo ?? true ? "secondary" : "gold"} disabled={statusUpdatingId === categoria.id} onClick={() => toggleStatus(categoria)}>
-                  {statusUpdatingId === categoria.id ? "Atualizando..." : categoria.ativo ?? true ? "Desativar" : "Ativar"}
+              <div className="admin-actions flex flex-wrap gap-2 md:justify-end">
+                <Button
+                  type="button"
+                  variant={categoria.ativo ?? true ? "secondary" : "gold"}
+                  loading={statusUpdatingId === categoria.id}
+                  loadingLabel="Atualizando"
+                  onClick={() => toggleStatus(categoria)}
+                >
+                  {categoria.ativo ?? true ? "Desativar" : "Ativar"}
                 </Button>
                 <Button type="button" variant="secondary" onClick={() => setForm(toForm(categoria))}>
                   Editar
                 </Button>
-                <Button type="button" variant="ghost" disabled={deletingId === categoria.id} onClick={() => excluirCategoria(categoria)}>
-                  {deletingId === categoria.id ? "Excluindo..." : "Excluir"}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  loading={deletingId === categoria.id}
+                  loadingLabel="Excluindo"
+                  onClick={() => excluirCategoria(categoria)}
+                >
+                  Excluir
                 </Button>
               </div>
             </div>
