@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { StatusNotice } from "@/components/ui/StatusNotice";
 import { MonthlySchedule } from "@/components/plano-biblico/MonthlySchedule";
 import { BiblePlanNotFoundError, BiblePlanUnauthorizedError, concluirDia, desmarcarDia, getCronograma, getPlanoAtivo } from "@/services/biblePlanService";
 import type { DiaPlanoBiblico } from "@/types/planoBiblico";
 
 type CronogramaViewState = "ready" | "empty" | "unauthorized" | "error";
+type ActionNotice = { variant: "success" | "error" | "info"; message: string } | null;
 
 async function fetchCronogramaSchedule() {
   const activePlan = await getPlanoAtivo();
@@ -34,6 +36,7 @@ export default function CronogramaPage() {
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<CronogramaViewState>("ready");
   const [error, setError] = useState<string | null>(null);
+  const [actionNotice, setActionNotice] = useState<ActionNotice>(null);
   const [pendingDayId, setPendingDayId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -80,7 +83,7 @@ export default function CronogramaPage() {
     const nextDays = dias.map((item) => (item.id === dia.id ? { ...item, status: nextStatus } : item));
 
     setPendingDayId(dia.id);
-    setError(null);
+    setActionNotice(null);
     setDias(nextDays);
 
     try {
@@ -91,7 +94,29 @@ export default function CronogramaPage() {
       }
     } catch (toggleError) {
       setDias(previousDays);
-      setError(toggleError instanceof Error ? toggleError.message : "Não foi possível atualizar a leitura.");
+      setActionNotice({
+        variant: "error",
+        message: toggleError instanceof Error ? toggleError.message : "Não foi possível atualizar a leitura."
+      });
+      setPendingDayId(null);
+      return;
+    }
+
+    try {
+      const schedule = await fetchCronogramaSchedule();
+      setDias(schedule);
+      setActionNotice({
+        variant: "success",
+        message:
+          nextStatus === "concluido"
+            ? "Leitura concluída. As novas datas do cronograma já foram aplicadas."
+            : "Leitura desmarcada. O cronograma foi realinhado."
+      });
+    } catch {
+      setActionNotice({
+        variant: "info",
+        message: "Alteração salva. Não foi possível atualizar as novas datas agora; recarregue a página para sincronizar o cronograma."
+      });
     } finally {
       setPendingDayId(null);
     }
@@ -167,7 +192,7 @@ export default function CronogramaPage() {
           </p>
         </div>
       </section>
-      {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:bg-red-950/30 dark:text-red-200">{error}</p>}
+      {actionNotice && <StatusNotice variant={actionNotice.variant}>{actionNotice.message}</StatusNotice>}
       <MonthlySchedule dias={dias} onToggleDay={handleToggleDay} pendingDayId={pendingDayId} />
     </div>
   );
