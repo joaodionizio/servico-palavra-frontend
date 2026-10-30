@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ApiError } from "@/lib/api";
@@ -36,15 +36,6 @@ export default function PerfilPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!usuario || editing) {
-      return;
-    }
-
-    setNome(usuario.nome);
-    setEmail(usuario.email);
-  }, [editing, usuario]);
-
   function startEditing() {
     setNome(usuario?.nome ?? "");
     setEmail(usuario?.email ?? "");
@@ -54,8 +45,6 @@ export default function PerfilPage() {
   }
 
   function cancelEditing() {
-    setNome(usuario?.nome ?? "");
-    setEmail(usuario?.email ?? "");
     setMessage("");
     setError("");
     setEditing(false);
