@@ -4,6 +4,7 @@ import "./globals.css";
 import "./design-system.css";
 import "./responsive-hardening.css";
 import "./admin-experience.css";
+import "./theme-contrast.css";
 
 export const metadata: Metadata = {
   title: "Servico da Palavra",
