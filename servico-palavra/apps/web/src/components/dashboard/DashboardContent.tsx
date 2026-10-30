@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BiblePlanSummaryCard } from "@/components/dashboard/BiblePlanSummaryCard";
 import { ContinueWatchingCard } from "@/components/dashboard/ContinueWatchingCard";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
@@ -15,6 +15,12 @@ type DashboardState =
   | { status: "loading"; data: null; message?: never }
   | { status: "ready"; data: DashboardMe; message?: never }
   | { status: "error"; data: null; message: string };
+
+function getDashboardErrorMessage(error: unknown) {
+  return error instanceof ApiError && error.status === 401
+    ? "Entre novamente para consultar seu dashboard."
+    : "A API não respondeu como esperado. Suas formações continuam preservadas.";
+}
 
 function DashboardLoading() {
   return (
@@ -58,27 +64,28 @@ function DashboardError({ message, onRetry }: { message: string; onRetry: () => 
 export function DashboardContent() {
   const [state, setState] = useState<DashboardState>({ status: "loading", data: null });
 
-  const loadDashboard = useCallback(async () => {
+  useEffect(() => {
+    async function loadInitialDashboard() {
+      try {
+        const data = await getDashboardMe();
+        setState({ status: "ready", data });
+      } catch (error) {
+        setState({ status: "error", data: null, message: getDashboardErrorMessage(error) });
+      }
+    }
+
+    void loadInitialDashboard();
+  }, []);
+
+  async function retryDashboard() {
+    setState({ status: "loading", data: null });
+
     try {
       const data = await getDashboardMe();
       setState({ status: "ready", data });
     } catch (error) {
-      const message =
-        error instanceof ApiError && error.status === 401
-          ? "Entre novamente para consultar seu dashboard."
-          : "A API não respondeu como esperado. Suas formações continuam preservadas.";
-
-      setState({ status: "error", data: null, message });
+      setState({ status: "error", data: null, message: getDashboardErrorMessage(error) });
     }
-  }, []);
-
-  useEffect(() => {
-    void loadDashboard();
-  }, [loadDashboard]);
-
-  function retryDashboard() {
-    setState({ status: "loading", data: null });
-    void loadDashboard();
   }
 
   if (state.status === "loading") {
@@ -86,7 +93,7 @@ export function DashboardContent() {
   }
 
   if (state.status === "error") {
-    return <DashboardError message={state.message} onRetry={retryDashboard} />;
+    return <DashboardError message={state.message} onRetry={() => void retryDashboard()} />;
   }
 
   const dashboard = state.data;
