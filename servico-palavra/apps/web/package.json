@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "test:e2e": "playwright test",
     "test": "npm run test:e2e",
-    "verify": "npm run typecheck && npm run lint && npm run build && npm run test:e2e"
+    "verify": "npm run typecheck && npm run lint && npm run build && npm run test:e2e",
+    "smoke:production": "node scripts/production-smoke.mjs"
   },
   "dependencies": {
     "next": "16.4.3",
