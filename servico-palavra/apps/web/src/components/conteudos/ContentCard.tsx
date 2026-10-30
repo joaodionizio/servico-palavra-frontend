@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { LinkButton } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -17,11 +17,8 @@ function ContentFallbackIcon({ tipo }: { tipo: Conteudo["tipo"] }) {
 
 export function ContentCard({ conteudo }: { conteudo: Conteudo }) {
   const thumbnailUrl = getConteudoThumbnailUrl(conteudo);
-  const [imageFailed, setImageFailed] = useState(false);
-
-  useEffect(() => {
-    setImageFailed(false);
-  }, [thumbnailUrl]);
+  const [failedThumbnailUrl, setFailedThumbnailUrl] = useState<string | null>(null);
+  const imageFailed = Boolean(thumbnailUrl && failedThumbnailUrl === thumbnailUrl);
 
   return (
     <Card className="content-card group flex min-w-0 flex-col overflow-hidden !p-0">
@@ -31,7 +28,7 @@ export function ContentCard({ conteudo }: { conteudo: Conteudo }) {
             src={thumbnailUrl}
             alt={`Capa de ${conteudo.titulo}`}
             className="content-cover-image h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.035] motion-reduce:transform-none motion-reduce:transition-none"
-            onError={() => setImageFailed(true)}
+            onError={() => setFailedThumbnailUrl(thumbnailUrl)}
           />
           <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[#003A70]/25 to-transparent" />
         </div>
