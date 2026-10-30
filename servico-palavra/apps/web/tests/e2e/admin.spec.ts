@@ -211,10 +211,10 @@ test("admin conteúdos usa loading e feedback acessível ao publicar", async ({ 
   await page.goto("/admin/conteudos");
   await expect(page.getByRole("heading", { name: "Conteúdos", exact: true })).toBeVisible();
 
-  const publishButton = page.getByRole("button", { name: "Publicar", exact: true });
-  await publishButton.click();
-  await expect(publishButton).toHaveAttribute("aria-busy", "true");
-  await expect(publishButton).toBeDisabled();
+  await page.getByRole("button", { name: "Publicar", exact: true }).click();
+  const busyButton = page.getByRole("button", { name: "Atualizando", exact: true });
+  await expect(busyButton).toHaveAttribute("aria-busy", "true");
+  await expect(busyButton).toBeDisabled();
 
   await expect(page.locator('.status-notice[role="status"]')).toContainText("Conteúdo publicado.");
   await expect(page.getByText("Publicado", { exact: true })).toBeVisible();
@@ -226,10 +226,10 @@ test("admin categorias cria categoria com loading e confirmação acessível", a
   await expect(page.getByRole("heading", { name: "Categorias", exact: true })).toBeVisible();
 
   await page.getByLabel(/^Nome/).fill("Liturgia");
-  const createButton = page.getByRole("button", { name: "Criar categoria", exact: true });
-  await createButton.click();
-  await expect(createButton).toHaveAttribute("aria-busy", "true");
-  await expect(createButton).toBeDisabled();
+  await page.getByRole("button", { name: "Criar categoria", exact: true }).click();
+  const busyButton = page.getByRole("button", { name: "Salvando", exact: true });
+  await expect(busyButton).toHaveAttribute("aria-busy", "true");
+  await expect(busyButton).toBeDisabled();
 
   await expect(page.locator('.status-notice[role="status"]')).toContainText("Categoria criada.");
   await expect(page.getByText("Liturgia", { exact: true })).toBeVisible();
