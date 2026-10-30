@@ -39,16 +39,17 @@ export function useFocusTrap({
 
     const container = containerRef.current;
     if (!container) return;
+    const trapContainer: HTMLElement = container;
 
     const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const explicitInitialFocus = initialFocusSelector
-      ? container.querySelector<HTMLElement>(initialFocusSelector)
+      ? trapContainer.querySelector<HTMLElement>(initialFocusSelector)
       : null;
-    const focusable = getFocusableElements(container);
-    const initialFocus = explicitInitialFocus ?? focusable[0] ?? container;
+    const focusable = getFocusableElements(trapContainer);
+    const initialFocus = explicitInitialFocus ?? focusable[0] ?? trapContainer;
 
-    if (!container.hasAttribute("tabindex") && initialFocus === container) {
-      container.tabIndex = -1;
+    if (!trapContainer.hasAttribute("tabindex") && initialFocus === trapContainer) {
+      trapContainer.tabIndex = -1;
     }
 
     requestAnimationFrame(() => initialFocus.focus());
@@ -62,10 +63,10 @@ export function useFocusTrap({
 
       if (event.key !== "Tab") return;
 
-      const items = getFocusableElements(container);
+      const items = getFocusableElements(trapContainer);
       if (items.length === 0) {
         event.preventDefault();
-        container.focus();
+        trapContainer.focus();
         return;
       }
 
@@ -73,7 +74,7 @@ export function useFocusTrap({
       const last = items[items.length - 1];
       const current = document.activeElement;
 
-      if (event.shiftKey && (current === first || !container.contains(current))) {
+      if (event.shiftKey && (current === first || !trapContainer.contains(current))) {
         event.preventDefault();
         last.focus();
       } else if (!event.shiftKey && current === last) {
