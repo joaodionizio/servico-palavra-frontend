@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { BibleProgressCard } from "@/components/plano-biblico/BibleProgressCard";
@@ -17,67 +17,99 @@ import {
 } from "@/services/biblePlanService";
 import type { DiaPlanoBiblico, PlanoBiblico } from "@/types/planoBiblico";
 
+type PlanoViewState = "ready" | "empty" | "unauthorized" | "error";
+
+async function fetchPlanoData() {
+  const plano = await getPlanoAtivo();
+  const dias = plano.id ? await getCronograma(plano.id) : [];
+  return { plano, dias };
+}
+
+function buildScheduleState(plano: PlanoBiblico, dias: DiaPlanoBiblico[]) {
+  const sorted = [...dias].sort((a, b) => a.dia - b.dia);
+  const leituraHoje = sorted.find((dia) => dia.status === "pendente") ?? sorted[0];
+  const diasConcluidos = sorted.filter((dia) => dia.status === "concluido").length;
+  const totalDias = plano.totalDias || sorted.length;
+  const progresso = totalDias > 0 ? (diasConcluidos / totalDias) * 100 : 0;
+  const sequencia = sorted.findIndex((dia) => dia.status !== "concluido");
+
+  return {
+    plano: {
+      ...plano,
+      leituraHoje,
+      diasConcluidos,
+      progresso,
+      sequencia: sequencia === -1 ? sorted.length : sequencia
+    },
+    dias: sorted
+  };
+}
+
+function getPlanoErrorState(loadError: unknown): { state: PlanoViewState; error: string | null } {
+  if (loadError instanceof BiblePlanNotFoundError) {
+    return { state: "empty", error: null };
+  }
+
+  if (loadError instanceof BiblePlanUnauthorizedError) {
+    return { state: "unauthorized", error: null };
+  }
+
+  return {
+    state: "error",
+    error: loadError instanceof Error ? loadError.message : "Não foi possível carregar o plano bíblico."
+  };
+}
+
 export default function PlanoBiblicoPage() {
   const [planoAtivo, setPlanoAtivo] = useState<PlanoBiblico | null>(null);
   const [diasPlano, setDiasPlano] = useState<DiaPlanoBiblico[]>([]);
   const [loading, setLoading] = useState(true);
   const [completingDayId, setCompletingDayId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [state, setState] = useState<"ready" | "empty" | "unauthorized" | "error">("ready");
+  const [state, setState] = useState<PlanoViewState>("ready");
 
-  function applyScheduleState(plano: PlanoBiblico, dias: DiaPlanoBiblico[]) {
-    const sorted = [...dias].sort((a, b) => a.dia - b.dia);
-    const leituraHoje = sorted.find((dia) => dia.status === "pendente") ?? sorted[0];
-    const diasConcluidos = sorted.filter((dia) => dia.status === "concluido").length;
-    const totalDias = plano.totalDias || sorted.length;
-    const progresso = totalDias > 0 ? (diasConcluidos / totalDias) * 100 : 0;
-    const sequencia = sorted.findIndex((dia) => dia.status !== "concluido");
+  useEffect(() => {
+    async function loadInitialPlano() {
+      try {
+        const { plano, dias } = await fetchPlanoData();
+        const next = buildScheduleState(plano, dias);
+        setPlanoAtivo(next.plano);
+        setDiasPlano(next.dias);
+        setState("ready");
+        setError(null);
+      } catch (loadError) {
+        const next = getPlanoErrorState(loadError);
+        setPlanoAtivo(null);
+        setDiasPlano([]);
+        setState(next.state);
+        setError(next.error);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    setPlanoAtivo({
-      ...plano,
-      leituraHoje,
-      diasConcluidos,
-      progresso,
-      sequencia: sequencia === -1 ? sorted.length : sequencia
-    });
-    setDiasPlano(sorted);
-  }
+    void loadInitialPlano();
+  }, []);
 
-  const loadPlano = useCallback(async () => {
+  async function retryPlano() {
+    setLoading(true);
+    setError(null);
+
     try {
-      const plano = await getPlanoAtivo();
-      const dias = plano.id ? await getCronograma(plano.id) : [];
-
-      applyScheduleState(plano, dias);
+      const { plano, dias } = await fetchPlanoData();
+      const next = buildScheduleState(plano, dias);
+      setPlanoAtivo(next.plano);
+      setDiasPlano(next.dias);
       setState("ready");
-      setError(null);
     } catch (loadError) {
+      const next = getPlanoErrorState(loadError);
       setPlanoAtivo(null);
       setDiasPlano([]);
-
-      if (loadError instanceof BiblePlanNotFoundError) {
-        setState("empty");
-        setError(null);
-      } else if (loadError instanceof BiblePlanUnauthorizedError) {
-        setState("unauthorized");
-        setError(null);
-      } else {
-        setState("error");
-        setError(loadError instanceof Error ? loadError.message : "Não foi possível carregar o plano bíblico.");
-      }
+      setState(next.state);
+      setError(next.error);
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    void loadPlano();
-  }, [loadPlano]);
-
-  function retryPlano() {
-    setLoading(true);
-    setError(null);
-    void loadPlano();
   }
 
   async function handleToggleDay(dia: DiaPlanoBiblico) {
@@ -89,10 +121,12 @@ export default function PlanoBiblicoPage() {
     const previousPlan = planoAtivo;
     const previousDays = diasPlano;
     const nextDays = diasPlano.map((item) => (item.id === dia.id ? { ...item, status: nextStatus } : item));
+    const nextSchedule = buildScheduleState(planoAtivo, nextDays);
 
     setCompletingDayId(dia.id);
     setError(null);
-    applyScheduleState(planoAtivo, nextDays);
+    setPlanoAtivo(nextSchedule.plano);
+    setDiasPlano(nextSchedule.dias);
 
     try {
       if (nextStatus === "concluido") {
@@ -101,7 +135,8 @@ export default function PlanoBiblicoPage() {
         await desmarcarDia(dia.actionId ?? dia.id);
       }
     } catch (toggleError) {
-      applyScheduleState(previousPlan, previousDays);
+      setPlanoAtivo(previousPlan);
+      setDiasPlano(previousDays);
       setError(toggleError instanceof Error ? toggleError.message : "Não foi possível atualizar a leitura.");
     } finally {
       setCompletingDayId(null);
@@ -143,7 +178,7 @@ export default function PlanoBiblicoPage() {
           <p className="text-sm font-bold uppercase tracking-widest text-red-600 dark:text-red-300">Plano bíblico</p>
           <h1 className="mt-3 text-3xl font-black text-[var(--sp-brand)] dark:text-sky-100">Não foi possível carregar o plano</h1>
           <p className="mt-3 max-w-2xl text-gray-600 dark:text-slate-300">{error ?? "Tente novamente em instantes."}</p>
-          <Button className="mt-6" onClick={retryPlano}>
+          <Button className="mt-6" onClick={() => void retryPlano()}>
             Tentar novamente
           </Button>
         </Card>
