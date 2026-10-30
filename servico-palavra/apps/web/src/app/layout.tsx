@@ -3,6 +3,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import "./globals.css";
 import "./design-system.css";
 import "./responsive-hardening.css";
+import "./admin-experience.css";
 
 export const metadata: Metadata = {
   title: "Servico da Palavra",
