@@ -2,5 +2,5 @@ import { FormacaoDetailContent } from "@/components/conteudos/FormacaoDetailCont
 
 export default async function FormacaoDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  return <FormacaoDetailContent slug={slug} />;
+  return <FormacaoDetailContent key={slug} slug={slug} />;
 }
