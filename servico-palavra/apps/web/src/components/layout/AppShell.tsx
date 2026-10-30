@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { BrandEyebrow } from "@/components/branding/BrandEyebrow";
@@ -16,6 +16,9 @@ const items = [
   ["Perfil", "/app/perfil", "○"]
 ];
 
+const RAIL_STORAGE_KEY = "servico-palavra-rail";
+const RAIL_CHANGE_EVENT = "servico-palavra-rail-change";
+
 function hasAdminRole(roles?: string[]) {
   return roles?.some((role) => ["admin", "administrador"].includes(role.trim().toLowerCase())) ?? false;
 }
@@ -25,14 +28,41 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function subscribeRailPreference(onStoreChange: () => void) {
+  function handleStorage(event: StorageEvent) {
+    if (event.key === RAIL_STORAGE_KEY) {
+      onStoreChange();
+    }
+  }
+
+  window.addEventListener("storage", handleStorage);
+  window.addEventListener(RAIL_CHANGE_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", handleStorage);
+    window.removeEventListener(RAIL_CHANGE_EVENT, onStoreChange);
+  };
+}
+
+function getRailPreferenceSnapshot() {
+  try {
+    return window.localStorage.getItem(RAIL_STORAGE_KEY) === "collapsed";
+  } catch {
+    return false;
+  }
+}
+
+function getServerRailPreferenceSnapshot() {
+  return false;
+}
+
 export function AppShell({ children, admin = false }: { children: React.ReactNode; admin?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const { signOut, usuario } = useAuth();
   const showAdminLink = admin || hasAdminRole(usuario?.roles);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [railCollapsed, setRailCollapsed] = useState(false);
+  const railCollapsed = useSyncExternalStore(subscribeRailPreference, getRailPreferenceSnapshot, getServerRailPreferenceSnapshot);
   const [signingOut, setSigningOut] = useState(false);
   const [isMobileNav, setIsMobileNav] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
@@ -47,15 +77,6 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
   });
 
   useEffect(() => {
-    const savedTheme = (() => { try { return window.localStorage.getItem("servico-palavra-theme"); } catch { return null; } })();
-    const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
-    const initialTheme = savedTheme === "dark" || savedTheme === "light" ? savedTheme : prefersDark ? "dark" : "light";
-    setTheme(initialTheme);
-    document.documentElement.classList.toggle("dark", initialTheme === "dark");
-    try { setRailCollapsed(window.localStorage.getItem("servico-palavra-rail") === "collapsed"); } catch {}
-  }, []);
-
-  useEffect(() => {
     const media = window.matchMedia("(max-width: 1023px)");
     const updateMode = () => {
       setIsMobileNav(media.matches);
@@ -68,8 +89,6 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
     media.addEventListener("change", updateMode);
     return () => media.removeEventListener("change", updateMode);
   }, []);
-
-  useEffect(() => closeMenu(), [pathname, closeMenu]);
 
   useEffect(() => {
     const drawer = drawerRef.current;
@@ -117,12 +136,9 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
   }, [isMobileNav, menuOpen]);
 
   function toggleTheme() {
-    setTheme((current) => {
-      const next = current === "dark" ? "light" : "dark";
-      document.documentElement.classList.toggle("dark", next === "dark");
-      try { window.localStorage.setItem("servico-palavra-theme", next); } catch {}
-      return next;
-    });
+    const nextDark = !document.documentElement.classList.contains("dark");
+    document.documentElement.classList.toggle("dark", nextDark);
+    try { window.localStorage.setItem("servico-palavra-theme", nextDark ? "dark" : "light"); } catch {}
   }
 
   async function sair() {
@@ -139,11 +155,9 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
   }
 
   function toggleRail() {
-    setRailCollapsed((current) => {
-      const next = !current;
-      try { window.localStorage.setItem("servico-palavra-rail", next ? "collapsed" : "expanded"); } catch {}
-      return next;
-    });
+    const next = !railCollapsed;
+    try { window.localStorage.setItem(RAIL_STORAGE_KEY, next ? "collapsed" : "expanded"); } catch {}
+    window.dispatchEvent(new Event(RAIL_CHANGE_EVENT));
   }
 
   const navigation = (
@@ -152,19 +166,24 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
         {items.map(([label, href, icon]) => {
           const active = !admin && isActivePath(pathname, href);
           return (
-            <Link key={href} href={href} aria-current={active ? "page" : undefined} className={active ? "active" : ""}>
+            <Link key={href} href={href} aria-current={active ? "page" : undefined} className={active ? "active" : ""} onClick={closeMenu}>
               <span aria-hidden="true">{icon}</span><b>{label}</b>
             </Link>
           );
         })}
         {showAdminLink && (
-          <Link href="/app/admin/conteudos" className={admin || pathname.includes("/admin") ? "active" : ""}>
+          <Link href="/app/admin/conteudos" className={admin || pathname.includes("/admin") ? "active" : ""} onClick={closeMenu}>
             <span aria-hidden="true">□</span><b>Admin</b>
           </Link>
         )}
       </nav>
       <div className="app-rail-actions">
-        <button type="button" onClick={toggleTheme} aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}>{theme === "dark" ? "☀" : "◐"}<span>{theme === "dark" ? "Modo claro" : "Modo escuro"}</span></button>
+        <button type="button" onClick={toggleTheme} aria-label="Alternar tema">
+          <span aria-hidden="true" className="dark:hidden">◐</span>
+          <span className="dark:hidden">Modo escuro</span>
+          <span aria-hidden="true" className="hidden dark:inline">☀</span>
+          <span className="hidden dark:inline">Modo claro</span>
+        </button>
         <button type="button" onClick={sair} disabled={signingOut} aria-busy={signingOut}>
           {signingOut ? <i className="action-orbit rail-spinner" aria-hidden="true" /> : "↗"}
           <span>{signingOut ? "Saindo..." : "Sair"}</span>
@@ -176,7 +195,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
   return (
     <div className={`app-experience min-h-screen bg-[#F4F7F8] text-gray-800 dark:bg-[#050505] dark:text-slate-100 ${railCollapsed ? "rail-collapsed" : ""}`}>
       <header className="app-mobile-header">
-        <Link href="/app"><BrandEyebrow variant="light" className="text-lg font-black" /></Link>
+        <Link href="/app" onClick={closeMenu}><BrandEyebrow variant="light" className="text-lg font-black" /></Link>
         <button
           type="button"
           aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
@@ -190,7 +209,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
 
       <aside ref={drawerRef} id="app-navigation-drawer" className={`app-rail ${menuOpen ? "open" : ""}`} aria-label="Menu da aplicação">
         <button type="button" className="app-rail-toggle" onClick={toggleRail} aria-label={railCollapsed ? "Expandir menu" : "Recolher menu"} title={railCollapsed ? "Expandir menu" : "Recolher menu"}>{railCollapsed ? "›" : "‹"}</button>
-        <Link href="/app" className="app-rail-brand">
+        <Link href="/app" className="app-rail-brand" onClick={closeMenu}>
           <BrandEyebrow variant="onBlue" className="text-xl font-semibold" />
           <strong>{admin ? "Admin Serviço da Palavra" : "Serviço da Palavra"}</strong>
         </Link>
