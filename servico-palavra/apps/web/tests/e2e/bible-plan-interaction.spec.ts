@@ -161,12 +161,17 @@ function getDayOneScheduleButton(page: Page) {
   return page.locator(".schedule-row").filter({ hasText: "Dia 1" }).getByRole("button");
 }
 
+function getDayTwoRow(page: Page) {
+  return page.locator(".schedule-row").filter({ hasText: "Dia 2" });
+}
+
 test("concluir leitura reconcilia datas adaptativas sem reload e mostra feedback", async ({ page }) => {
   const api = await mockApi(page, { mutationDelayMs: 350 });
   await signIn(page);
   await page.goto("/app/plano-biblico");
 
-  await expect(page.getByText("2026-10-30", { exact: true })).toBeVisible();
+  const dayTwoRow = getDayTwoRow(page);
+  await expect(dayTwoRow.getByText("2026-10-30", { exact: true })).toBeVisible();
 
   const scheduleButton = getDayOneScheduleButton(page);
   await scheduleButton.click();
@@ -177,8 +182,8 @@ test("concluir leitura reconcilia datas adaptativas sem reload e mostra feedback
 
   const successNotice = page.locator('.status-notice[role="status"]');
   await expect(successNotice).toContainText("Leitura concluída. O cronograma foi ajustado com as novas datas.");
-  await expect(page.getByText("2026-11-03", { exact: true })).toBeVisible();
-  await expect(page.getByText("2026-10-30", { exact: true })).toHaveCount(0);
+  await expect(dayTwoRow.getByText("2026-11-03", { exact: true })).toBeVisible();
+  await expect(dayTwoRow.getByText("2026-10-30", { exact: true })).toHaveCount(0);
   expect(api.getScheduleGets()).toBeGreaterThanOrEqual(2);
 });
 
@@ -187,6 +192,7 @@ test("falha ao concluir leitura restaura estado anterior e anuncia erro", async 
   await signIn(page);
   await page.goto("/app/plano-biblico");
 
+  const dayTwoRow = getDayTwoRow(page);
   const scheduleButton = getDayOneScheduleButton(page);
   await scheduleButton.click();
 
@@ -194,6 +200,6 @@ test("falha ao concluir leitura restaura estado anterior e anuncia erro", async 
   await expect(errorNotice).toContainText("Falha simulada ao concluir a leitura.");
   await expect(getDayOneScheduleButton(page)).toBeEnabled();
   await expect(getDayOneScheduleButton(page)).toContainText("Concluir");
-  await expect(page.getByText("2026-10-30", { exact: true })).toBeVisible();
-  await expect(page.getByText("2026-11-03", { exact: true })).toHaveCount(0);
+  await expect(dayTwoRow.getByText("2026-10-30", { exact: true })).toBeVisible();
+  await expect(dayTwoRow.getByText("2026-11-03", { exact: true })).toHaveCount(0);
 });
