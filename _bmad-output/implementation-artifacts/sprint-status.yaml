@@ -37,12 +37,12 @@ stories:
     title: "Reduzir CSS e componentes/services excessivamente grandes"
   E9-FE-01-admin-experience:
     priority: P1
-    status: ready-for-dev
+    status: done
     title: "Admin Experience"
   E10-FE-01-final-product-gate:
     priority: P0
     status: blocked
     title: "Final Product Gate"
     blocked_by:
-      - E9-FE-01-admin-experience
       - production-environment-validation
+      - vercel-build-rate-limit
