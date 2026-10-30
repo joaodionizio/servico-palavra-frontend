@@ -1,17 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LinkButton } from "@/components/ui/Button";
 import { getConteudoThumbnailUrl } from "@/lib/youtube";
 import type { Conteudo } from "@/types/conteudo";
 
 export function ContinueWatchingCard({ conteudo }: { conteudo: Conteudo }) {
   const thumbnailUrl = getConteudoThumbnailUrl(conteudo);
-  const [imageFailed, setImageFailed] = useState(false);
-
-  useEffect(() => {
-    setImageFailed(false);
-  }, [thumbnailUrl]);
+  const [failedThumbnailUrl, setFailedThumbnailUrl] = useState<string | null>(null);
+  const imageFailed = Boolean(thumbnailUrl && failedThumbnailUrl === thumbnailUrl);
 
   return (
     <section className="dark-continue-card relative overflow-hidden rounded-[var(--sp-radius-card)] bg-[#004B87] p-6 text-white shadow-lg transition-shadow duration-300 hover:shadow-xl sm:p-8 lg:p-10 dark:bg-[#061D33]">
@@ -21,7 +18,7 @@ export function ContinueWatchingCard({ conteudo }: { conteudo: Conteudo }) {
             src={thumbnailUrl}
             alt={`Capa de ${conteudo.titulo}`}
             className="absolute inset-y-0 right-0 hidden h-full w-1/2 object-cover opacity-35 md:block"
-            onError={() => setImageFailed(true)}
+            onError={() => setFailedThumbnailUrl(thumbnailUrl)}
           />
           <div className="dark-continue-overlay absolute inset-0 bg-gradient-to-r from-[#004B87] via-[#004B87]/95 to-[#004B87]/45 dark:from-[#061D33] dark:via-[#061D33]/95 dark:to-[#061D33]/45" />
         </>
