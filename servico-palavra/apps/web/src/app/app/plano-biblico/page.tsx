@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { StatusNotice } from "@/components/ui/StatusNotice";
 import { BibleProgressCard } from "@/components/plano-biblico/BibleProgressCard";
 import { DailyReadingCard } from "@/components/plano-biblico/DailyReadingCard";
 import { ScheduleTable } from "@/components/plano-biblico/ScheduleTable";
@@ -18,6 +19,7 @@ import {
 import type { DiaPlanoBiblico, PlanoBiblico } from "@/types/planoBiblico";
 
 type PlanoViewState = "ready" | "empty" | "unauthorized" | "error";
+type ActionNotice = { variant: "success" | "error" | "info"; message: string } | null;
 
 async function fetchPlanoData() {
   const plano = await getPlanoAtivo();
@@ -66,6 +68,7 @@ export default function PlanoBiblicoPage() {
   const [loading, setLoading] = useState(true);
   const [completingDayId, setCompletingDayId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [actionNotice, setActionNotice] = useState<ActionNotice>(null);
   const [state, setState] = useState<PlanoViewState>("ready");
 
   useEffect(() => {
@@ -124,7 +127,7 @@ export default function PlanoBiblicoPage() {
     const nextSchedule = buildScheduleState(planoAtivo, nextDays);
 
     setCompletingDayId(dia.id);
-    setError(null);
+    setActionNotice(null);
     setPlanoAtivo(nextSchedule.plano);
     setDiasPlano(nextSchedule.dias);
 
@@ -137,7 +140,31 @@ export default function PlanoBiblicoPage() {
     } catch (toggleError) {
       setPlanoAtivo(previousPlan);
       setDiasPlano(previousDays);
-      setError(toggleError instanceof Error ? toggleError.message : "Não foi possível atualizar a leitura.");
+      setActionNotice({
+        variant: "error",
+        message: toggleError instanceof Error ? toggleError.message : "Não foi possível atualizar a leitura."
+      });
+      setCompletingDayId(null);
+      return;
+    }
+
+    try {
+      const { plano, dias } = await fetchPlanoData();
+      const reconciled = buildScheduleState(plano, dias);
+      setPlanoAtivo(reconciled.plano);
+      setDiasPlano(reconciled.dias);
+      setActionNotice({
+        variant: "success",
+        message:
+          nextStatus === "concluido"
+            ? "Leitura concluída. O cronograma foi ajustado com as novas datas."
+            : "Leitura desmarcada. O cronograma foi realinhado."
+      });
+    } catch {
+      setActionNotice({
+        variant: "info",
+        message: "Alteração salva. Não foi possível atualizar as novas datas agora; recarregue a página para sincronizar o cronograma."
+      });
     } finally {
       setCompletingDayId(null);
     }
@@ -213,7 +240,7 @@ export default function PlanoBiblicoPage() {
           Alterar plano
         </LinkButton>
       </div>
-      {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:bg-red-950/30 dark:text-red-200">{error}</p>}
+      {actionNotice && <StatusNotice variant={actionNotice.variant}>{actionNotice.message}</StatusNotice>}
       {planoAtivo.leituraHoje ? (
         <DailyReadingCard dia={planoAtivo.leituraHoje} onToggle={handleToggleDay} loading={completingDayId === planoAtivo.leituraHoje.id} />
       ) : (
