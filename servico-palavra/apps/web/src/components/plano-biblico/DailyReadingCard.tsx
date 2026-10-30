@@ -20,8 +20,15 @@ export function DailyReadingCard({ dia, onToggle, loading = false }: DailyReadin
           {dia.data && <span className="text-xs font-semibold uppercase tracking-wider text-white/60">{dia.data}</span>}
         </div>
         <h3 className="mt-4 max-w-2xl break-words text-4xl font-black tracking-[-.04em] text-white md:text-5xl">{dia.leitura}</h3>
-        <Button className="mt-6" variant={concluido ? "secondary" : "gold"} onClick={() => onToggle?.(dia)} disabled={!onToggle || loading} aria-busy={loading}>
-          {loading ? "Salvando..." : concluido ? "Desmarcar leitura" : "Marcar como concluído"}
+        <Button
+          className="mt-6"
+          variant={concluido ? "secondary" : "gold"}
+          onClick={() => onToggle?.(dia)}
+          disabled={!onToggle}
+          loading={loading}
+          loadingLabel="Atualizando..."
+        >
+          {concluido ? "Desmarcar leitura" : "Marcar como concluído"}
         </Button>
       </div>
     </Card>
