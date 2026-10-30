@@ -78,6 +78,10 @@ jobs:
         working-directory: servico-palavra/apps/web
         run: npx playwright test --grep "sem overflow"
 
+      - name: E2E — interação do plano adaptativo
+        working-directory: servico-palavra/apps/web
+        run: npx playwright test tests/e2e/bible-plan-interaction.spec.ts
+
       - name: E2E — acessibilidade / drawer
         working-directory: servico-palavra/apps/web
         run: npx playwright test tests/e2e/accessibility.spec.ts --grep "drawer móvel"
