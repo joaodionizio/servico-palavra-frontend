@@ -11,6 +11,9 @@
   --sp-focus: #0b73b9;
   --sp-success: #15803d;
   --sp-danger: #b91c1c;
+  --sp-reading-hero: linear-gradient(135deg, #075c98 0%, #003a70 58%, #002a52 100%);
+  --sp-reading-hero-text: #ffffff;
+  --sp-reading-hero-muted: rgba(255, 255, 255, 0.72);
   --sp-radius-control: 999px;
   --sp-radius-card: 1.5rem;
   --sp-radius-hero: 2rem;
@@ -24,6 +27,9 @@
 
 .dark {
   --sp-focus: #facc15;
+  --sp-reading-hero: linear-gradient(135deg, #171717 0%, #111827 58%, #101010 100%);
+  --sp-reading-hero-text: #ffffff;
+  --sp-reading-hero-muted: rgba(255, 255, 255, 0.66);
   --sp-shadow-card: 0 8px 30px rgba(0, 0, 0, 0.24);
   --sp-shadow-card-hover: 0 18px 48px rgba(0, 0, 0, 0.36);
 }
@@ -92,6 +98,18 @@
     box-shadow var(--sp-motion-base) var(--sp-ease),
     border-color var(--sp-motion-fast) ease,
     background-color var(--sp-motion-fast) ease;
+}
+
+/* The daily reading is a branded hero, not a generic surface. Keeping its
+   background explicit prevents the base Card background from washing out the
+   white Bible text in light mode. */
+.daily-reading.ui-card {
+  background: var(--sp-reading-hero);
+  color: var(--sp-reading-hero-text);
+}
+
+.daily-reading .daily-reading-date {
+  color: var(--sp-reading-hero-muted);
 }
 
 @keyframes sp-spin {
