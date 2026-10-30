@@ -19,7 +19,7 @@ type ContentFiltersProps = {
   onSubmit?: () => void;
 };
 
-const fieldClass = "min-h-11 min-w-0 w-full rounded-2xl border border-transparent bg-[#EEF3F5] px-4 py-3 text-sm text-slate-700 transition-colors focus:border-[#004B87]/20 focus:bg-white focus:ring-2 focus:ring-[#004B87]/15 sm:px-5 sm:py-3.5 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-sky-200/20 dark:focus:bg-slate-900 dark:focus:ring-sky-300/15";
+const fieldClass = "min-h-11 min-w-0 w-full rounded-2xl border border-[var(--sp-border)] bg-[var(--sp-surface-muted)] px-4 py-3 text-sm text-[var(--sp-text)] transition-colors placeholder:text-[var(--sp-text-muted)] focus:border-[var(--sp-focus)] focus:bg-[var(--sp-surface)] focus:ring-2 focus:ring-[#0B73B9]/15 sm:px-5 sm:py-3.5 dark:focus:ring-yellow-300/15";
 
 export function ContentFilters({
   busca = "",
@@ -36,7 +36,7 @@ export function ContentFilters({
 }: ContentFiltersProps) {
   return (
     <form
-      className="grid gap-3 rounded-[1.5rem] border border-slate-200/70 bg-[#FDFDFB] p-3 shadow-[0_12px_35px_rgba(0,51,102,.05)] md:grid-cols-[minmax(0,1fr)_minmax(170px,220px)_minmax(150px,180px)_auto] dark:border-slate-700 dark:bg-slate-900/70"
+      className="grid gap-3 rounded-[1.5rem] border border-[var(--sp-border)] bg-[var(--sp-surface)] p-3 text-[var(--sp-text)] shadow-[0_12px_35px_rgba(0,51,102,.05)] md:grid-cols-[minmax(0,1fr)_minmax(170px,220px)_minmax(150px,180px)_auto]"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit();
