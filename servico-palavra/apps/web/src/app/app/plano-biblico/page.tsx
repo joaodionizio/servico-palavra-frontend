@@ -44,23 +44,23 @@ export default function PlanoBiblicoPage() {
   }
 
   const loadPlano = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
     try {
       const plano = await getPlanoAtivo();
       const dias = plano.id ? await getCronograma(plano.id) : [];
 
       applyScheduleState(plano, dias);
       setState("ready");
+      setError(null);
     } catch (loadError) {
       setPlanoAtivo(null);
       setDiasPlano([]);
 
       if (loadError instanceof BiblePlanNotFoundError) {
         setState("empty");
+        setError(null);
       } else if (loadError instanceof BiblePlanUnauthorizedError) {
         setState("unauthorized");
+        setError(null);
       } else {
         setState("error");
         setError(loadError instanceof Error ? loadError.message : "Não foi possível carregar o plano bíblico.");
@@ -73,6 +73,12 @@ export default function PlanoBiblicoPage() {
   useEffect(() => {
     void loadPlano();
   }, [loadPlano]);
+
+  function retryPlano() {
+    setLoading(true);
+    setError(null);
+    void loadPlano();
+  }
 
   async function handleToggleDay(dia: DiaPlanoBiblico) {
     if (!planoAtivo) {
@@ -137,7 +143,7 @@ export default function PlanoBiblicoPage() {
           <p className="text-sm font-bold uppercase tracking-widest text-red-600 dark:text-red-300">Plano bíblico</p>
           <h1 className="mt-3 text-3xl font-black text-[var(--sp-brand)] dark:text-sky-100">Não foi possível carregar o plano</h1>
           <p className="mt-3 max-w-2xl text-gray-600 dark:text-slate-300">{error ?? "Tente novamente em instantes."}</p>
-          <Button className="mt-6" onClick={() => void loadPlano()}>
+          <Button className="mt-6" onClick={retryPlano}>
             Tentar novamente
           </Button>
         </Card>
