@@ -11,6 +11,25 @@
   --sp-focus: #0b73b9;
   --sp-success: #15803d;
   --sp-danger: #b91c1c;
+
+  /* Action colors are intentionally independent from --sp-brand. The brand
+     token becomes white in dark mode for headings, while controls must keep a
+     colored surface with guaranteed readable foreground text. */
+  --sp-action-primary-bg: #004b87;
+  --sp-action-primary-bg-hover: #003a70;
+  --sp-action-primary-fg: #ffffff;
+  --sp-action-secondary-bg: #eef3f5;
+  --sp-action-secondary-bg-hover: #dfe8ed;
+  --sp-action-secondary-fg: #334155;
+  --sp-action-secondary-fg-hover: #003a70;
+  --sp-action-ghost-bg-hover: #eaf1f5;
+  --sp-action-ghost-fg: #526173;
+  --sp-action-ghost-fg-hover: #004b87;
+  --sp-action-gold-bg: #ffcc00;
+  --sp-action-gold-bg-hover: #f4c000;
+  --sp-action-gold-fg: #0f172a;
+  --sp-media-placeholder: #eef5ff;
+
   --sp-reading-hero: linear-gradient(135deg, #075c98 0%, #003a70 58%, #002a52 100%);
   --sp-reading-hero-text: #ffffff;
   --sp-reading-hero-muted: rgba(255, 255, 255, 0.72);
@@ -27,6 +46,20 @@
 
 .dark {
   --sp-focus: #facc15;
+  --sp-action-primary-bg: #0b5f9f;
+  --sp-action-primary-bg-hover: #1476bd;
+  --sp-action-primary-fg: #ffffff;
+  --sp-action-secondary-bg: #181818;
+  --sp-action-secondary-bg-hover: #252525;
+  --sp-action-secondary-fg: #f3f4f6;
+  --sp-action-secondary-fg-hover: #ffffff;
+  --sp-action-ghost-bg-hover: #1c1c1c;
+  --sp-action-ghost-fg: #cbd5e1;
+  --sp-action-ghost-fg-hover: #ffffff;
+  --sp-action-gold-bg: #facc15;
+  --sp-action-gold-bg-hover: #fde047;
+  --sp-action-gold-fg: #111827;
+  --sp-media-placeholder: #1c1c1c;
   --sp-reading-hero: linear-gradient(135deg, #171717 0%, #111827 58%, #101010 100%);
   --sp-reading-hero-text: #ffffff;
   --sp-reading-hero-muted: rgba(255, 255, 255, 0.66);
@@ -53,6 +86,30 @@
     border-color var(--sp-motion-fast) ease,
     color var(--sp-motion-fast) ease,
     opacity var(--sp-motion-fast) ease;
+}
+
+.ui-button-primary {
+  background-color: var(--sp-action-primary-bg);
+  color: var(--sp-action-primary-fg);
+}
+
+.ui-button-secondary {
+  background-color: var(--sp-action-secondary-bg);
+  color: var(--sp-action-secondary-fg);
+}
+
+.ui-button-ghost {
+  background-color: transparent;
+  color: var(--sp-action-ghost-fg);
+}
+
+.ui-button-gold {
+  background-color: var(--sp-action-gold-bg);
+  color: var(--sp-action-gold-fg);
+}
+
+.ui-media-placeholder {
+  background-color: var(--sp-media-placeholder);
 }
 
 .ui-control:active:not(:disabled) {
@@ -130,6 +187,28 @@
 @media (hover: hover) and (pointer: fine) {
   .ui-control:not(:disabled):hover {
     transform: translateY(-2px);
+  }
+
+  .ui-button-primary:not(:disabled):hover {
+    background-color: var(--sp-action-primary-bg-hover);
+    color: var(--sp-action-primary-fg);
+    box-shadow: 0 10px 24px rgba(0, 75, 135, 0.18);
+  }
+
+  .ui-button-secondary:not(:disabled):hover {
+    background-color: var(--sp-action-secondary-bg-hover);
+    color: var(--sp-action-secondary-fg-hover);
+  }
+
+  .ui-button-ghost:not(:disabled):hover {
+    background-color: var(--sp-action-ghost-bg-hover);
+    color: var(--sp-action-ghost-fg-hover);
+  }
+
+  .ui-button-gold:not(:disabled):hover {
+    background-color: var(--sp-action-gold-bg-hover);
+    color: var(--sp-action-gold-fg);
+    box-shadow: 0 10px 24px rgba(202, 154, 0, 0.18);
   }
 
   .ui-card.card-hover:hover {
