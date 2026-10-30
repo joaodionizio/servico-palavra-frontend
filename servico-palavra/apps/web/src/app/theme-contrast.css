@@ -1,0 +1,42 @@
+/*
+ * Theme contrast safety net
+ *
+ * New controls should use the semantic ui-button-* classes from Button.tsx.
+ * These selectors protect older screens that still carry historical Tailwind
+ * brand/background classes so they cannot regress into unreadable text while
+ * those screens are progressively migrated.
+ */
+
+.app-experience :is(a, button)[class~="bg-[var(--sp-brand)]"] {
+  background-color: var(--sp-action-primary-bg) !important;
+  color: var(--sp-action-primary-fg) !important;
+}
+
+.app-experience :is(a, button)[class~="bg-[#004B87]"],
+.app-experience :is(a, button)[class~="bg-[#003A70]"] {
+  color: #ffffff !important;
+}
+
+.dark .app-experience :is(a, button)[class~="bg-[#004B87]"],
+.dark .app-experience :is(a, button)[class~="bg-[#003A70]"] {
+  background-color: var(--sp-action-primary-bg) !important;
+  color: var(--sp-action-primary-fg) !important;
+}
+
+.dark .app-experience :is(a, button)[class~="bg-white"] {
+  color: #0f172a !important;
+}
+
+.app-experience :is(a, button).ui-button-primary,
+.app-experience :is(a, button).ui-button-secondary,
+.app-experience :is(a, button).ui-button-ghost,
+.app-experience :is(a, button).ui-button-gold {
+  text-decoration-color: currentColor;
+}
+
+.app-experience :is(a, button).ui-button-primary > *,
+.app-experience :is(a, button).ui-button-secondary > *,
+.app-experience :is(a, button).ui-button-ghost > *,
+.app-experience :is(a, button).ui-button-gold > * {
+  color: inherit;
+}
