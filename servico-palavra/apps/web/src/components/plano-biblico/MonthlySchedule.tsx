@@ -288,8 +288,14 @@ export function MonthlySchedule({ dias, onToggleDay, pendingDayId }: MonthlySche
                   <div className="flex flex-wrap items-center gap-2 md:justify-end">
                     <Badge>{dia.status === "concluido" ? "Concluído" : "Pendente"}</Badge>
                     {onToggleDay && (
-                      <Button className="px-3 py-2" variant={dia.status === "concluido" ? "secondary" : "ghost"} onClick={() => onToggleDay(dia)} disabled={pendingDayId === dia.id}>
-                        {pendingDayId === dia.id ? "Salvando" : dia.status === "concluido" ? "Desmarcar" : "Concluir"}
+                      <Button
+                        className="px-3 py-2"
+                        variant={dia.status === "concluido" ? "secondary" : "ghost"}
+                        onClick={() => onToggleDay(dia)}
+                        loading={pendingDayId === dia.id}
+                        loadingLabel="Salvando"
+                      >
+                        {dia.status === "concluido" ? "Desmarcar" : "Concluir"}
                       </Button>
                     )}
                   </div>
