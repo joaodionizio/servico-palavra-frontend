@@ -16,6 +16,14 @@ type AdminConteudosState =
   | { status: "ready"; page: AdminConteudoPage; message?: never }
   | { status: "error"; page: null; message: string };
 
+type AdminConteudosQuery = {
+  busca: string;
+  categoriaSlug: string;
+  tipo: string;
+  publicado: string;
+  pagina: number;
+};
+
 function getErrorMessage(error: unknown) {
   if (error instanceof ApiError && error.status === 403) {
     return "Você não tem permissão para gerenciar conteúdos.";
@@ -26,6 +34,17 @@ function getErrorMessage(error: unknown) {
   }
 
   return "Não foi possível carregar os conteúdos.";
+}
+
+function fetchAdminConteudosPage({ busca, categoriaSlug, tipo, publicado, pagina }: AdminConteudosQuery) {
+  return listAdminConteudos({
+    busca,
+    categoriaSlug,
+    tipo: tipo ? Number(tipo) : "",
+    publicado: publicado === "" ? "" : publicado === "true",
+    pagina,
+    tamanhoPagina: 20
+  });
 }
 
 export function AdminConteudosContent() {
@@ -46,15 +65,7 @@ export function AdminConteudosContent() {
     setActionError("");
 
     try {
-      const page = await listAdminConteudos({
-        busca,
-        categoriaSlug,
-        tipo: tipo ? Number(tipo) : "",
-        publicado: publicado === "" ? "" : publicado === "true",
-        pagina: nextPage,
-        tamanhoPagina: 20
-      });
-
+      const page = await fetchAdminConteudosPage({ busca, categoriaSlug, tipo, publicado, pagina: nextPage });
       setState({ status: "ready", page });
     } catch (error) {
       setState({ status: "error", page: null, message: getErrorMessage(error) });
@@ -70,8 +81,17 @@ export function AdminConteudosContent() {
       }
     }
 
+    async function loadInitialConteudos() {
+      try {
+        const page = await fetchAdminConteudosPage({ busca: "", categoriaSlug: "", tipo: "", publicado: "", pagina: 1 });
+        setState({ status: "ready", page });
+      } catch (error) {
+        setState({ status: "error", page: null, message: getErrorMessage(error) });
+      }
+    }
+
     void loadCategorias();
-    void loadConteudos(1);
+    void loadInitialConteudos();
   }, []);
 
   async function togglePublicacao(conteudo: AdminConteudo) {
