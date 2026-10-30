@@ -92,6 +92,7 @@ type MockOptions = {
 
 async function mockApi(page: Page, options: MockOptions = {}) {
   let scheduleGets = 0;
+  let mutationCompleted = false;
 
   await page.route("**/mock-api/**", async (route) => {
     const request = route.request();
@@ -119,7 +120,7 @@ async function mockApi(page: Page, options: MockOptions = {}) {
 
     if (path.endsWith(`/api/planos-biblicos/${planId}/dias`)) {
       scheduleGets += 1;
-      return json(route, { success: true, data: scheduleGets === 1 ? initialDays : reconciledDays });
+      return json(route, { success: true, data: mutationCompleted ? reconciledDays : initialDays });
     }
 
     if (path.endsWith("/api/planos-biblicos/dias/dia-1/concluir") && request.method() === "POST") {
@@ -131,6 +132,7 @@ async function mockApi(page: Page, options: MockOptions = {}) {
         return json(route, { success: false, message: "Falha simulada ao concluir a leitura." }, 500);
       }
 
+      mutationCompleted = true;
       return json(route, { success: true });
     }
 
@@ -155,6 +157,10 @@ async function signIn(page: Page) {
   await expect(page.getByRole("heading", { name: "Sua jornada de formação" })).toBeVisible();
 }
 
+function getDayOneScheduleButton(page: Page) {
+  return page.locator(".schedule-row").filter({ hasText: "Dia 1" }).getByRole("button");
+}
+
 test("concluir leitura reconcilia datas adaptativas sem reload e mostra feedback", async ({ page }) => {
   const api = await mockApi(page, { mutationDelayMs: 350 });
   await signIn(page);
@@ -162,14 +168,15 @@ test("concluir leitura reconcilia datas adaptativas sem reload e mostra feedback
 
   await expect(page.getByText("2026-10-30", { exact: true })).toBeVisible();
 
-  const scheduleButton = page.getByRole("button", { name: "Concluir", exact: true }).first();
+  const scheduleButton = getDayOneScheduleButton(page);
   await scheduleButton.click();
 
   await expect(scheduleButton).toHaveAttribute("aria-busy", "true");
   await expect(scheduleButton).toBeDisabled();
   await expect(scheduleButton).toContainText("Salvando");
 
-  await expect(page.getByRole("status")).toContainText("Leitura concluída. O cronograma foi ajustado com as novas datas.");
+  const successNotice = page.locator('.status-notice[role="status"]');
+  await expect(successNotice).toContainText("Leitura concluída. O cronograma foi ajustado com as novas datas.");
   await expect(page.getByText("2026-11-03", { exact: true })).toBeVisible();
   await expect(page.getByText("2026-10-30", { exact: true })).toHaveCount(0);
   expect(api.getScheduleGets()).toBeGreaterThanOrEqual(2);
@@ -180,11 +187,13 @@ test("falha ao concluir leitura restaura estado anterior e anuncia erro", async 
   await signIn(page);
   await page.goto("/app/plano-biblico");
 
-  const scheduleButton = page.getByRole("button", { name: "Concluir", exact: true }).first();
+  const scheduleButton = getDayOneScheduleButton(page);
   await scheduleButton.click();
 
-  await expect(page.getByRole("alert")).toContainText("Falha simulada ao concluir a leitura.");
-  await expect(page.getByRole("button", { name: "Concluir", exact: true }).first()).toBeEnabled();
+  const errorNotice = page.locator('.status-notice[role="alert"]');
+  await expect(errorNotice).toContainText("Falha simulada ao concluir a leitura.");
+  await expect(getDayOneScheduleButton(page)).toBeEnabled();
+  await expect(getDayOneScheduleButton(page)).toContainText("Concluir");
   await expect(page.getByText("2026-10-30", { exact: true })).toBeVisible();
   await expect(page.getByText("2026-11-03", { exact: true })).toHaveCount(0);
 });
