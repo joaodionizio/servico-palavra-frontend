@@ -135,6 +135,40 @@ test("login usa a resposta do POST sem GET /me redundante", async ({ page }) => 
   expect(stats.authMeCalls).toBe(0);
 });
 
+test("login usa destino interno quando redirect aponta para site externo", async ({ page }) => {
+  const stats = await mockApi(page);
+  await page.goto(`/login?redirect=${encodeURIComponent("https://example.org/other")}`);
+  await page.getByPlaceholder("Seu email").fill("teste@example.com");
+  await page.getByPlaceholder("Sua senha").fill("senha-teste");
+  await page.getByRole("button", { name: "Entrar" }).click();
+  await expect(page).toHaveURL("http://127.0.0.1:3000/app");
+  expect(stats.loginCalls).toBe(1);
+});
+
+test("login usa destino interno quando redirect tem esquema ou barras inseguras", async ({ page }) => {
+  const stats = await mockApi(page);
+
+  for (const redirect of ["javascript:alert(1)", "//example.org", "/app/../login", "/app\\\\example.org"]) {
+    await page.goto(`/login?redirect=${encodeURIComponent(redirect)}`);
+    await page.getByPlaceholder("Seu email").fill("teste@example.com");
+    await page.getByPlaceholder("Sua senha").fill("senha-teste");
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await expect(page).toHaveURL("http://127.0.0.1:3000/app");
+  }
+
+  expect(stats.loginCalls).toBe(4);
+});
+
+test("login usa destino protegido valido preservando parametros", async ({ page }) => {
+  const stats = await mockApi(page);
+  await page.goto(`/login?redirect=${encodeURIComponent("/app/dashboard?origem=leitura")}`);
+  await page.getByPlaceholder("Seu email").fill("teste@example.com");
+  await page.getByPlaceholder("Sua senha").fill("senha-teste");
+  await page.getByRole("button", { name: "Entrar" }).click();
+  await expect(page).toHaveURL("http://127.0.0.1:3000/app/dashboard?origem=leitura");
+  expect(stats.loginCalls).toBe(1);
+});
+
 test("logout navega assim que a requisicao real termina", async ({ page }) => {
   const stats = await signIn(page);
   await page.getByRole("button", { name: "Sair" }).click();
