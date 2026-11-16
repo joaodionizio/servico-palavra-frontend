@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { getSafePostLoginRedirect } from "@/lib/safeRedirect";
 
 export function LoginForm() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export function LoginForm() {
       });
 
       openExistingBook();
-      router.push(params.get("redirect") ?? "/app");
+      router.push(getSafePostLoginRedirect(params.get("redirect")));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Email ou senha inválidos.");
       setLoading(false);
