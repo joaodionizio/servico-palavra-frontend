@@ -64,6 +64,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
   const [menuOpen, setMenuOpen] = useState(false);
   const railCollapsed = useSyncExternalStore(subscribeRailPreference, getRailPreferenceSnapshot, getServerRailPreferenceSnapshot);
   const [signingOut, setSigningOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
   const [isMobileNav, setIsMobileNav] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLElement>(null);
@@ -145,10 +146,14 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
     if (signingOut) return;
 
     setSigningOut(true);
+    setLogoutError(null);
 
     try {
       await signOut();
-      router.push("/login");
+      router.replace("/login");
+    } catch {
+      // Logout failed: keep the current session and allow retry.
+      setLogoutError("Não foi possível encerrar sua sessão. Tente novamente.");
     } finally {
       setSigningOut(false);
     }
@@ -178,6 +183,7 @@ export function AppShell({ children, admin = false }: { children: React.ReactNod
         )}
       </nav>
       <div className="app-rail-actions">
+        {logoutError && <p role="alert" className="px-3 py-2 text-sm text-red-700 dark:text-red-300">{logoutError}</p>}
         <button type="button" onClick={toggleTheme} aria-label="Alternar tema">
           <span aria-hidden="true" className="dark:hidden">◐</span>
           <span className="dark:hidden">Modo escuro</span>

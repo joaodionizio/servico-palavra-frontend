@@ -33,6 +33,7 @@ type ApiStats = {
 
 type MockApiOptions = {
   forgotDelayMs?: number;
+  logoutFailures?: number;
 };
 
 async function json(route: Route, body: unknown, status = 200) {
@@ -44,6 +45,7 @@ async function json(route: Route, body: unknown, status = 200) {
 }
 
 async function mockApi(page: Page, authenticated = true, options: MockApiOptions = {}) {
+  let remainingLogoutFailures = options.logoutFailures ?? 0;
   const stats: ApiStats = {
     loginCalls: 0,
     authMeCalls: 0,
@@ -109,6 +111,10 @@ async function mockApi(page: Page, authenticated = true, options: MockApiOptions
 
     if (path.endsWith("/api/auth/logout")) {
       stats.logoutCalls += 1;
+      if (remainingLogoutFailures > 0) {
+        remainingLogoutFailures -= 1;
+        return json(route, { success: false, message: "Servidor indisponível." }, 503);
+      }
       return json(route, { success: true });
     }
 
@@ -140,6 +146,25 @@ test("logout navega assim que a requisicao real termina", async ({ page }) => {
   await page.getByRole("button", { name: "Sair" }).click();
   await expect(page).toHaveURL(/\/login(?:$|[/?#])/, { timeout: 5_000 });
   expect(stats.logoutCalls).toBe(1);
+});
+
+test("logout navega apenas com sucesso e preserva sessao em falhas", async ({ page }) => {
+  const stats = await mockApi(page, true, { logoutFailures: 1 });
+  await page.goto("/login");
+  await page.getByPlaceholder("Seu email").fill("teste@example.com");
+  await page.getByPlaceholder("Sua senha").fill("senha-teste");
+  await page.getByRole("button", { name: "Entrar" }).click();
+  await expect(page).toHaveURL(/\/app(?:$|[/?#])/, { timeout: 10_000 });
+
+  await page.getByRole("button", { name: "Sair" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Não foi possível encerrar sua sessão" })).toBeVisible();
+  await expect(page).toHaveURL(/\/app(?:$|[/?#])/);
+  await expect(page.getByRole("button", { name: "Sair" })).toBeEnabled();
+  expect(stats.logoutCalls).toBe(1);
+
+  await page.getByRole("button", { name: "Sair" }).click();
+  await expect(page).toHaveURL(/\/login(?:$|[/?#])/, { timeout: 5_000 });
+  expect(stats.logoutCalls).toBe(2);
 });
 
 test("login oferece acesso por teclado ao fluxo de recuperacao", async ({ page }) => {
